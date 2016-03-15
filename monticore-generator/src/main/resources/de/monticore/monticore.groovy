@@ -95,7 +95,12 @@ for (astGrammar in getParsedGrammars()) {
   
   // M9: generate AST classes
   generate(glex, symbolTable, astClassDiagram, out, templatePath)
-  
+
+  info("Entering MCHammerCoder!")  
+
+  // M9.5 generate MCHammerCoder
+  generateMCHammerCoder(glex,out,astClassDiagram,astGrammar)
+
   info("Grammar " + astGrammar.getName() + " processed successfully!")
   
   // M10: flush reporting

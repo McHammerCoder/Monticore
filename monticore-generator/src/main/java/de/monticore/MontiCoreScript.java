@@ -41,6 +41,7 @@ import de.monticore.codegen.cd2java.cocos.CoCoGenerator;
 import de.monticore.codegen.cd2java.od.ODGenerator;
 import de.monticore.codegen.cd2java.visitor.VisitorGenerator;
 import de.monticore.codegen.mc2cd.MC2CDTransformation;
+import de.monticore.codegen.mchammer.MCHammerGenerator;
 import de.monticore.codegen.parser.ParserGenerator;
 import de.monticore.codegen.symboltable.SymbolTableGenerator;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
@@ -660,6 +661,13 @@ public class MontiCoreScript extends Script implements GroovyRunner {
       g.evaluate(script);
     }
     
+  }
+  
+  public void generateMCHammerCoder(GlobalExtensionManagement glex, File outputDirectory, ASTCDCompilationUnit astClassDiagram, ASTMCGrammar ast)
+  {
+	  System.out.println("Start generating MCHammerCoder!");
+	  
+	  MCHammerGenerator.generate(glex, outputDirectory, astClassDiagram, ast);
   }
   
 }
