@@ -32,7 +32,7 @@ import de.monticore.grammar.grammar._ast.ASTMCGrammar;
  */
 public class McHammerParserGenerator
 {
-	public static final String PARSER_PACKAGE = "_parser";
+	public static final String PARSER_PACKAGE = "_mch_parser";
 	
 	public static void generate(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)
 	{
@@ -47,7 +47,7 @@ public class McHammerParserGenerator
 		final GeneratorEngine generator = new GeneratorEngine(setup);
 		
 		// Generate _MCHParser.java
-		final Path filePath = Paths.get(Names.getPathFromPackage(generatorHelper.getQualifiedGrammarName()), astGrammar.getName()+"_MCHParser.java");
+		final Path filePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"_MCHParser.java");
 		generator.generate("MCHParser.Parser", filePath, astGrammar, generatorHelper);
 	}
 }
