@@ -69,6 +69,9 @@ while (grammarIterator.hasNext()) {
       generateParser(astGrammar, symbolTable, handcodedPath, out)
       generateParserWrappers(astGrammar, symbolTable, handcodedPath, out)
       
+      // M6.5 generate MCHammerParser
+  	  generateMcHammerParser(glex,out,astGrammar)
+      
       // store result of the first pass
       storeCDForGrammar(astGrammar, astClassDiagram)
     }

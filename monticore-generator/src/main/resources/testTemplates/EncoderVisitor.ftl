@@ -2,12 +2,12 @@ ${tc.signature("ast")}
 <#assign parserName = ast.getName()?cap_first>
 
 import org.antlr.v4.runtime.Token;
-impport org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.*;
 
-public clazz EncoderVisitor extends ${parserName}BaseListener {
+public class EncoderVisitor extends ${parserName}BaseListener {
 
 private Encoder encoder = new Encoder();
 
