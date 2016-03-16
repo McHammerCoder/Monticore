@@ -670,4 +670,18 @@ public class MontiCoreScript extends Script implements GroovyRunner {
 	  MCHammerGenerator.generate(glex, outputDirectory, astClassDiagram, ast);
   }
   
+  public void generateMcCoder(GlobalExtensionManagement glex, File outputDirectory, ASTCDCompilationUnit astClassDiagram, ASTMCGrammar ast)
+  {
+	  System.out.println("Start generating McCoder!");
+	  
+	  MCHammerGenerator.generate(glex, outputDirectory, astClassDiagram, ast);
+  }
+  
+  public void generatePP(GlobalExtensionManagement glex, File outputDirectory, ASTCDCompilationUnit astClassDiagram, ASTMCGrammar ast)
+  {
+	  System.out.println("Start generating PP!");
+	  
+	  MCHammerGenerator.generate(glex, outputDirectory, astClassDiagram, ast);
+  }
+  
 }
