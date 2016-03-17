@@ -54,6 +54,10 @@ public class McCoderGenerator
 		final Path filePathDVisitor = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"_DecoderVisitor.java");
 		generator.generate("coder.DecoderVisitor", filePathDVisitor, astGrammar, generatorHelper);
 		
+		// Generate _Encoder.java
+		final Path filePathEncoder = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"_Encoder.java");
+		generator.generate("coder.Encoder", filePathEncoder, astGrammar, generatorHelper);
+	
 		// Generate _EncoderVisitor.java
 		final Path filePathEVisitor = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"_EncoderVisitor.java");
 		generator.generate("coder.EncoderVisitor", filePathEVisitor, astGrammar, generatorHelper);

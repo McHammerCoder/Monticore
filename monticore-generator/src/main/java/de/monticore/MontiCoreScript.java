@@ -42,6 +42,7 @@ import de.monticore.codegen.cd2java.od.ODGenerator;
 import de.monticore.codegen.cd2java.visitor.VisitorGenerator;
 import de.monticore.codegen.mc2cd.MC2CDTransformation;
 import de.monticore.codegen.mccoder.McCoderGenerator;
+import de.monticore.codegen.mccoder.McCoderPPGenerator;
 import de.monticore.codegen.mchammer.MCHammerGenerator;
 import de.monticore.codegen.mchammerparser.McHammerParserGenerator;
 import de.monticore.codegen.parser.ParserGenerator;
@@ -686,11 +687,11 @@ public class MontiCoreScript extends Script implements GroovyRunner {
 	  McCoderGenerator.generate(glex, outputDirectory, astGrammar);
   }
   
- /* public void generatePP(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)
+  public void generatePP(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)
   {
 	  System.out.println("Start generating PP!");
 	  
-	  MCHammerGenerator.generate(glex, outputDirectory, astGrammar);
-  } */
+	  McCoderPPGenerator.generate(glex, outputDirectory, astGrammar);
+  } 
   
 }

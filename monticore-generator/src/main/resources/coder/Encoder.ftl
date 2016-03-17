@@ -1,8 +1,12 @@
+${tc.signature("genHelper")}
+<#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
+
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.*;
+import javascriptsimple._parser.${parserName}Lexer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,9 +23,9 @@ public class Encoder{
 	public String startEncoding = "";
 
 
-	public JavaScriptSimpleLexer lex(String string){
+	public ${parserName}Lexer lex(String string){
 		ANTLRInputStream input = new ANTLRInputStream(string);
-		JavaScriptSimpleLexer lexer = new JavaScriptSimpleLexer(input);
+		${parserName}Lexer lexer = new ${parserName}Lexer(input);
 		return lexer;
 
 	}
@@ -77,7 +81,7 @@ public boolean notKeyword(String toCheck){ //This returns if a string matches a 
 
 
 public boolean typeCheck(int type, String string){
-	JavaScriptSimpleLexer lexer = lex(string);
+	${parserName}Lexer lexer = lex(string);
 	Token nextToken =lexer.nextToken();
 
 	if(type == nextToken.getType() && lexer.nextToken().getType() == Token.EOF){
@@ -100,7 +104,7 @@ public String[] getUsableSymbols(){
 		}
 	}
 
-		JavaScriptSimpleLexer lexer = lex(alphanumeric[i]);
+		${parserName}Lexer lexer = lex(alphanumeric[i]);
 		lexer.removeErrorListeners(); //Removes strange error output in the console - we dont need it!
 		if(lexer.nextToken().getType() != Token.EOF){
 			usableSymbols[i] = alphanumeric[i];
