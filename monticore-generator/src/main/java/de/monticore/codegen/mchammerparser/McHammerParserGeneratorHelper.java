@@ -46,6 +46,7 @@ import de.monticore.languages.grammar.MCTypeSymbol;
 import de.monticore.languages.grammar.MCTypeSymbol.KindType;
 import de.monticore.languages.grammar.PredicatePair;
 import de.monticore.prettyprint.IndentPrinter;
+import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.JavaNamesHelper;
 import de.se_rwth.commons.Names;
@@ -66,7 +67,9 @@ public class McHammerParserGeneratorHelper
 	  
 	private String qualifiedGrammarName;
 	
-	public McHammerParserGeneratorHelper(ASTMCGrammar ast) 
+	private MCGrammarSymbol grammarSymbol;
+	
+	public McHammerParserGeneratorHelper(ASTMCGrammar ast, Scope symbolTable) 
 	{
 		Log.errorIfNull(ast);
 		this.astGrammar = ast;
@@ -74,6 +77,15 @@ public class McHammerParserGeneratorHelper
 			astGrammar.getPackage().isEmpty() ? 
 				astGrammar.getName() :
 				Joiner.on('.').join(Names.getQualifiedName(astGrammar.getPackage()), astGrammar.getName());
+	
+		this.grammarSymbol = 			
+			symbolTable.<MCGrammarSymbol> resolve(qualifiedGrammarName,
+												  MCGrammarSymbol.KIND).orElse(null);
+		Log.errorIfNull(grammarSymbol, 
+						"0xA4034 Grammar " 
+						+ qualifiedGrammarName
+						+ " can't be resolved in the scope " 
+						+ symbolTable);
 	}
 	  
 	/**
@@ -91,4 +103,42 @@ public class McHammerParserGeneratorHelper
 	{
 		return getQualifiedGrammarName().toLowerCase() + "." + McHammerParserGenerator.PARSER_PACKAGE;
 	}
+	
+	/**
+	 * @return grammarSymbol
+	 */
+	public MCGrammarSymbol getGrammarSymbol()
+	{
+		return grammarSymbol;
+	}
+	
+	public List<String> getIndirectRulesToGenerate()
+	{
+		List<String> prods = Lists.newArrayList();
+	    prods.addAll(grammarSymbol.getRuleNames());
+	    return prods;
+	}
+	
+	public List<ASTProd> getParserRulesToGenerate() 
+	{
+		// Iterate over all Rules
+		List<ASTProd> prods = Lists.newArrayList();
+		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited().values()) 
+		{
+			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.PARSERRULE)) 
+			{
+				Optional<ASTClassProd> astProd = ((MCClassRuleSymbol) ruleSymbol).getRuleNode();
+				if (astProd.isPresent()) 
+				{
+					prods.add(astProd.get());
+				}
+			}
+			else if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.ENUMRULE)) 
+			{
+				prods.add(((MCEnumRuleSymbol) ruleSymbol).getRule());
+	        }
+		}
+	    return prods;
+	}
 }
+

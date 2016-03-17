@@ -62,6 +62,7 @@ import de.monticore.languages.grammar.MontiCoreGrammarLanguage;
 import de.monticore.languages.grammar.visitors.MCGrammarSymbolTableCreator;
 import de.monticore.symboltable.GlobalScope;
 import de.monticore.symboltable.ResolverConfiguration;
+import de.monticore.symboltable.Scope;
 import de.monticore.umlcd4a.CD4AnalysisLanguage;
 import de.monticore.umlcd4a.cd4analysis._ast.ASTCDCompilationUnit;
 import de.monticore.umlcd4a.symboltable.CD4AnalysisSymbolTableCreator;
@@ -673,11 +674,11 @@ public class MontiCoreScript extends Script implements GroovyRunner {
 	  MCHammerGenerator.generate(glex, outputDirectory, astClassDiagram, ast);
   }
   
-  public void generateMcHammerParser(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)
+  public void generateMcHammerParser(Scope symbolTable, ASTMCGrammar astGrammar, File outputDirectory)
   {
 	  System.out.println("Start generating MCHammerCoder!");
 	  
-	  McHammerParserGenerator.generate(glex, outputDirectory, astGrammar);
+	  McHammerParserGenerator.generate(symbolTable, astGrammar, outputDirectory);
   }
   
   public void generateMcCoder(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)

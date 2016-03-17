@@ -1,4 +1,6 @@
-${tc.signature("genHelper")}
+${tc.signature("hammerGenerator")}
+<#assign genHelper = glex.getGlobalValue("genHelper")>
+<#assign grammarSymbol = genHelper.getGrammarSymbol()>
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 
 import org.antlr.runtime.tree.ParseTree;
@@ -34,9 +36,25 @@ public class ${parserName}Parser
 	private com.upstandinghackers.hammer.Parser int_32 = Hammer.int32();
 	private com.upstandinghackers.hammer.Parser int_64 = Hammer.int64();
 	
+	/** Indirect Parsers **/
+	
+<#list genHelper.getIndirectRulesToGenerate() as indirectRule>
+	private final com.upstandinghackers.hammer.Parser ${indirectRule} = Hammer.indirect();
+</#list>
+	
 	/** Final Parser **/
 	
 	com.upstandinghackers.hammer.Parser parser = Hammer.nothingP();
+
+	/** Constructor **/
+	public ${parserName}Parser()
+	{
+<#list genHelper.getParserRulesToGenerate() as indirectRule>
+	<#list hammerGenerator.createHammerCode(indirectRule) as parserRule>
+		${parserRule}
+	</#list>
+</#list>
+	}
 
 	/**
 	 * parses a binary input
