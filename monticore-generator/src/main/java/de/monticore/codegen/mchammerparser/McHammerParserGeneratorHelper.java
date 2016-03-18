@@ -7,6 +7,7 @@ package de.monticore.codegen.mchammerparser;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,6 +98,44 @@ public class McHammerParserGeneratorHelper
 	}
 
 	/**
+	 * @return the name of the start rule
+	 */	
+	public String getStartRuleName() 
+	{
+		if (grammarSymbol.getStartRule().isPresent()) 
+		{
+			return grammarSymbol.getStartRule().get().getName();
+		}
+
+		return "";
+	}
+	
+	/**
+	 * @return the name of the start rule in lower case letters
+	 */	
+	public String getStartRuleNameLowerCase() 
+	{
+		if (grammarSymbol.getStartRule().isPresent()) 
+		{
+			return grammarSymbol.getStartRule().get().getName().toLowerCase();
+		}
+
+		return "";
+	}
+
+	/**
+	 * @return the qualified name of the top ast, i.e., the ast of the start rule.
+	 */
+	public String getQualifiedStartRuleName()
+	{
+		if (grammarSymbol.getStartRule().isPresent()) 
+		{
+			return getASTClassName(grammarSymbol.getStartRule().get());
+		}
+		return "";
+	}
+	
+	/**
 	 * @return the package for the generated parser files
 	 */
 	public String getParserPackage() 
@@ -115,7 +154,13 @@ public class McHammerParserGeneratorHelper
 	public List<String> getIndirectRulesToGenerate()
 	{
 		List<String> prods = Lists.newArrayList();
-	    prods.addAll(grammarSymbol.getRuleNames());
+	    Collection<String> ruleNames = grammarSymbol.getRuleNames();
+	    
+	    for( String ruleName : ruleNames )
+	    {
+	    	prods.add(ruleName.toLowerCase());
+	    }
+	    
 	    return prods;
 	}
 	
@@ -139,6 +184,11 @@ public class McHammerParserGeneratorHelper
 	        }
 		}
 	    return prods;
+	}
+	
+	public static String getASTClassName(MCRuleSymbol rule) 
+	{
+		return rule.getType().getQualifiedName();
 	}
 }
 

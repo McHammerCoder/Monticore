@@ -88,6 +88,8 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	private List<String> productionHammerCode = Lists.newArrayList();
 	
 	private StringBuilder codeSection;
+	
+	private String indent = "\t\t";
 	  
 	
 	public Grammar2Hammer(McHammerParserGeneratorHelper parserGeneratorHelper, MCGrammarInfo grammarInfo) 
@@ -101,7 +103,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void handle(ASTLexProd ast) 
 	{
-		startCodeSection("ASTLexProd");
+		addToCodeSection("/*ASTLexProd*/");
 		endCodeSection();
 	}
 
@@ -109,141 +111,185 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	public void handle(ASTClassProd ast)
 	{
 		startCodeSection("ASTClassProd");
-		addToCodeSection("\t\t" + ast.getName() + ".bindIndirect();\n");
+		addToCodeSection(indent + ast.getName() + ".bindIndirect( " + ast.getName().toLowerCase() + ", ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.choice( ");
+		increaseIndent();
+		
+		List<ASTAlt> alts = ast.getAlts();
+		for( int i = 0; i < alts.size(); i++ )
+		{
+			ASTAlt alt = alts.get(i);
+			alt.accept(getRealThis());
+			
+			if( i < alts.size()-1 )
+			{
+				addToCodeSection(", ");
+			}
+		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ");");
+		
 		endCodeSection();
 	}
 	
 	@Override
 	public void handle(ASTEnumProd ast)
 	{
-		startCodeSection("ASTEnumProd");
-		endCodeSection();
+		addToCodeSection("/*ASTEnumProd*/");
 	}
 	
 	@Override
 	public void handle(ASTConstantGroup ast)
 	{
-		startCodeSection("ASTConstantGroup");
-		endCodeSection();
+		addToCodeSection("/*ASTConstantGroup*/");
 	}
 	
 	@Override
 	public void handle(ASTLexBlock ast) 
 	{
-		startCodeSection("ASTLexBlock");
-		endCodeSection();
+		addToCodeSection("/*ASTLexBlock*/");
 	}
 	
 	@Override
 	public void handle(ASTLexSimpleIteration ast) 
 	{
-		startCodeSection("ASTLexSimpleIteration");
-		endCodeSection();
+		addToCodeSection("/*ASTLexSimpleIteration*/");
 	}
 	
 	@Override
 	public void handle(ASTBlock ast) 
 	{
-		startCodeSection("ASTBlock");
-		endCodeSection();
+		addToCodeSection("\n" + indent + "Hammer.choice( ");
+		increaseIndent();
+		
+		List<ASTAlt> alts = ast.getAlts();
+		for( int i = 0; i < alts.size(); i++ )
+		{
+			ASTAlt alt = alts.get(i);
+			alt.accept(getRealThis());
+			
+			if( i < alts.size()-1 )
+			{
+				addToCodeSection(", ");
+			}
+		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + "), ");
 	}
 	
 	@Override
 	public void visit(ASTTerminal ast) 
 	{
-		startCodeSection("ASTTerminal");
-		endCodeSection();
+		String name = ast.getName();
+		byte [] nameBytes = name.getBytes();
+		
+		addToCodeSection("\n" + indent + "Hammer.sequence( ");
+		increaseIndent();
+		
+		for( int i = 0; i < nameBytes.length; i++ )
+		{
+			byte c = nameBytes[i];
+			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + c + ", " + c + ")");
+			if( i < nameBytes.length-1 )
+			{
+				addToCodeSection(", ");
+			}
+			else
+			{
+				addToCodeSection(" ");
+			}
+		}
+
+		decreaseIndent();
+		addToCodeSection("\n" + indent + "), ");
+		
 	}
 	
 	@Override
 	public void visit(ASTLexCharRange ast) 
 	{
-		startCodeSection("ASTLexCharRange");
-		endCodeSection();
+		addToCodeSection("/*ASTLexCharRange*/");
 	}
 	
 	@Override
 	public void visit(ASTLexChar ast)
 	{
-		startCodeSection("ASTLexChar");
-		endCodeSection();
+		addToCodeSection("/*ASTLexChar*/");
 	}
 	
 	@Override
 	public void visit(ASTLexString ast) 
 	{
-		startCodeSection("ASTLexString");
-		endCodeSection();
+		addToCodeSection("/*ASTLexString*/");
 	}
 	
 	@Override
 	public void visit(ASTLexActionOrPredicate ast) 
 	{
-		startCodeSection("ASTLexActionOrPredicate");
-		endCodeSection();
+		addToCodeSection("/*ASTLexActionOrPredicate*/");
 	}
 	
 	@Override
 	public void visit(ASTLexNonTerminal ast) 
 	{
-		startCodeSection("ASTLexNonTerminal");
-		endCodeSection();
+		addToCodeSection("/*ASTLexNonTerminal*/");
 	}
 	
 	@Override
 	public void visit(ASTLexOption ast) 
 	{
-		startCodeSection("ASTLexOption");
-		endCodeSection();
+		addToCodeSection("/*ASTLexOption*/");
 	}
 	
 	@Override
 	public void visit(ASTSemanticpredicateOrAction ast) 
 	{
-		startCodeSection("ASTSemanticpredicateOrAction");
-		endCodeSection();
+		addToCodeSection("/*ASTSemanticpredicateOrAction*/");
 	}
 	
 	@Override
 	public void visit(ASTNonTerminal ast) 
 	{
-		startCodeSection("ASTNonTerminal");
-		endCodeSection();
+		addToCodeSection("\n" + indent + ast.getName().toLowerCase() + ", ");
 	}
 	
 	@Override
 	public void visit(ASTEof ast)
 	{
-		startCodeSection("ASTEof");
-		endCodeSection();
+		addToCodeSection("/*ASTEof*/");
 	}
 	  
 	@Override
 	public void visit(ASTAnything ast) 
 	{
-		startCodeSection("ASTAnything");
-		endCodeSection();
+		addToCodeSection("/*ASTAnything*/");
 	}
 	  
 	@Override
 	public void visit(ASTMCAnything ast) 
 	{	
-		startCodeSection("ASTMCAnything");
-		endCodeSection();
+		addToCodeSection("/*ASTMCAnything*/");
 	}
 	  
 	@Override
 	public void visit(ASTAlt ast) 
 	{
-		startCodeSection("ASTAlt");
-		endCodeSection();
+		addToCodeSection("\n" + indent + "Hammer.sequence( ");
+		increaseIndent();
 	}
 	  
 	@Override
 	public void endVisit(ASTAlt ast) 
 	{
-		startCodeSection("end ASTAlt");
-		endCodeSection();
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ") ");
 	}
 
 	// ----------------- End of visit methods ---------------------------------------------
@@ -292,6 +338,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	 */
 	private void clearHammerCode() 
 	{
+		resetIndent();
 		productionHammerCode.clear();
 	}
 	
@@ -355,5 +402,20 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	public StringBuilder getCodeSection() 
 	{
 		return this.codeSection;
+	}
+	
+	private void increaseIndent()
+	{
+		indent += "  ";
+	}
+	
+	private void decreaseIndent()
+	{
+		indent = indent.substring(0,indent.length()-2);
+	}
+	
+	private void resetIndent()
+	{
+		indent = "\t\t";
 	}
 }

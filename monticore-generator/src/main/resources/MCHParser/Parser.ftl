@@ -2,6 +2,7 @@ ${tc.signature("hammerGenerator")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign grammarSymbol = genHelper.getGrammarSymbol()>
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
+<#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
 import org.antlr.runtime.tree.ParseTree;
 
@@ -54,6 +55,8 @@ public class ${parserName}Parser
 		${parserRule}
 	</#list>
 </#list>
+
+		parser = ${startRule} ;
 	}
 
 	/**
