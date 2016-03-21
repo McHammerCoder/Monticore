@@ -107,9 +107,9 @@ for (astGrammar in getParsedGrammars()) {
   info("Grammar " + astGrammar.getName() + " processed successfully!")
   
   // M9.6 generate McCoder
-  generateMcCoder(glex,out,astGrammar)
+  generateMcCoder(symbolTable,out,astGrammar)
 
-  // M9.7 generate McCoder
+  // M9.7 generate McCoderPP
   generatePP(glex,out,astGrammar)
 
   // M10: flush reporting

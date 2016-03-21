@@ -11,15 +11,18 @@ import java.nio.file.Paths;
 
 import com.google.common.base.Joiner;
 
+import de.monticore.codegen.mchammerparser.Grammar2Hammer;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.io.paths.IterablePath;
 import de.monticore.languages.grammar.MCGrammarSymbol;
 import de.monticore.symboltable.GlobalScope;
+import de.monticore.symboltable.Scope;
 import de.monticore.umlcd4a.cd4analysis._ast.ASTCDCompilationUnit;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
+import de.monticore.grammar.MCGrammarInfo;
 import de.monticore.grammar.grammar._ast.ASTMCGrammar;
 
 /**
@@ -34,17 +37,25 @@ public class McCoderGenerator
 {
 	public static final String PARSER_PACKAGE = "_coder";
 	
-	public static void generate(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)
+	public static void generate(Scope symbolTable, File outputDirectory, ASTMCGrammar astGrammar)
 	{
-		// Generator Setup
-		final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
-		setup.setGlex(glex);
 		
 		// Initialize GeneratorHelper
-		final McCoderGeneratorHelper generatorHelper = new McCoderGeneratorHelper(astGrammar);
+		final McCoderGeneratorHelper generatorHelper = new McCoderGeneratorHelper(astGrammar, symbolTable);
+		
+		// Generator Setup
+		final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
+		GlobalExtensionManagement glex = new GlobalExtensionManagement();
+		glex.addGlobalValue("genHelper", generatorHelper);
+		setup.setGlex(glex);
+		
+		// Grammar Info
+		MCGrammarInfo grammarInfo = new MCGrammarInfo(generatorHelper.getGrammarSymbol());
 		
 		// Initialize GeneratorEngine
 		final GeneratorEngine generator = new GeneratorEngine(setup);
+		
+		
 		
 		// Generate _Decoder.java
 		final Path filePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"_Decoder.java");
@@ -56,7 +67,7 @@ public class McCoderGenerator
 		
 		// Generate _Encoder.java
 		final Path filePathEncoder = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"_Encoder.java");
-		generator.generate("coder.Encoder", filePathEncoder, astGrammar, generatorHelper);
+		generator.generate("coder.Encoder", filePathEncoder, astGrammar, new UsableSymbolExtractor(generatorHelper,grammarInfo));
 	
 		// Generate _EncoderVisitor.java
 		final Path filePathEVisitor = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"_EncoderVisitor.java");

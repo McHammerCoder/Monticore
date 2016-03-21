@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import javascriptsimple._parser.${parserName}Lexer;
+import ${parserName}._parser.${parserName}Lexer;
 
 
 

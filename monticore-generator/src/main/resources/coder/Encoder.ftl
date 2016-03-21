@@ -1,5 +1,8 @@
-${tc.signature("genHelper")}
+${tc.signature("coderGenerator")}
+<#assign genHelper = glex.getGlobalValue("genHelper")>
+<#assign grammarSymbol = genHelper.getGrammarSymbol()>
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
+<#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -11,6 +14,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.lang.Math;
+
+<#list genHelper.getIndirectRulesToGenerate() as indirectRule>
+	private final com.upstandinghackers.hammer.Parser ${indirectRule} = Hammer.indirect();
+</#list>
+
 
 //TODO generate encoding to the corresponding type!
 //SetMap to enable custom encoding(?)

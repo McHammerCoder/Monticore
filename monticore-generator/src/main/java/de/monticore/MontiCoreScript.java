@@ -681,11 +681,11 @@ public class MontiCoreScript extends Script implements GroovyRunner {
 	  McHammerParserGenerator.generate(symbolTable, astGrammar, outputDirectory);
   }
   
-  public void generateMcCoder(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)
+  public void generateMcCoder(Scope symbolTable, File outputDirectory, ASTMCGrammar astGrammar)
   {
 	  System.out.println("Start generating McCoder!");
 	  
-	  McCoderGenerator.generate(glex, outputDirectory, astGrammar);
+	  McCoderGenerator.generate(symbolTable, outputDirectory, astGrammar);
   }
   
   public void generatePP(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)

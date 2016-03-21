@@ -43,7 +43,7 @@ public class McCoderPPGenerator
 			setup.setGlex(glex);
 			
 			// Initialize GeneratorHelper
-			final McCoderGeneratorHelper generatorHelper = new McCoderGeneratorHelper(astGrammar);
+			final McCoderPPGeneratorHelper generatorHelper = new McCoderPPGeneratorHelper(astGrammar);
 			
 			// Initialize GeneratorEngine
 			final GeneratorEngine generator = new GeneratorEngine(setup);
