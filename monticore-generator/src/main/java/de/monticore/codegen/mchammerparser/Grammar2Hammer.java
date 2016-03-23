@@ -34,6 +34,7 @@ import de.monticore.grammar.grammar._ast.ASTBlock;
 import de.monticore.grammar.grammar._ast.ASTClassProd;
 import de.monticore.grammar.grammar._ast.ASTConstant;
 import de.monticore.grammar.grammar._ast.ASTConstantGroup;
+import de.monticore.grammar.grammar._ast.ASTConstantsGrammar;
 import de.monticore.grammar.grammar._ast.ASTEnumProd;
 import de.monticore.grammar.grammar._ast.ASTEof;
 import de.monticore.grammar.grammar._ast.ASTLexActionOrPredicate;
@@ -111,7 +112,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	public void handle(ASTClassProd ast)
 	{
 		startCodeSection("ASTClassProd");
-		addToCodeSection(indent + ast.getName() + ".bindIndirect( " + ast.getName().toLowerCase() + ", ");
+		addToCodeSection(indent + "Hammer.bindIndirect( " + ast.getName().toLowerCase() + ", ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.choice( ");
@@ -162,9 +163,56 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection("/*ASTLexSimpleIteration*/");
 	}
 	
+	/**
+	 * Printable start representation of iteration
+	 * 
+	 * @param i Value from AST
+	 * @return String representing value i
+	 */
+	public void printIteration(int i) 
+	{
+		switch (i) 
+		{
+		case ASTConstantsGrammar.PLUS:
+			addToCodeSection( "\n" + indent + "Hammer.many1( " );
+			increaseIndent();
+			break;
+		case ASTConstantsGrammar.STAR:
+			addToCodeSection( "\n" + indent + "Hammer.many( " );
+			increaseIndent();
+			break;
+		case ASTConstantsGrammar.QUESTION:
+			addToCodeSection( "\n" + indent + "Hammer.optional( " );
+			increaseIndent();
+		}
+	}
+
+	/**
+	 * Printable end representation of iteration
+	 * 
+	 * @param i Value from AST
+	 * @return String representing value i
+	 */
+	public void printIterationEnd(int i) 
+	{
+		switch (i) 
+		{
+		case ASTConstantsGrammar.PLUS:
+		case ASTConstantsGrammar.STAR:
+		case ASTConstantsGrammar.QUESTION:
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")");
+		}	
+	}
+	
+	
+	
 	@Override
 	public void handle(ASTBlock ast) 
 	{
+		printIteration(ast.getIteration()); 
+		
+		
 		addToCodeSection("\n" + indent + "Hammer.choice( ");
 		increaseIndent();
 		
@@ -181,7 +229,9 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		}
 		
 		decreaseIndent();
-		addToCodeSection("\n" + indent + "), ");
+		addToCodeSection("\n" + indent + ")");
+		
+		printIterationEnd(ast.getIteration()); 
 	}
 	
 	@Override
@@ -208,7 +258,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		}
 
 		decreaseIndent();
-		addToCodeSection("\n" + indent + "), ");
+		addToCodeSection("\n" + indent + ")");
 		
 	}
 	
@@ -257,7 +307,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTNonTerminal ast) 
 	{
-		addToCodeSection("\n" + indent + ast.getName().toLowerCase() + ", ");
+		addToCodeSection("\n" + indent + ast.getName().toLowerCase());
 	}
 	
 	@Override
@@ -279,15 +329,23 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	}
 	  
 	@Override
-	public void visit(ASTAlt ast) 
-	{
+	public void handle(ASTAlt alt) 
+	{		
 		addToCodeSection("\n" + indent + "Hammer.sequence( ");
 		increaseIndent();
-	}
-	  
-	@Override
-	public void endVisit(ASTAlt ast) 
-	{
+		
+		java.util.List<de.monticore.grammar.grammar._ast.ASTRuleComponent> components = alt.getComponents();
+		
+		for( int i = 0; i < components.size(); i++ )
+		{
+			components.get(i).accept(getRealThis());
+			
+			if( i < components.size()-1 )
+			{
+				addToCodeSection(", ");
+			}
+		}
+		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ") ");
 	}
