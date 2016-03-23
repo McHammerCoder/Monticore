@@ -65,6 +65,8 @@ import de.se_rwth.commons.logging.Log;
  */
 public class McCoderGeneratorHelper 
 {
+	public static final String MONTICOREANYTHING = "MONTICOREANYTHING";
+	
 	private ASTMCGrammar astGrammar;
 	  
 	private String qualifiedGrammarName;
@@ -162,6 +164,112 @@ public class McCoderGeneratorHelper
 	    return prods;
 	}
 	
+	public List<ASTLexProd> getSingleSymbolsToGenerate()
+	{
+		List<ASTLexProd> prods = Lists.newArrayList();
+		MCLexRuleSymbol mcanything = null;
+	    final Map<String, MCRuleSymbol> rules = new LinkedHashMap<>();
+	    
+	    // Don't use grammarSymbol.getRulesWithInherited because of changed order
+	    for (final MCRuleSymbol ruleSymbol : grammarSymbol.getRules()) {
+	      rules.put(ruleSymbol.getName(), ruleSymbol);
+	    }
+	    for (int i = grammarSymbol.getSuperGrammars().size() - 1; i >= 0; i--) {
+	      rules.putAll(grammarSymbol.getSuperGrammars().get(i).getRulesWithInherited());
+	    }
+
+	    for (Entry<String, MCRuleSymbol> ruleSymbol :rules.entrySet()) {
+	      if (ruleSymbol.getValue().getKindSymbolRule().equals(KindSymbolRule.LEXERRULE)) {
+	        MCLexRuleSymbol lexRule = ((MCLexRuleSymbol) ruleSymbol.getValue());
+	        
+	        // MONTICOREANYTHING must be last rule
+	        if (lexRule.getName().equals(MONTICOREANYTHING)) {
+	          mcanything = lexRule;
+	        }
+	        else {
+	          prods.add(lexRule.getRuleNode());
+	        }
+	      }
+	    }
+	    if (mcanything != null) {
+	      prods.add(mcanything.getRuleNode());
+	    }
+	    return prods;
+		
+		
+	}
+	public List<ASTLexProd> getLexerRulesToGenerate() {
+	    // Iterate over all LexRules
+	    List<ASTLexProd> prods = Lists.newArrayList();
+	    MCLexRuleSymbol mcanything = null;
+	    final Map<String, MCRuleSymbol> rules = new LinkedHashMap<>();
+	    
+	    // Don't use grammarSymbol.getRulesWithInherited because of changed order
+	    for (final MCRuleSymbol ruleSymbol : grammarSymbol.getRules()) {
+	      rules.put(ruleSymbol.getName(), ruleSymbol);
+	    }
+	    for (int i = grammarSymbol.getSuperGrammars().size() - 1; i >= 0; i--) {
+	      rules.putAll(grammarSymbol.getSuperGrammars().get(i).getRulesWithInherited());
+	    }
+
+	    for (Entry<String, MCRuleSymbol> ruleSymbol :rules.entrySet()) {
+	      if (ruleSymbol.getValue().getKindSymbolRule().equals(KindSymbolRule.LEXERRULE)) {
+	        MCLexRuleSymbol lexRule = ((MCLexRuleSymbol) ruleSymbol.getValue());
+	        
+	        // MONTICOREANYTHING must be last rule
+	        if (lexRule.getName().equals(MONTICOREANYTHING)) {
+	          mcanything = lexRule;
+	        }
+	        else {
+	          prods.add(lexRule.getRuleNode());
+	        }
+	      }
+	    }
+	    if (mcanything != null) {
+	      prods.add(mcanything.getRuleNode());
+	    }
+	    return prods;
+	  }
+	
+	public List<ASTProd> getParserRulesToGenerate() 
+	{
+		// Iterate over all Rules
+		List<ASTProd> prods = Lists.newArrayList();
+		/*for(MCGrammarSymbol mcgrammarsymbol : grammarSymbol.getAllSuperGrammars()){
+			
+			for (MCRuleSymbol ruleSymbol : mcgrammarsymbol.getRulesWithInherited().values()) 
+			{
+				if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.PARSERRULE)) 
+				{
+					Optional<ASTClassProd> astProd = ((MCClassRuleSymbol) ruleSymbol).getRuleNode();
+					if (astProd.isPresent()) 
+					{
+						prods.add(astProd.get());
+					}
+				}
+				else if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.ENUMRULE)) 
+				{
+					prods.add(((MCEnumRuleSymbol) ruleSymbol).getRule());
+		        }
+			}
+		}*/
+		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited().values()) 
+		{
+			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.PARSERRULE)) 
+			{
+				Optional<ASTClassProd> astProd = ((MCClassRuleSymbol) ruleSymbol).getRuleNode();
+				if (astProd.isPresent()) 
+				{
+					prods.add(astProd.get());
+				}
+			}
+			else if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.ENUMRULE)) 
+			{
+				prods.add(((MCEnumRuleSymbol) ruleSymbol).getRule());
+	        }
+		}
+	    return prods;
+	}
 	
 	public static String getASTClassName(MCRuleSymbol rule) 
 	{

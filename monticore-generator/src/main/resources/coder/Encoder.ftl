@@ -14,10 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.lang.Math;
-
-<#list genHelper.getIndirectRulesToGenerate() as indirectRule>
-	private final com.upstandinghackers.hammer.Parser ${indirectRule} = Hammer.indirect();
-</#list>
+//TODO import range
 
 
 //TODO generate encoding to the corresponding type!
@@ -26,10 +23,18 @@ import java.lang.Math;
 //lex should be generated and thus moved, type checker and getusable symbols may need to be moved!
 
 public class Encoder{
+	
+	ArrayList<Range> ranges = new ArrayList<Range>();
+	<#list genHelper.getLexerRulesToGenerate() as lexrule>
+		<#list coderGenerator.createUsableSymbolsCode(lexrule) as asd>
+			${asd}
+		</#list>
+	</#list>
+	
+
 
 	private Map<String, String> encodingMap = new HashMap<String, String>(); 
 	public String startEncoding = "";
-
 
 	public ${parserName}Lexer lex(String string){
 		ANTLRInputStream input = new ANTLRInputStream(string);

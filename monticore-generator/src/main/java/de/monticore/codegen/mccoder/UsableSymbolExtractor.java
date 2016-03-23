@@ -98,32 +98,25 @@ private MCGrammarSymbol grammarEntry;
 		this.grammarInfo = grammarInfo;
 	}
 	
+	//@Override
+	public void visit(ASTLexProd ast) 
+	{
+		addToCodeSection("/*ASTLexProd " + ast.getName() + "*/\n");
+	}
+
+	
 	@Override
 	public void visit(ASTLexCharRange ast) 
 	{
-		startCodeSection(ast);
-		addToCodeSection(ast.getLowerChar());
-		addToCodeSection(ast.getUpperChar());
-		endCodeSection(ast);
+		addToCodeSection("ranges.add(new Range(" + "'" + ast.getLowerChar() + "'" + " ,"  + "'" + ast.getUpperChar() + "'" + " , " + ast.isNegate() + "));\n" );
 	}
-	
+
 	@Override
 	public void visit(ASTLexChar ast)
 	{
-		startCodeSection(ast);
-		addToCodeSection(ast.getChar());
-		endCodeSection(ast);
-		
+		addToCodeSection("ranges.add(new Range(" + "'" + ast.getChar() + "'" + " ,"  + "'" + ast.getChar() + "'" +  " , "  + ast.isNegate() + "));\n" );
 	}
 	
-	/*@Override
-	public void visit(ASTLexString ast) 
-	{
-		startCodeSection(ast);
-		addToCodeSection(ast.getString());
-		endCodeSection(ast);
-		
-	}*/
 	
 
 	// ----------------- End of visit methods ---------------------------------------------
@@ -131,7 +124,9 @@ private MCGrammarSymbol grammarEntry;
 	public List<String> createUsableSymbolsCode(ASTProd ast)
 	{
 		clearUsableSymbolsCode();
+		startCodeSection(ast);
 		ast.accept(getRealThis());
+		endCodeSection(ast);
 		return getUsableSymbolsCode();
 	}
 	

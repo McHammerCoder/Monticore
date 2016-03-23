@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 
 import com.google.common.base.Joiner;
 
-import de.monticore.codegen.mchammerparser.Grammar2Hammer;
+import de.monticore.codegen.mccoder.UsableSymbolExtractor;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
@@ -58,26 +58,27 @@ public class McCoderGenerator
 		
 		
 		// Generate _Decoder.java
-		final Path filePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"_Decoder.java");
+		final Path filePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Decoder.java");
 		generator.generate("coder.Decoder", filePath, astGrammar, generatorHelper);
 		
 		// Generate _DecoderVisitor.java
-		final Path filePathDVisitor = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"_DecoderVisitor.java");
+		final Path filePathDVisitor = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"DecoderVisitor.java");
 		generator.generate("coder.DecoderVisitor", filePathDVisitor, astGrammar, generatorHelper);
 		
 		// Generate _Encoder.java
-		final Path filePathEncoder = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"_Encoder.java");
+		final Path filePathEncoder = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Encoder.java");
 		generator.generate("coder.Encoder", filePathEncoder, astGrammar, new UsableSymbolExtractor(generatorHelper,grammarInfo));
 	
 		// Generate _EncoderVisitor.java
-		final Path filePathEVisitor = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"_EncoderVisitor.java");
+		final Path filePathEVisitor = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"EncoderVisitor.java");
 		generator.generate("coder.EncoderVisitor", filePathEVisitor, astGrammar, generatorHelper);
 		
 		// Generate _Injector.java
-		final Path filePathInjector = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"_Injector.java");
+		final Path filePathInjector = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Injector.java");
 		generator.generate("coder.Injector", filePathInjector, astGrammar, generatorHelper);
-		
-		
-		
+				
 	}
+	private McCoderGenerator() {
+	    // noninstantiable
+	  }
 }
