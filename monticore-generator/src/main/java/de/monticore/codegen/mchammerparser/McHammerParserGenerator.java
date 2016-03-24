@@ -36,6 +36,8 @@ public class McHammerParserGenerator
 {
 	public static final String PARSER_PACKAGE = "_mch_parser";
 	
+	public static final String PARSETREE_PACKAGE = ".tree";
+	
 	public static void generate(Scope symbolTable, ASTMCGrammar astGrammar, File outputDirectory)
 	{
 		// Initialize GeneratorHelper
@@ -53,10 +55,36 @@ public class McHammerParserGenerator
 		// Initialize GeneratorEngine
 		final GeneratorEngine generator = new GeneratorEngine(setup);
 		
-		// Generate _MCHParser.java
-		final Path filePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"_MCHParser.java");
-		generator.generate("MCHParser.Parser", filePath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		// Generate Parser.java
+		final Path parserPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Parser.java");
+		generator.generate("mchparser.Parser", parserPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 	
+		// Generate Actions.java
+		final Path actionsPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Actions.java");
+		generator.generate("mchparser.Actions", actionsPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 		
+		// Generate HAParseTree.java
+		final Path parseTreePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HAParseTree.java");
+		generator.generate("mchtree.HAParseTree", parseTreePath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		
+		// Generate HARuleContext.java
+		final Path ruleContextPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HARuleContext.java");
+		generator.generate("mchtree.HARuleContext", ruleContextPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		
+		// Generate HARuleNode.java
+		final Path ruleNodePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HARuleNode.java");
+		generator.generate("mchtree.HARuleNode", ruleNodePath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		
+		// Generate HATerminalNode.java
+		final Path terminalNodePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HATerminalNode.java");
+		generator.generate("mchtree.HATerminalNode", terminalNodePath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		
+		// Generate TreeConverter.java
+		final Path treeConverterPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), astGrammar.getName()+"TreeConverter.java");
+		generator.generate("mchtree.TreeConverter", treeConverterPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		
+		// Generate TreeHelper.java
+		final Path treeHelperPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), astGrammar.getName()+"TreeHelper.java");
+		generator.generate("mchtree.TreeHelper", treeHelperPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 	}
 }

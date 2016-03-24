@@ -100,13 +100,6 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		this.grammarEntry = parserGeneratorHelper.getGrammarSymbol();
 		this.grammarInfo = grammarInfo;
 	}
-	
-	@Override
-	public void handle(ASTLexProd ast) 
-	{
-		addToCodeSection("/*ASTLexProd*/");
-		endCodeSection();
-	}
 
 	@Override
 	public void handle(ASTClassProd ast)
@@ -149,18 +142,6 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	public void handle(ASTConstantGroup ast)
 	{
 		addToCodeSection("/*ASTConstantGroup*/");
-	}
-	
-	@Override
-	public void handle(ASTLexBlock ast) 
-	{
-		addToCodeSection("/*ASTLexBlock*/");
-	}
-	
-	@Override
-	public void handle(ASTLexSimpleIteration ast) 
-	{
-		addToCodeSection("/*ASTLexSimpleIteration*/");
 	}
 	
 	/**
@@ -238,16 +219,16 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	public void visit(ASTTerminal ast) 
 	{
 		String name = ast.getName();
-		byte [] nameBytes = name.getBytes();
+		int [] nameChars = name.chars().toArray();
 		
 		addToCodeSection("\n" + indent + "Hammer.sequence( ");
 		increaseIndent();
 		
-		for( int i = 0; i < nameBytes.length; i++ )
+		for( int i = 0; i < nameChars.length; i++ )
 		{
-			byte c = nameBytes[i];
-			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + c + ", " + c + ")");
-			if( i < nameBytes.length-1 )
+			int c = nameChars[i];
+			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, " + c + ", " + c + ")");
+			if( i < nameChars.length-1 )
 			{
 				addToCodeSection(", ");
 			}
@@ -262,22 +243,110 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 	}
 	
-	@Override
-	public void visit(ASTLexCharRange ast) 
+	//@Override
+	public void handle(ASTLexProd ast) 
 	{
-		addToCodeSection("/*ASTLexCharRange*/");
+		startCodeSection("ASTLexProd");
+		
+		addToCodeSection(indent + "Hammer.bindIndirect( " + ast.getName().toLowerCase() + ", ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.choice( ");
+		increaseIndent();
+		
+		List<ASTLexAlt> alts = ast.getAlts();
+		for( int i = 0; i < alts.size(); i++ )
+		{
+			ASTLexAlt alt = alts.get(i);
+			alt.accept(getRealThis());
+			
+			if( i < alts.size()-1 )
+			{
+				addToCodeSection(", ");
+			}
+		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ");");
+		
+		endCodeSection();
+	}
+
+	@Override
+	public void handle(ASTLexBlock ast) 
+	{
+		printIteration(ast.getIteration()); 
+				
+		addToCodeSection("\n" + indent + "Hammer.choice( ");
+		increaseIndent();
+		
+		List<ASTLexAlt> alts = ast.getLexAlts();
+		for( int i = 0; i < alts.size(); i++ )
+		{
+			ASTLexAlt alt = alts.get(i);
+			alt.accept(getRealThis());
+			
+			if( i < alts.size()-1 )
+			{
+				addToCodeSection(", ");
+			}
+		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
+		
+		printIterationEnd(ast.getIteration()); 
 	}
 	
 	@Override
+	public void handle(ASTLexSimpleIteration ast) 
+	{
+		addToCodeSection("/*ASTLexSimpleIteration*/");
+	}
+	
+	@Override
+	public void visit(ASTLexCharRange ast) 
+	{
+		int lower = ast.getLowerChar().chars().toArray() [0];
+		int upper = ast.getUpperChar().chars().toArray() [0];
+		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, " + lower  + ", " + upper + ")" );
+	}
+
+	@Override
 	public void visit(ASTLexChar ast)
 	{
-		addToCodeSection("/*ASTLexChar*/");
+		int ch = ast.getChar().chars().toArray() [0];
+		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, " + ch + ", " + ch + ")" );
 	}
 	
 	@Override
 	public void visit(ASTLexString ast) 
 	{
-		addToCodeSection("/*ASTLexString*/");
+		String name = ast.getString();
+		int [] nameChars = name.chars().toArray();
+		
+		addToCodeSection("\n" + indent + "Hammer.sequence( ");
+		increaseIndent();
+		
+		for( int i = 0; i < nameChars.length; i++ )
+		{
+			int c = nameChars[i];
+			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, " + c + ", " + c + ")");
+			if( i < nameChars.length-1 )
+			{
+				addToCodeSection(", ");
+			}
+			else
+			{
+				addToCodeSection(" ");
+			}
+		}
+
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
 	}
 	
 	@Override
@@ -289,7 +358,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTLexNonTerminal ast) 
 	{
-		addToCodeSection("/*ASTLexNonTerminal*/");
+		addToCodeSection("\n" + indent + ast.getName().toLowerCase());
 	}
 	
 	@Override
@@ -335,6 +404,28 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		increaseIndent();
 		
 		java.util.List<de.monticore.grammar.grammar._ast.ASTRuleComponent> components = alt.getComponents();
+		
+		for( int i = 0; i < components.size(); i++ )
+		{
+			components.get(i).accept(getRealThis());
+			
+			if( i < components.size()-1 )
+			{
+				addToCodeSection(", ");
+			}
+		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ") ");
+	}
+	
+	@Override
+	public void handle(ASTLexAlt alt)
+	{
+		addToCodeSection("\n" + indent + "Hammer.sequence( ");
+		increaseIndent();
+		
+		java.util.List<de.monticore.grammar.grammar._ast.ASTLexComponent> components = alt.getLexComponents();
 		
 		for( int i = 0; i < components.size(); i++ )
 		{
