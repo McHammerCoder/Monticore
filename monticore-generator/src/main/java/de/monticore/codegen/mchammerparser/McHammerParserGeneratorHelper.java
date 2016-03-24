@@ -7,6 +7,7 @@ package de.monticore.codegen.mchammerparser;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -237,6 +238,32 @@ public class McHammerParserGeneratorHelper
 	    	prods.add(mcanything.getRuleNode());
 	    }
 	    return prods;
+	}
+	
+	public List<String> getParserRuleNames()
+	{
+		// Iterate over all Rules
+		List<ASTProd> prods = getParserRulesToGenerate();
+		
+		List<String> ruleNames = Lists.newArrayList();
+	    for( ASTProd prod : prods )
+	    {
+	    	ruleNames.add(prod.getName());
+	    }
+	    return ruleNames;
+	}
+	
+	public List<String> getLexerRuleNames()
+	{
+		// Iterate over all LexRules
+		List<ASTLexProd> prods = getLexerRulesToGenerate();
+	    
+	    List<String> ruleNames = Lists.newArrayList();
+	    for( ASTLexProd prod : prods )
+	    {
+	    	ruleNames.add(prod.getName());
+	    }
+	    return ruleNames;
 	}
 	
 	public static String getASTClassName(MCRuleSymbol rule) 

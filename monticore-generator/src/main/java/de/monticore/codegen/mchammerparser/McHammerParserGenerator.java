@@ -86,5 +86,9 @@ public class McHammerParserGenerator
 		// Generate TreeHelper.java
 		final Path treeHelperPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), astGrammar.getName()+"TreeHelper.java");
 		generator.generate("mchtree.TreeHelper", treeHelperPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		
+		// Generate TreeHelper.java
+		final Path hammerActionPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), "com_upstandinghackers_hammer_Hammer.c");
+		generator.generate("mchparser.com_upstandinghackers_hammer_Hammer", hammerActionPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 	}
 }

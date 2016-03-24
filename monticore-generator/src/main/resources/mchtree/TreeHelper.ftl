@@ -1,7 +1,7 @@
 ${tc.signature("hammerGenerator")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign grammarSymbol = genHelper.getGrammarSymbol()>
-<#assign treeHelperName = genHelper.getQualifiedGrammarName()?cap_first>
+<#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
 import java.util.LinkedList;
@@ -9,7 +9,7 @@ import java.util.LinkedList;
 /**
  * Used by the TreeFactory to create an Antlr-ParseTree from a Hammer.ParseResult
  */
-public class ${treeHelperName}TreeHelper 
+public class ${grammarName}TreeHelper 
 {
 	private static LinkedList<Context> postfixTree = new LinkedList<Context>();
 	
@@ -80,22 +80,33 @@ public class ${treeHelperName}TreeHelper
 	
 	public enum TokenType
 	{
-		// TODO
-					
+<#list genHelper.getLexerRuleNames() as lexRuleName>
+		TT_${lexRuleName},
+</#list>		
+		TT_String			
 	}
 	
 	public static String [] TokenTypeNames =
 	{
-		// TODO
+<#list genHelper.getLexerRuleNames() as lexRuleName>
+		"${lexRuleName}",
+</#list>	
+		"String"
 	};
 	
 	public enum RuleType
 	{
-		// TODO
+<#list genHelper.getParserRuleNames() as parserRuleName>
+		RT_${parserRuleName},
+</#list>	
+		RT_Undefined
 	}
 	
 	public static String [] RuleTypeNames =
 	{
-		// TODO
+<#list genHelper.getParserRuleNames() as parserRuleName>
+		"${parserRuleName}",
+</#list>
+		"Undefined"
 	};
 }

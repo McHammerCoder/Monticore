@@ -1,7 +1,7 @@
 ${tc.signature("hammerGenerator")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign grammarSymbol = genHelper.getGrammarSymbol()>
-<#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
+<#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
 import org.antlr.runtime.tree.ParseTree;
@@ -9,7 +9,7 @@ import org.antlr.runtime.tree.ParseTree;
 import com.upstandinghackers.hammer.*;
 import com.upstandinghackers.hammer.Hammer.TokenType;
 
-public class ${parserName}Parser
+public class ${grammarName}Parser
 {
 	// Load Hammer Library via JNI
 	static {
@@ -48,7 +48,7 @@ public class ${parserName}Parser
 	com.upstandinghackers.hammer.Parser parser = Hammer.nothingP();
 
 	/** Constructor **/
-	public ${parserName}Parser()
+	public ${grammarName}Parser()
 	{
 <#list genHelper.getLexerRulesToGenerate() as lexRule>
 	<#list hammerGenerator.createHammerCode(lexRule) as rule>

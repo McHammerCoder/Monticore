@@ -1,7 +1,7 @@
 ${tc.signature("hammerGenerator")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign grammarSymbol = genHelper.getGrammarSymbol()>
-<#assign actionsName = genHelper.getQualifiedGrammarName()?cap_first>
+<#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
 import com.upstandinghackers.hammer.ParseResult;
@@ -12,7 +12,22 @@ import de.mchammer.tree.*;
 /**
  * Class that contains all actions the parser might call while parsing
  */
-public class ${actionsName}Actions 
+public class ${grammarName}Actions 
 {
-	// TODO
+	public static ParsedToken actUndefined(ParseResult p)
+	{		
+		TreeHelper.push( new TreeHelper.RuleContext(TreeHelper.RuleType.RT_Undefined) );
+		
+		return p.getAst();
+	}
+
+<#list genHelper.getParserRuleNames() as ruleName>
+	public static ParsedToken act${ruleName}(ParseResult p)
+	{		
+		TreeHelper.push( new TreeHelper.RuleContext(TreeHelper.RuleType.RT_${ruleName}) );
+		
+		return p.getAst();
+	}
+</#list>	
+
 }

@@ -1,7 +1,7 @@
 ${tc.signature("hammerGenerator")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign grammarSymbol = genHelper.getGrammarSymbol()>
-<#assign treeConverterName = genHelper.getQualifiedGrammarName()?cap_first>
+<#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
 import org.antlr.v4.runtime.tree.*;
@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.RuleContext;
 
 import com.upstandinghackers.hammer.*;
 
-public class ${treeConverterName}TreeConverter 
+public class ${grammarName}TreeConverter 
 {
 	public static ParseTree create(ParseResult parseResult)
 	{
@@ -36,14 +36,14 @@ public class ${treeConverterName}TreeConverter
     		case UINT: return new HATerminalNode(fac.create(3, Long.toString(tok.getUIntValue())));
     		case SEQUENCE: ParsedToken[] seq = tok.getSeqValue();
     					   HAParseTree pt;
-    					   if(TreeHelper.size() > 0)
+    					   if(${grammarName}TreeHelper.size() > 0)
     					   {
-    						   TreeHelper.RuleContext context = (TreeHelper.RuleContext) TreeHelper.pop();
+    						   ${grammarName}TreeHelper.RuleContext context = (TreeHelper.RuleContext) ${grammarName}TreeHelper.pop();
     						   pt = new HARuleNode( new HARuleContext( context.getType().ordinal() ) );
     					   } 
     					   else
     					   {
-							   pt = new HARuleNode( new HARuleContext( TreeHelper.RuleType.RT_Undefined.ordinal() ) ); 						   
+							   pt = new HARuleNode( new HARuleContext( ${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal() ) ); 						   
     					   }
     						   
     					   for( int i = seq.length-1; i >= 0; i-- )
@@ -51,7 +51,7 @@ public class ${treeConverterName}TreeConverter
     						   HAParseTree child = generateParseTree(seq[i]);
     						   
     						   if( child.getPayload() instanceof HARuleContext && 
-    							   ((HARuleContext)child.getPayload()).getRuleIndex() == TreeHelper.RuleType.RT_Undefined.ordinal() )
+    							   ((HARuleContext)child.getPayload()).getRuleIndex() == ${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal() )
     						   {
     							   System.out.println("TEST TEST TEST");
     							   
@@ -75,7 +75,7 @@ public class ${treeConverterName}TreeConverter
     	return new HATerminalNode(fac.create(0, ""));    	
     }
 	
-	/*private static RuleContext getRuleContext(TreeHelper.RuleContext context)
+	/*private static RuleContext getRuleContext(${grammarName}TreeHelper.RuleContext context)
 	{
 		switch(context.getType())
 		{
