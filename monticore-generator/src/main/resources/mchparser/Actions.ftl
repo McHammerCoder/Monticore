@@ -7,8 +7,6 @@ ${tc.signature("hammerGenerator")}
 import com.upstandinghackers.hammer.ParseResult;
 import com.upstandinghackers.hammer.ParsedToken;
 
-import de.mchammer.tree.*;
-
 /**
  * Class that contains all actions the parser might call while parsing
  */
@@ -16,7 +14,7 @@ public class ${grammarName}Actions
 {
 	public static ParsedToken actUndefined(ParseResult p)
 	{		
-		TreeHelper.push( new TreeHelper.RuleContext(TreeHelper.RuleType.RT_Undefined) );
+		${grammarName}TreeHelper.push( new ${grammarName}TreeHelper.RuleContext(${grammarName}TreeHelper.RuleType.RT_Undefined) );
 		
 		return p.getAst();
 	}
@@ -24,7 +22,7 @@ public class ${grammarName}Actions
 <#list genHelper.getParserRuleNames() as ruleName>
 	public static ParsedToken act${ruleName}(ParseResult p)
 	{		
-		TreeHelper.push( new TreeHelper.RuleContext(TreeHelper.RuleType.RT_${ruleName}) );
+		${grammarName}TreeHelper.push( new ${grammarName}TreeHelper.RuleContext(${grammarName}TreeHelper.RuleType.RT_${ruleName}) );
 		
 		return p.getAst();
 	}

@@ -38,7 +38,7 @@ public class ${grammarName}TreeConverter
     					   HAParseTree pt;
     					   if(${grammarName}TreeHelper.size() > 0)
     					   {
-    						   ${grammarName}TreeHelper.RuleContext context = (TreeHelper.RuleContext) ${grammarName}TreeHelper.pop();
+    						   ${grammarName}TreeHelper.RuleContext context = (${grammarName}TreeHelper.RuleContext) ${grammarName}TreeHelper.pop();
     						   pt = new HARuleNode( new HARuleContext( context.getType().ordinal() ) );
     					   } 
     					   else

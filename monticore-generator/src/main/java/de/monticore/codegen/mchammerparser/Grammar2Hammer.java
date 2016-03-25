@@ -105,7 +105,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	public void handle(ASTClassProd ast)
 	{
 		startCodeSection("ASTClassProd");
-		addToCodeSection(indent + "Hammer.bindIndirect( " + ast.getName().toLowerCase() + ", ");
+		addToCodeSection(indent + ast.getName().toLowerCase() + ".bindIndirect( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.choice( ");
@@ -248,7 +248,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{
 		startCodeSection("ASTLexProd");
 		
-		addToCodeSection(indent + "Hammer.bindIndirect( " + ast.getName().toLowerCase() + ", ");
+		addToCodeSection(indent + ast.getName().toLowerCase() + ".bindIndirect( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.choice( ");

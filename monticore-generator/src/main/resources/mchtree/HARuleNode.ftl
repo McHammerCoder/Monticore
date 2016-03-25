@@ -28,7 +28,7 @@ public class HARuleNode extends HAParseTree implements RuleNode
 
 	public int getIndex()
 	{
-		return TreeHelper.RuleType.RT_Message.ordinal();
+		return ${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal();
 	}
 
 	public RuleContext getRuleContext()
