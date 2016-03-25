@@ -76,6 +76,10 @@ public class McCoderGenerator
 		// Generate _Injector.java
 		final Path filePathInjector = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Injector.java");
 		generator.generate("coder.Injector", filePathInjector, astGrammar, generatorHelper);
+		
+		// Generate _Range.java
+		final Path filePathRange = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Range.java");
+		generator.generate("coder.Range", filePathRange, astGrammar, generatorHelper);
 				
 	}
 	private McCoderGenerator() {

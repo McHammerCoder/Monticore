@@ -9,12 +9,12 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.*;
-import javascriptsimple._parser.${parserName}Lexer;
+import ${parserName}._parser.${parserName}Lexer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.lang.Math;
-//TODO import range
+import ${parserName}._coder.Range;
 
 
 //TODO generate encoding to the corresponding type!
@@ -23,18 +23,23 @@ import java.lang.Math;
 //lex should be generated and thus moved, type checker and getusable symbols may need to be moved!
 
 public class Encoder{
+
+	private ArrayList<Range> ranges = new ArrayList<Range>();
+	private Map<String, String> encodingMap = new HashMap<String, String>(); 
+	public String startEncoding = "";
+
+
+	public initiateUsableSymbols(){
 	
-	ArrayList<Range> ranges = new ArrayList<Range>();
 	<#list genHelper.getLexerRulesToGenerate() as lexrule>
 		<#list coderGenerator.createUsableSymbolsCode(lexrule) as asd>
 			${asd}
 		</#list>
 	</#list>
-	
+	Range.union(ranges);	
 
+	}
 
-	private Map<String, String> encodingMap = new HashMap<String, String>(); 
-	public String startEncoding = "";
 
 	public ${parserName}Lexer lex(String string){
 		ANTLRInputStream input = new ANTLRInputStream(string);
