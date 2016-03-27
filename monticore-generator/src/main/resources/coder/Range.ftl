@@ -39,7 +39,10 @@ public class Range {
 		return isNegative;
 	}
 	
-	public String[] union(Range range){
+		public String[] union(Range range){
+		if(range.isNegative() && this.isNegative()) return null;
+		if(this.isNegative()) return range.toArray();
+		if(range.isNegative()) return this.toArray();
 		Set<String> set = new HashSet<>(Arrays.asList(this.toArray()));
 		set.addAll(Arrays.asList(range.toArray())); // skips duplicate as per Set implementation
 		return set.toArray(new String[0]);
@@ -49,28 +52,11 @@ public class Range {
 		
 		Set<String> set = new HashSet<>();
 		for(Range range : ranges){
-			set.addAll(Arrays.asList(range.toArray()));		
+			if(!range.isNegative()){
+				set.addAll(Arrays.asList(range.toArray()));		
+			}
 		}
 		return set.toArray(new String[0]);
 	}
 	
-	
-	 public static void main(String[] args) {
-		Range range = new Range('#', '.',false);
-		//String[] res = range.toArray();
-		//System.out.println(Arrays.deepToString(res));
-		Range range2 = new Range('a', 'x', true);
-		//String[] res2 = range2.union(range);
-		//System.out.println(Arrays.deepToString(res2));
-		ArrayList<Range> ranges = new ArrayList<Range>(); 
-		ranges.add(new Range('a', 'z', true));
-		ranges.add(range);
-		ranges.add(range2);
-		
-		System.out.println(Arrays.deepToString(union(ranges)));
-		
-		//todo intersection
-		 
-	 }
-
 }

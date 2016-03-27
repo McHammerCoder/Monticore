@@ -87,7 +87,7 @@ private MCGrammarSymbol grammarEntry;
 	
 	private StringBuilder codeSection;
 	
-	private String indent = "\t\t";
+	private String indent = "\t";
 	  
 	
 	public UsableSymbolExtractor(McCoderGeneratorHelper parserGeneratorHelper, MCGrammarInfo grammarInfo) 
@@ -101,20 +101,20 @@ private MCGrammarSymbol grammarEntry;
 	//@Override
 	public void visit(ASTLexProd ast) 
 	{
-		addToCodeSection("/*ASTLexProd " + ast.getName() + "*/\n");
+		addToCodeSection(indent + "/*ASTLexProd " + ast.getName() + "*/\n");
 	}
 
 	
 	@Override
 	public void visit(ASTLexCharRange ast) 
 	{
-		addToCodeSection("ranges.add(new Range(" + "'" + ast.getLowerChar() + "'" + " ,"  + "'" + ast.getUpperChar() + "'" + " , " + ast.isNegate() + "));\n" );
+		addToCodeSection(indent + "ranges.add(new Range(" + "'" + ast.getLowerChar() + "'" + " ,"  + "'" + ast.getUpperChar() + "'" + " , " + ast.isNegate() + "));\n" );
 	}
 
 	@Override
 	public void visit(ASTLexChar ast)
 	{
-		addToCodeSection("ranges.add(new Range(" + "'" + ast.getChar() + "'" + " ,"  + "'" + ast.getChar() + "'" +  " , "  + ast.isNegate() + "));\n" );
+		addToCodeSection(indent + "ranges.add(new Range(" + "'" + ast.getChar() + "'" + " ,"  + "'" + ast.getChar() + "'" +  " , "  + ast.isNegate() + "));\n" );
 	}
 	
 	
@@ -203,7 +203,7 @@ private MCGrammarSymbol grammarEntry;
 	 */
 	private void startCodeSection(String text) 
 	{
-		codeSection = new StringBuilder("\n // Start of '" + text + "'\n");
+		codeSection = new StringBuilder("\n \t // Start of '" + text + "'\n");
 	}
 	  
 	/**
@@ -213,7 +213,7 @@ private MCGrammarSymbol grammarEntry;
 	 */
 	private void endCodeSection(ASTNode ast) 
 	{
-		codeSection.append("// End of '" + ast.getClass().getSimpleName() + "'\n");
+		codeSection.append("\t  // End of '" + ast.getClass().getSimpleName() + "'\n");
 		endCodeSection();
 	}
 	  
