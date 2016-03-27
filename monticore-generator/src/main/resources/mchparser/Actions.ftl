@@ -28,4 +28,11 @@ public class ${grammarName}Actions
 	}
 </#list>	
 
+	public static ParsedToken actString(ParseResult p)
+	{		
+		${grammarName}TreeHelper.push( new ${grammarName}TreeHelper.TokenContext(${grammarName}TreeHelper.TokenType.TT_String) );
+		
+		return p.getAst();
+	}
+
 }

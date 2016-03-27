@@ -108,6 +108,9 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection(indent + ast.getName().toLowerCase() + ".bindIndirect( ");
 		increaseIndent();
 		
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
 		addToCodeSection("\n" + indent + "Hammer.choice( ");
 		increaseIndent();
 		
@@ -125,6 +128,9 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ")");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"act" + ast.getName() + "\" )");
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ");");
@@ -155,14 +161,20 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		switch (i) 
 		{
 		case ASTConstantsGrammar.PLUS:
+			addToCodeSection( "\n" + indent + "Hammer.action( " );
+			increaseIndent();
 			addToCodeSection( "\n" + indent + "Hammer.many1( " );
 			increaseIndent();
 			break;
 		case ASTConstantsGrammar.STAR:
+			addToCodeSection( "\n" + indent + "Hammer.action( " );
+			increaseIndent();
 			addToCodeSection( "\n" + indent + "Hammer.many( " );
 			increaseIndent();
 			break;
 		case ASTConstantsGrammar.QUESTION:
+			addToCodeSection( "\n" + indent + "Hammer.action( " );
+			increaseIndent();
 			addToCodeSection( "\n" + indent + "Hammer.optional( " );
 			increaseIndent();
 		}
@@ -183,6 +195,8 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		case ASTConstantsGrammar.QUESTION:
 			decreaseIndent();
 			addToCodeSection("\n" + indent + ")");
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ", \"actUndefined\" )");
 		}	
 	}
 	
@@ -200,8 +214,14 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		List<ASTAlt> alts = ast.getAlts();
 		for( int i = 0; i < alts.size(); i++ )
 		{
+			addToCodeSection("\n" + indent + "Hammer.action( ");
+			increaseIndent();
+			
 			ASTAlt alt = alts.get(i);
 			alt.accept(getRealThis());
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ", \"actUndefined\" )");
 			
 			if( i < alts.size()-1 )
 			{
@@ -220,6 +240,10 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{
 		String name = ast.getName();
 		int [] nameChars = name.chars().toArray();
+		
+
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.sequence( ");
 		increaseIndent();
@@ -241,6 +265,8 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ")");
 		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actString\" )");
 	}
 	
 	//@Override
@@ -249,6 +275,9 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		startCodeSection("ASTLexProd");
 		
 		addToCodeSection(indent + ast.getName().toLowerCase() + ".bindIndirect( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.action( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.choice( ");
@@ -270,6 +299,9 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection("\n" + indent + ")");
 		
 		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actString\" )");
+		
+		decreaseIndent();
 		addToCodeSection("\n" + indent + ");");
 		
 		endCodeSection();
@@ -286,8 +318,14 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		List<ASTLexAlt> alts = ast.getLexAlts();
 		for( int i = 0; i < alts.size(); i++ )
 		{
+			addToCodeSection("\n" + indent + "Hammer.action( ");
+			increaseIndent();
+			
 			ASTLexAlt alt = alts.get(i);
 			alt.accept(getRealThis());
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ", \"actUndefined\" )");
 			
 			if( i < alts.size()-1 )
 			{

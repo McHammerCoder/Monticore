@@ -20,7 +20,7 @@ HParsedToken* callAction(const HParseResult *p, const char* name)
     assert (rs == JNI_OK);
 
     jclass actionsClass;
-    FIND_CLASS(actionsClass, env, "de/mchammer/Actions");
+    FIND_CLASS(actionsClass, env, "${grammarName}Actions");
    
     jmethodID mid = (*env)->GetStaticMethodID(env, actionsClass, name, "(Lcom/upstandinghackers/hammer/ParseResult;)Lcom/upstandinghackers/hammer/ParsedToken;");
     if (mid == 0)
@@ -53,6 +53,11 @@ HParsedToken* act_${ruleName}(const HParseResult *p, void* user_data)
 }
 </#list>
 
+HParsedToken* act_String(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actString");
+}
+
 JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_Hammer_action
   (JNIEnv *env, jclass class, jobject p, jstring a)
 {
@@ -73,5 +78,10 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_Hammer_action
 		RETURNWRAP( env, h_action(UNWRAP(env, p), act_${ruleName}, NULL) );
 	}
 </#list>
+	else if( strcmp(actionName,"actString") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_String, NULL) );
+	}
+	
 	else return p;
 }

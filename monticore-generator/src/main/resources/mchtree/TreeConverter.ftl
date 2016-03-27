@@ -32,40 +32,65 @@ public class ${grammarName}TreeConverter
     		            	return new HATerminalNode(fac.create(1, Byte.toString(b)));
     		            }
     		            break;
-    		case SINT: return new HATerminalNode(fac.create(2, Long.toString(tok.getSIntValue())));
-    		case UINT: return new HATerminalNode(fac.create(3, Long.toString(tok.getUIntValue())));
+    		case SINT: return new HATerminalNode(fac.create(2, ""+(char)tok.getSIntValue()));
+    		case UINT: return new HATerminalNode(fac.create(3, ""+(char)tok.getUIntValue()));
     		case SEQUENCE: ParsedToken[] seq = tok.getSeqValue();
     					   HAParseTree pt;
     					   if(${grammarName}TreeHelper.size() > 0)
     					   {
-    						   ${grammarName}TreeHelper.RuleContext context = (${grammarName}TreeHelper.RuleContext) ${grammarName}TreeHelper.pop();
-    						   pt = new HARuleNode( new HARuleContext( context.getType().ordinal() ) );
+    						   ${grammarName}TreeHelper.Context context = ${grammarName}TreeHelper.pop();
+    						   if( context instanceof ${grammarName}TreeHelper.RuleContext )
+    						   {
+    							   pt = new HARuleNode( new HARuleContext( ((${grammarName}TreeHelper.RuleContext)context).getType().ordinal() ) );
+    						   }
+    						   else if( context instanceof ${grammarName}TreeHelper.TokenContext )
+    						   {
+    							   pt = new HATerminalNode( fac.create(((${grammarName}TreeHelper.TokenContext)context).getType().ordinal(), "") );
+    						   }
+    						   else
+    						   {
+    							   pt = new HARuleNode( new HARuleContext( ${grammarName}TreeHelper.RuleType.RT_State.ordinal() ) );
+    						   }
     					   } 
     					   else
     					   {
 							   pt = new HARuleNode( new HARuleContext( ${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal() ) ); 						   
     					   }
     						   
-    					   for( int i = seq.length-1; i >= 0; i-- )
-    		               {
-    						   HAParseTree child = generateParseTree(seq[i]);
-    						   
-    						   if( child.getPayload() instanceof HARuleContext && 
-    							   ((HARuleContext)child.getPayload()).getRuleIndex() == ${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal() )
-    						   {
-    							   System.out.println("TEST TEST TEST");
+    					   if( pt instanceof RuleNode )
+    					   {
+    						   for( int i = seq.length-1; i >= 0; i-- )
+	    		               {
+	    						   HAParseTree child = generateParseTree(seq[i]);
+	    						   
+	    						   if( child.getPayload() instanceof HARuleContext && 
+	    							   ((HARuleContext)child.getPayload()).getRuleIndex() == ${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal() )
+	    						   {
+	    							   
+	    							   for( int j = child.getChildCount()-1; j >= 0; j-- )
+	    							   {
+	    								   pt.addChild((HAParseTree)child.getChild(j));
+	    							   }
+	    						   }
+	    						   else
+	    						   {
+	    							   pt.addChild(child);
+	    						   }
+	    		               }
+    					   }
+    					   else if( pt instanceof TerminalNode )
+    					   {
+    						   String text = new String();
+    						   for( int i = 0; i < seq.length; i++ )
+	    		               {
+    							   HAParseTree child = generateParseTree(seq[i]);
     							   
-    							   for( int j = child.getChildCount()-1; j >= 0; j-- )
-    							   {
-    								   pt.addChild((HAParseTree)child.getChild(j));
-    							   }
-    						   }
-    						   else
-    						   {
-    							   pt.addChild(child);
-    						   }
-    		               }
-    					  
+    							   text += child.getText();
+	    		               }
+    						   
+    						   pt = new HATerminalNode( fac.create(${grammarName}TreeHelper.TokenType.TT_String.ordinal(), text) );
+    					   }
+    						   
     		               return pt;
     		case ERR: System.out.println("An error occured!"); break;
     		case USER: System.out.println("User"); break; //no supported jet
