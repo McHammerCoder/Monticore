@@ -53,10 +53,20 @@ HParsedToken* act_${ruleName}(const HParseResult *p, void* user_data)
 }
 </#list>
 
-HParsedToken* act_String(const HParseResult *p, void* user_data) 
+<#assign iter=1>
+<#list genHelper.getLexStrings() as lexString>
+HParsedToken* act_TT_${iter}(const HParseResult *p, void* user_data) 
 {
-    return callAction(p,"actString");
+    return callAction(p,"actTT_${iter}");
 }
+<#assign iter=iter+1>
+</#list>
+<#list genHelper.getLexerRuleNames() as lexRuleName>
+HParsedToken* act_${lexRuleName}(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"act${lexRuleName}");
+}
+</#list>
 
 JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_Hammer_action
   (JNIEnv *env, jclass class, jobject p, jstring a)
@@ -78,10 +88,20 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_Hammer_action
 		RETURNWRAP( env, h_action(UNWRAP(env, p), act_${ruleName}, NULL) );
 	}
 </#list>
-	else if( strcmp(actionName,"actString") == 0 )
+<#assign iter=1>
+<#list genHelper.getLexStrings() as lexString>
+	else if( strcmp(actionName,"actTT_${iter}") == 0 )
 	{
-		RETURNWRAP( env, h_action(UNWRAP(env, p), act_String, NULL) );
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_TT_${iter}, NULL) );
 	}
+<#assign iter=iter+1>
+</#list>
+<#list genHelper.getLexerRuleNames() as lexRuleName>
+	else if( strcmp(actionName,"act${lexRuleName}") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_${lexRuleName}, NULL) );
+	}
+</#list>
 	
 	else return p;
 }

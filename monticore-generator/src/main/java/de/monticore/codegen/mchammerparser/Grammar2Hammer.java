@@ -42,6 +42,7 @@ import de.monticore.grammar.grammar._ast.ASTLexAlt;
 import de.monticore.grammar.grammar._ast.ASTLexBlock;
 import de.monticore.grammar.grammar._ast.ASTLexChar;
 import de.monticore.grammar.grammar._ast.ASTLexCharRange;
+import de.monticore.grammar.grammar._ast.ASTLexComponent;
 import de.monticore.grammar.grammar._ast.ASTLexNonTerminal;
 import de.monticore.grammar.grammar._ast.ASTLexOption;
 import de.monticore.grammar.grammar._ast.ASTLexProd;
@@ -51,6 +52,7 @@ import de.monticore.grammar.grammar._ast.ASTMCAnything;
 import de.monticore.grammar.grammar._ast.ASTNonTerminal;
 import de.monticore.grammar.grammar._ast.ASTOptionValue;
 import de.monticore.grammar.grammar._ast.ASTProd;
+import de.monticore.grammar.grammar._ast.ASTRuleComponent;
 import de.monticore.grammar.grammar._ast.ASTSemanticpredicateOrAction;
 import de.monticore.grammar.grammar._ast.ASTTerminal;
 import de.monticore.grammar.grammar._ast.GrammarNodeFactory;
@@ -265,8 +267,19 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ")");
 		
+		int id = 0;
+		List<String> terminals = parserGeneratorHelper.getLexStrings();
+		for( int i = 0; i < terminals.size(); i++ )
+		{
+			if(terminals.get(i).equals(name))
+			{
+				id = i+1;
+			}			
+		}
+		
+		
 		decreaseIndent();
-		addToCodeSection("\n" + indent + ", \"actString\" )");
+		addToCodeSection("\n" + indent + ", \"actTT_" + id + "\" )");
 	}
 	
 	//@Override
@@ -299,7 +312,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection("\n" + indent + ")");
 		
 		decreaseIndent();
-		addToCodeSection("\n" + indent + ", \"actString\" )");
+		addToCodeSection("\n" + indent + ", \"act" + ast.getName() + "\" )");
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ");");

@@ -14,7 +14,7 @@ public class ${grammarName}Actions
 {
 	public static ParsedToken actUndefined(ParseResult p)
 	{		
-		${grammarName}TreeHelper.push( new ${grammarName}TreeHelper.RuleContext(${grammarName}TreeHelper.RuleType.RT_Undefined) );
+		p.getAst().setUserTokenType(AutomatonTreeHelper.UserTokenTypes.UTT_Undefined.getValue());
 		
 		return p.getAst();
 	}
@@ -22,17 +22,29 @@ public class ${grammarName}Actions
 <#list genHelper.getParserRuleNames() as ruleName>
 	public static ParsedToken act${ruleName}(ParseResult p)
 	{		
-		${grammarName}TreeHelper.push( new ${grammarName}TreeHelper.RuleContext(${grammarName}TreeHelper.RuleType.RT_${ruleName}) );
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${ruleName}.getValue());
 		
 		return p.getAst();
 	}
 </#list>	
-
-	public static ParsedToken actString(ParseResult p)
+<#assign iter=1>
+<#list genHelper.getLexStrings() as lexString>
+	public static ParsedToken actTT_${iter}(ParseResult p)
 	{		
-		${grammarName}TreeHelper.push( new ${grammarName}TreeHelper.TokenContext(${grammarName}TreeHelper.TokenType.TT_String) );
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${iter}.getValue());
 		
 		return p.getAst();
 	}
+<#assign iter=iter+1>
+</#list>
+<#list genHelper.getLexerRuleNames() as lexRuleName>
+	public static ParsedToken act${lexRuleName}(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${lexRuleName}.getValue());
+		
+		return p.getAst();
+	}
+</#list>
+	
 
 }

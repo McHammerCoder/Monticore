@@ -5,6 +5,7 @@ ${tc.signature("hammerGenerator")}
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
 import java.util.LinkedList;
+import com.upstandinghackers.hammer.*;
 
 /**
  * Used by the TreeFactory to create an Antlr-ParseTree from a Hammer.ParseResult
@@ -72,6 +73,40 @@ public class ${grammarName}TreeHelper
 		}
 	}
 	
+	public enum UserTokenTypes
+	{
+		UTT_Undefined(Hammer.TokenType.USER.getValue()),
+<#assign iter=1>
+<#list genHelper.getParserRuleNames() as ruleName>
+		UTT_${ruleName}(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+</#list>
+<#assign iter2=1>
+<#list genHelper.getLexStrings() as lexString>
+		UTT_${iter2}(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter2=iter2+1>
+<#assign iter=iter+1>
+</#list>
+<#list genHelper.getLexerRuleNames() as lexRuleName>
+		UTT_${lexRuleName}(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+</#list>	
+		UTT_END(Hammer.TokenType.USER.getValue()+${iter});
+
+		UserTokenTypes(int numValue)
+		{
+			this.numValue = numValue;
+		}
+		
+		private int numValue;
+		
+		public int getValue()
+		{
+			return numValue;
+		}
+		
+	};
+	
 	public enum Type
 	{
 		C_Token,
@@ -80,18 +115,36 @@ public class ${grammarName}TreeHelper
 	
 	public enum TokenType
 	{
+<#assign iter=1>
+<#list genHelper.getLexStrings() as lexString>
+		TT_${iter},
+<#assign iter=iter+1>
+</#list>
 <#list genHelper.getLexerRuleNames() as lexRuleName>
 		TT_${lexRuleName},
 </#list>		
-		TT_String			
+		TT_END		
 	}
 	
 	public static String [] TokenTypeNames =
 	{
+<#assign iter=1>
+<#list genHelper.getLexStrings() as lexString>
+		"TT_${iter}",
+<#assign iter=iter+1>
+</#list>
 <#list genHelper.getLexerRuleNames() as lexRuleName>
 		"${lexRuleName}",
 </#list>	
-		"String"
+		"TT_END"
+	};
+	
+	public static String [] Literals =
+	{
+<#list genHelper.getLexStrings() as lexString>
+		"'${lexString}'",
+</#list>
+		""
 	};
 	
 	public enum RuleType

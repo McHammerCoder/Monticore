@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,6 +20,7 @@ import java.util.Set;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import de.monticore.ast.ASTNode;
 import de.monticore.grammar.grammar._ast.ASTBlock;
@@ -238,6 +240,24 @@ public class McHammerParserGeneratorHelper
 	    	prods.add(mcanything.getRuleNode());
 	    }
 	    return prods;
+	}
+	
+	public List<String> getLexStrings()
+	{
+		GrammarTerminalVisitor terminalVisitor = new GrammarTerminalVisitor();
+		Set<String> prods = Sets.newHashSet();
+		
+		List<ASTProd> astProds = getParserRulesToGenerate();
+	    for( ASTProd astProd : astProds )
+	    {
+	    	prods.addAll(terminalVisitor.getTerminalNames(astProd));
+	    }
+	    
+	    List<String> lexStrings = Lists.newArrayList();
+	    lexStrings.addAll(prods);
+	    
+	    
+	    return lexStrings;
 	}
 	
 	public List<String> getParserRuleNames()
