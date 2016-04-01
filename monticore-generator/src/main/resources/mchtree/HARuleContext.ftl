@@ -4,6 +4,8 @@ ${tc.signature("hammerGenerator")}
 <#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
+package ${genHelper.getParseTreePackage()};
+
 import org.antlr.v4.runtime.RuleContext;
 
 public class HARuleContext extends RuleContext

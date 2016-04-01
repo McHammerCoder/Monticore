@@ -4,14 +4,9 @@ ${tc.signature("hammerGenerator")}
 <#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
-import java.util.LinkedList;
-import java.util.List;
+package ${genHelper.getParseTreePackage()};
 
-import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RuleContext;
-import org.antlr.v4.runtime.misc.Interval;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 import org.antlr.v4.runtime.tree.RuleNode;
 
 public class HARuleNode extends HAParseTree implements RuleNode

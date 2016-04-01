@@ -403,7 +403,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTLexActionOrPredicate ast) 
 	{
-		addToCodeSection("/*ASTLexActionOrPredicate*/");
+		addToCodeSection("\n" + indent + "Hammer.nothingP()");
 	}
 	
 	@Override

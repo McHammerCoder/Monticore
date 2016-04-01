@@ -36,7 +36,7 @@ public class McHammerParserGenerator
 {
 	public static final String PARSER_PACKAGE = "_mch_parser";
 	
-	public static final String PARSETREE_PACKAGE = ".tree";
+	public static final String PARSETREE_PACKAGE = "tree";
 	
 	public static void generate(Scope symbolTable, ASTMCGrammar astGrammar, File outputDirectory)
 	{

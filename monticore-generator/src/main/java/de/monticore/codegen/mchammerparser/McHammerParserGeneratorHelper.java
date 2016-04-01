@@ -153,6 +153,14 @@ public class McHammerParserGeneratorHelper
 	/**
 	 * @return the package for the generated parser files
 	 */
+	public String getParserPackageC()
+	{
+		return getParserPackage().replace(".", "/");
+	}
+	
+	/**
+	 * @return the package for the generated parser files
+	 */
 	public String getParseTreePackage() 
 	{
 		return getParserPackage() + "." + McHammerParserGenerator.PARSETREE_PACKAGE;

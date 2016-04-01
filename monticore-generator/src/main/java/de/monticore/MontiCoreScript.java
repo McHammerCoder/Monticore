@@ -667,16 +667,9 @@ public class MontiCoreScript extends Script implements GroovyRunner {
     
   }
   
-  public void generateMCHammerCoder(GlobalExtensionManagement glex, File outputDirectory, ASTCDCompilationUnit astClassDiagram, ASTMCGrammar ast)
-  {
-	  System.out.println("Start generating MCHammerCoder!");
-	  
-	  MCHammerGenerator.generate(glex, outputDirectory, astClassDiagram, ast);
-  }
-  
   public void generateMcHammerParser(Scope symbolTable, ASTMCGrammar astGrammar, File outputDirectory)
   {
-	  System.out.println("Start generating MCHammerCoder!");
+	  System.out.println("Start generating McHammerParser!");
 	  
 	  McHammerParserGenerator.generate(symbolTable, astGrammar, outputDirectory);
   }

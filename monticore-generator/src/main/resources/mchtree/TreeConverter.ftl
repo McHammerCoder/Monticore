@@ -4,9 +4,10 @@ ${tc.signature("hammerGenerator")}
 <#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
+package ${genHelper.getParseTreePackage()};
+
 import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.CommonTokenFactory;
-import org.antlr.v4.runtime.RuleContext;
 
 import com.upstandinghackers.hammer.*;
 

@@ -4,6 +4,8 @@ ${tc.signature("hammerGenerator")}
 <#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
+package ${genHelper.getParseTreePackage()};
+
 import java.util.LinkedList;
 import com.upstandinghackers.hammer.*;
 

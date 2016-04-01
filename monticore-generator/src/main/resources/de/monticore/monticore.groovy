@@ -98,19 +98,14 @@ for (astGrammar in getParsedGrammars()) {
   
   // M9: generate AST classes
   generate(glex, symbolTable, astClassDiagram, out, templatePath)
-
-  info("Entering MCHammerCoder!")  
-
-  // M9.5 generate MCHammerCoder
-  generateMCHammerCoder(glex,out,astClassDiagram,astGrammar)
-
-  info("Grammar " + astGrammar.getName() + " processed successfully!")
   
-  // M9.6 generate McCoder
+  // M9.5.1 generate McCoder
   generateMcCoder(symbolTable,out,astGrammar)
 
-  // M9.7 generate McCoderPP
+  // M9.5.2 generate McCoderPP
   generatePP(glex,out,astGrammar)
+  
+  info("Grammar " + astGrammar.getName() + " processed successfully!")
 
   // M10: flush reporting
   flushReporting(astGrammar)

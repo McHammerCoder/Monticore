@@ -4,6 +4,10 @@ ${tc.signature("hammerGenerator")}
 <#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
+package ${genHelper.getParserPackage()};
+
+import ${genHelper.getParseTreePackage()}.*;
+
 import com.upstandinghackers.hammer.ParseResult;
 import com.upstandinghackers.hammer.ParsedToken;
 

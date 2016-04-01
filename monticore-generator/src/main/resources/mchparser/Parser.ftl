@@ -4,16 +4,24 @@ ${tc.signature("hammerGenerator")}
 <#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
-//import org.antlr.runtime.tree.ParseTree;
+package ${genHelper.getParserPackage()};
 
 import com.upstandinghackers.hammer.*;
 
 public class ${grammarName}Parser
 {
 	// Load Hammer Library via JNI
-	static {
-		System.loadLibrary("jhammer");
-		System.loadLibrary("jhammer_actions");
+	static 
+	{
+		try 
+		{
+			System.loadLibrary("jhammer");
+			System.loadLibrary("jhammer_actions");
+		} 
+		catch (UnsatisfiedLinkError e) 
+		{
+			throw new RuntimeException(e);
+		}
 	}
 	
 	/** Binary Fragment Token **/

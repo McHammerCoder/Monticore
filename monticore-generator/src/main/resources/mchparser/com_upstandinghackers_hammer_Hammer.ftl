@@ -20,7 +20,7 @@ HParsedToken* callAction(const HParseResult *p, const char* name)
     assert (rs == JNI_OK);
 
     jclass actionsClass;
-    FIND_CLASS(actionsClass, env, "${grammarName}Actions");
+    FIND_CLASS(actionsClass, env, "${genHelper.getParserPackageC()}/${grammarName}Actions");
    
     jmethodID mid = (*env)->GetStaticMethodID(env, actionsClass, name, "(Lcom/upstandinghackers/hammer/ParseResult;)Lcom/upstandinghackers/hammer/ParsedToken;");
     if (mid == 0)
