@@ -4,6 +4,9 @@ ${tc.signature("coderGenerator")}
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
+package ${genHelper.getParserPackage()};
+
+
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.Lexer;
@@ -14,7 +17,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.lang.Math;
-import ${parserName}._coder.Range;
 
 public class Encoder{
 

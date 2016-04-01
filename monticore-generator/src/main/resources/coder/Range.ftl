@@ -1,3 +1,9 @@
+${tc.signature("genHelper")}
+<#assign genHelper = glex.getGlobalValue("genHelper")>
+
+
+package ${genHelper.getParserPackage()};
+
 import java.util.*;
 
 public class Range {

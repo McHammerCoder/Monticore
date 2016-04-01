@@ -1,5 +1,9 @@
 ${tc.signature("genHelper")}
+<#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
+
+package ${genHelper.getParserPackage()};
+
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;

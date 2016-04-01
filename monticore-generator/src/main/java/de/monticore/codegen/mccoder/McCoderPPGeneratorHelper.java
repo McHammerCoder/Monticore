@@ -17,6 +17,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 import de.monticore.ast.ASTNode;
+import de.monticore.codegen.mchammerparser.McHammerParserGenerator;
 import de.monticore.grammar.grammar._ast.ASTBlock;
 import de.monticore.grammar.grammar._ast.ASTClassProd;
 import de.monticore.grammar.grammar._ast.ASTConstantGroup;
@@ -90,4 +91,5 @@ public class McCoderPPGeneratorHelper {
 	{
 		return getQualifiedGrammarName().toLowerCase() + "." + McCoderPPGenerator.PARSER_PACKAGE;
 	}
+	
 }
