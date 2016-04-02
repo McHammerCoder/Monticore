@@ -5,8 +5,11 @@ ${tc.signature("hammerGenerator")}
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
 package ${genHelper.getParserPackage()};
+import ${genHelper.getParserPackage()}.${grammarName}Actions;
 
 import com.upstandinghackers.hammer.*;
+
+import java.io.IOException;
 
 public class ${grammarName}Parser
 {
@@ -20,7 +23,16 @@ public class ${grammarName}Parser
 		} 
 		catch (UnsatisfiedLinkError e) 
 		{
-			throw new RuntimeException(e);
+			// Load Hammer Library from Jar or Dependencies
+			try 
+			{    
+				NativeUtils.loadLibraryFromJar("/libjhammer.so");
+				NativeUtils.loadLibraryFromJar("/libjhammer_actions.so");  
+			} 
+			catch (IOException e1)
+			{    
+				e1.printStackTrace();
+			} 
 		}
 	}
 	

@@ -70,7 +70,8 @@ public class McHammerParserGenerator
 		} 
 		catch (IOException e)
 		{
-			e.printStackTrace();			
+			System.out.println("Could not load AntlrLexer.tokens!");
+			//e.printStackTrace();			
 		}
 		
 		generatorHelper.setAntlrTokens(tokens);
@@ -78,7 +79,11 @@ public class McHammerParserGenerator
 		// Generate Parser.java
 		final Path parserPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Parser.java");
 		generator.generate("mchparser.Parser", parserPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-	
+		
+		// Generate Parser.java
+		final Path nativeUtilsPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), "NativeUtils.java");
+		generator.generate("mchparser.NativeUtils", nativeUtilsPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+			
 		// Generate Actions.java
 		final Path actionsPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Actions.java");
 		generator.generate("mchparser.Actions", actionsPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));

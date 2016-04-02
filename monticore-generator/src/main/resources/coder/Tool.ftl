@@ -7,6 +7,8 @@ ${tc.signature("genHelper")}
  * http://www.se-rwth.de/ 
  */
 
+package ${genHelper.getParserPackage()};
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
