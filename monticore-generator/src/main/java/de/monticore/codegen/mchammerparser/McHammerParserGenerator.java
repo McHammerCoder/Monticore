@@ -6,11 +6,16 @@
 package de.monticore.codegen.mchammerparser;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
+import de.monticore.codegen.parser.ParserGeneratorHelper;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
@@ -54,6 +59,21 @@ public class McHammerParserGenerator
 				
 		// Initialize GeneratorEngine
 		final GeneratorEngine generator = new GeneratorEngine(setup);
+		
+		// Load Antlr TokenList
+		de.monticore.codegen.parser.ParserGeneratorHelper tmpGenHelper = new de.monticore.codegen.parser.ParserGeneratorHelper(astGrammar, generatorHelper.getGrammarSymbol());
+		final Path tokenPath = Paths.get(outputDirectory.getPath(), Names.getPathFromPackage(tmpGenHelper.getParserPackage()), astGrammar.getName()+"AntlrLexer.tokens");
+		List<String> tokens = Lists.newArrayList();
+		try 
+		{
+			tokens = Files.readAllLines(tokenPath);
+		} 
+		catch (IOException e)
+		{
+			e.printStackTrace();			
+		}
+		
+		generatorHelper.setAntlrTokens(tokens);
 		
 		// Generate Parser.java
 		final Path parserPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Parser.java");

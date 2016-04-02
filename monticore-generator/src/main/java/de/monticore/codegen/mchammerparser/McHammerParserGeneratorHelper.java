@@ -250,24 +250,6 @@ public class McHammerParserGeneratorHelper
 	    return prods;
 	}
 	
-	public List<String> getLexStrings()
-	{
-		GrammarTerminalVisitor terminalVisitor = new GrammarTerminalVisitor();
-		Set<String> prods = Sets.newHashSet();
-		
-		List<ASTProd> astProds = getParserRulesToGenerate();
-	    for( ASTProd astProd : astProds )
-	    {
-	    	prods.addAll(terminalVisitor.getTerminalNames(astProd));
-	    }
-	    
-	    List<String> lexStrings = Lists.newArrayList();
-	    lexStrings.addAll(prods);
-	    
-	    
-	    return lexStrings;
-	}
-	
 	public List<String> getParserRuleNames()
 	{
 		// Iterate over all Rules
@@ -280,7 +262,7 @@ public class McHammerParserGeneratorHelper
 	    }
 	    return ruleNames;
 	}
-	
+		
 	public List<String> getLexerRuleNames()
 	{
 		// Iterate over all LexRules
@@ -297,6 +279,29 @@ public class McHammerParserGeneratorHelper
 	public static String getASTClassName(MCRuleSymbol rule) 
 	{
 		return rule.getType().getQualifiedName();
+	}
+	
+	List<String> lexStrings = Lists.newArrayList();
+	
+	public List<String> getLexStrings()
+	{	    
+	    return lexStrings;
+	}
+	
+	public void setAntlrTokens(List<String> tokens)
+	{
+		for( String token : tokens )
+		{
+			if( token.startsWith("'") )
+			{
+				lexStrings.add(token.substring(1, token.lastIndexOf("'=")));
+			}
+		}
+		
+		for( String token : lexStrings )
+		{
+			System.out.println(token);
+		}
 	}
 }
 
