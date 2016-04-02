@@ -12,7 +12,7 @@ import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.*;
 
-import ${packageName}._parser.*;
+import ${genHelper.getGNameToLower()}._parser.*;
 
 public class ${parserName}EncoderVisitor extends ${parserName}AntlrBaseListener {
 

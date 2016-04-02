@@ -18,7 +18,7 @@ public class ${grammarName}Actions
 {
 	public static ParsedToken actUndefined(ParseResult p)
 	{		
-		p.getAst().setUserTokenType(AutomatonTreeHelper.UserTokenTypes.UTT_Undefined.getValue());
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_Undefined.getValue());
 		
 		return p.getAst();
 	}

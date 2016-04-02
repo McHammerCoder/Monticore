@@ -88,14 +88,14 @@ public class ${grammarName}TreeConverter
 <#list genHelper.getLexStrings() as lexString>
 				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_${iter}.getValue())
 				{
-					return buildStringTree(tok, ${grammarName}TreeHelper.TokenType.TT_${iter}.ordinal());
+					return buildStringTree(tok, ${grammarName}TreeHelper.TokenType.TT_${iter}.ordinal()+1);
 				}
 <#assign iter=iter+1>
 </#list>
 <#list genHelper.getLexerRuleNames() as lexRuleName>
 				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_${lexRuleName}.getValue())
 				{
-					return buildStringTree(tok, ${grammarName}TreeHelper.TokenType.TT_${lexRuleName}.ordinal());
+					return buildStringTree(tok, ${grammarName}TreeHelper.TokenType.TT_${lexRuleName}.ordinal()+1);
 				}
 </#list>
 				else

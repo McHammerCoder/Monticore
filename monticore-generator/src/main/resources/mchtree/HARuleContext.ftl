@@ -6,9 +6,9 @@ ${tc.signature("hammerGenerator")}
 
 package ${genHelper.getParseTreePackage()};
 
-import org.antlr.v4.runtime.RuleContext;
+import org.antlr.v4.runtime.ParserRuleContext;
 
-public class HARuleContext extends RuleContext
+public class HARuleContext extends ParserRuleContext
 {
 	private int ruleIndex = 0;
 	
