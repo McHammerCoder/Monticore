@@ -1,17 +1,17 @@
 ${tc.signature("genHelper")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
-
+<#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 
 package ${genHelper.getParserPackage()};
 
 import java.util.*;
 
-public class Range {
+public class ${parserName}Range {
 		private char LowerBound;
 		private char UpperBound;
 		private boolean isNegative;
 		
-	public Range(char L, char U, boolean neg){
+	public ${parserName}Range(char L, char U, boolean neg){
 		LowerBound = L;
 		UpperBound = U;
 		isNegative = neg;		
@@ -45,7 +45,7 @@ public class Range {
 		return isNegative;
 	}
 	
-		public String[] union(Range range){
+		public String[] union(${parserName}Range range){
 		if(range.isNegative() && this.isNegative()) return null;
 		if(this.isNegative()) return range.toArray();
 		if(range.isNegative()) return this.toArray();
@@ -54,10 +54,10 @@ public class Range {
 		return set.toArray(new String[0]);
 	}
 	
-	public static String[] union(ArrayList<Range> ranges){
+	public static String[] union(ArrayList<${parserName}Range> ranges){
 		
 		Set<String> set = new HashSet<>();
-		for(Range range : ranges){
+		for(${parserName}Range range : ranges){
 			if(!range.isNegative()){
 				set.addAll(Arrays.asList(range.toArray()));		
 			}

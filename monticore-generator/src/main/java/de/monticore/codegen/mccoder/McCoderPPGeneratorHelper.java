@@ -91,5 +91,10 @@ public class McCoderPPGeneratorHelper {
 	{
 		return getQualifiedGrammarName().toLowerCase() + "." + McCoderPPGenerator.PARSER_PACKAGE;
 	}
+	public String getGNameToLower(){
+		
+		return getQualifiedGrammarName().toLowerCase();
+		
+	}
 	
 }

@@ -108,13 +108,13 @@ private MCGrammarSymbol grammarEntry;
 	@Override
 	public void visit(ASTLexCharRange ast) 
 	{
-		addToCodeSection(indent + "ranges.add(new Range(" + "'" + ast.getLowerChar() + "'" + " ,"  + "'" + ast.getUpperChar() + "'" + " , " + ast.isNegate() + "));\n" );
+		addToCodeSection(indent + "ranges.add(new " + parserGeneratorHelper.getQualifiedGrammarName() + "Range(" + "'" + ast.getLowerChar() + "'" + " ,"  + "'" + ast.getUpperChar() + "'" + " , " + ast.isNegate() + "));\n" );
 	}
 
 	@Override
 	public void visit(ASTLexChar ast)
 	{
-		addToCodeSection(indent + "ranges.add(new Range(" + "'" + ast.getChar() + "'" + " ,"  + "'" + ast.getChar() + "'" +  " , "  + ast.isNegate() + "));\n" );
+		addToCodeSection(indent + "ranges.add(new " + parserGeneratorHelper.getQualifiedGrammarName() + "Range(" + "'" + ast.getChar() + "'" + " ,"  + "'" + ast.getChar() + "'" +  " , "  + ast.isNegate() + "));\n" );
 	}
 	
 	

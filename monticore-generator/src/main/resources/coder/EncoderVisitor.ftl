@@ -1,6 +1,7 @@
 ${tc.signature("genHelper")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
+<#assign packageName = genHelper.getQualifiedGrammarName()?cap_first>
 
 package ${genHelper.getParserPackage()};
 
@@ -11,12 +12,14 @@ import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.*;
 
-public class EncoderVisitor extends ${parserName}BaseListener {
+import ${packageName}._parser.*;
 
-private Encoder encoder = new Encoder();
+public class ${parserName}EncoderVisitor extends ${parserName}AntlrBaseListener {
+
+	private ${parserName}Encoder encoder = new ${parserName}Encoder();
 
 
-@Override public void visitTerminal(TerminalNode node) {
+	public void visitTerminal(TerminalNode node) {
 		CommonToken token = (CommonToken)node.getPayload();
 	
 		if(encoder.check(token)){

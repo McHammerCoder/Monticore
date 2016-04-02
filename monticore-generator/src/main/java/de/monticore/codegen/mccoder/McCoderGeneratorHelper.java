@@ -143,6 +143,13 @@ public class McCoderGeneratorHelper
 		return getQualifiedGrammarName().toLowerCase() + "." + McCoderGenerator.PARSER_PACKAGE;
 	}
 	
+	
+	
+	public String getGNameToLower(){
+		
+		return getQualifiedGrammarName().toLowerCase();
+		
+	}
 	/**
 	 * @return grammarSymbol
 	 */

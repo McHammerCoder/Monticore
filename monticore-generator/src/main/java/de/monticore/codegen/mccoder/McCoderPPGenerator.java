@@ -49,7 +49,7 @@ public class McCoderPPGenerator
 			final GeneratorEngine generator = new GeneratorEngine(setup);
 			
 			// Generate _Decoder.java
-			final Path filePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"SimpleTool.java");
-			generator.generate("coder.JavaScriptSimpleTool", filePath, astGrammar, generatorHelper);	
+			final Path filePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Tool.java");
+			generator.generate("coder.Tool", filePath, astGrammar, generatorHelper);	
 		}
 	}

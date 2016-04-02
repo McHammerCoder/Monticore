@@ -14,18 +14,19 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import ${genHelper.getGNameToLower()}._parser.*;
 
 //Create testing case on HTML and start testing! (Sensible class division should be done at this point)
 
 
-public class Injector extends ${parserName}BaseListener {
+public class ${parserName}Injector extends ${parserName}AntlrBaseListener {
 
 
-@Override public void visitTerminal(TerminalNode node) {
+	public void visitTerminal(TerminalNode node) {
 		CommonToken token = (CommonToken)node.getPayload();
-	 if(token.getType() == 8 && token.getText().equals("replceme")){
+	 	if(token.getType() == 8 && token.getText().equals("replceme")){
 		token.setText("clr\", newr \"=\";varbcccc"); //Simulates an injection in the token with text testing of type 8
-	}	
+		}	
 
-}
+	}
 }

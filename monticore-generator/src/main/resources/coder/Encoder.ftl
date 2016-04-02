@@ -6,21 +6,19 @@ ${tc.signature("coderGenerator")}
 
 package ${genHelper.getParserPackage()};
 
-
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.TerminalNode;
-import org.antlr.v4.runtime.Lexer;
-import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.*;
-import ${parserName}._parser.${parserName}Lexer;
+import ${genHelper.getGNameToLower()}._parser.${parserName}AntlrLexer;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.lang.Math;
 
-public class Encoder{
+public class ${parserName}Encoder{
 
-	private ArrayList<Range> ranges = new ArrayList<Range>();
+	private ArrayList<${parserName}Range> ranges = new ArrayList<${parserName}Range>();
 	private Map<String, String> encodingMap = new HashMap<String, String>(); 
 	public String startEncoding = "";
 
@@ -32,14 +30,14 @@ public class Encoder{
 			${asd}
 		</#list>
 	</#list>
-	return Range.union(ranges);	
+	return ${parserName}Range.union(ranges);	
 
 	}
 
 
-	public ${parserName}Lexer lex(String string){
+	public ${parserName}AntlrLexer lex(String string){
 		ANTLRInputStream input = new ANTLRInputStream(string);
-		${parserName}Lexer lexer = new ${parserName}Lexer(input);
+		${parserName}AntlrLexer lexer = new ${parserName}AntlrLexer(input);
 		return lexer;
 
 	}
@@ -95,7 +93,7 @@ public class Encoder{
 
 
 	public boolean typeCheck(int type, String string){
-		${parserName}Lexer lexer = lex(string);
+		${parserName}AntlrLexer lexer = lex(string);
 		Token nextToken =lexer.nextToken();
 
 		if(type == nextToken.getType() && lexer.nextToken().getType() == Token.EOF){
@@ -118,7 +116,7 @@ public class Encoder{
 			}
 		}
 
-			${parserName}Lexer lexer = lex(alphanumeric[i]);
+			${parserName}AntlrLexer lexer = lex(alphanumeric[i]);
 			lexer.removeErrorListeners(); //Removes strange error output in the console - we dont need it!
 			if(lexer.nextToken().getType() != Token.EOF){
 				usableSymbols[i] = alphanumeric[i];
@@ -208,7 +206,7 @@ public class Encoder{
 		return res;
 	}
 
-	public Map getEncoding(){ //Returns the map if none exists one is created
+	public Map<String, String> getEncoding(){ //Returns the map if none exists one is created
 	if(encodingMap.size() != 0){
  	return encodingMap;
 		}
