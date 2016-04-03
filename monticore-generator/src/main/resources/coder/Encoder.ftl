@@ -132,7 +132,7 @@ public class ${parserName}Encoder{
 	}
 
 
-	private void createEncoding(String[] kw, String[] usableSymbols, int first, int second, int type){ //Should create a Map with different encodings
+	private void createEncoding(String[] kw, String[] usableSymbols, int first, int second, int type) throws Exception{ //Should create a Map with different encodings
 		/*
 		Example encoding if a \nin JSsimple
 		var -> bcbbbbbb
@@ -177,8 +177,7 @@ public class ${parserName}Encoder{
 					first++;
 				}
 				if(first == kw.length && second == (kw.length+1)){
-					System.err.println("No viable encoding could be found, exiting with exit code 1"); //TODO Add exceptions
-					System.exit(1);
+					throw new Exception("No viable encoding can be generated for token type: " +type);
 				}
 				createEncoding(kw, usableSymbols, first, second, type);
 				return ;
@@ -210,7 +209,7 @@ public class ${parserName}Encoder{
 		return res;
 	}
 
-	public Map<String, String> getEncoding(int type){ //Returns the map if none exists one is created
+	public Map<String, String> getEncoding(int type) throws Exception{ //Returns the map if none exists one is created
 		if(encodingMap.size() != 0 && type == getCurrentType()) {
  			return encodingMap;
 		}
@@ -231,31 +230,36 @@ public class ${parserName}Encoder{
 	}
 
 	public void encode (CommonToken toEncode){ //Encodes a token and sets it text to the encoded variant
-		String encodedString = toEncode.getText(); //CAREFUL can cause problems use decode method
-		//insteadead of contains use a window
-		@SuppressWarnings("unchecked")
-		Map<String, String> map = (Map<String, String>) getEncoding(toEncode.getType());
+		try{
+			String encodedString = toEncode.getText(); //CAREFUL can cause problems use decode method
+			//insteadead of contains use a window
+			@SuppressWarnings("unchecked")
+		
+			Map<String, String> map = (Map<String, String>) getEncoding(toEncode.getType());
 
-		for(String key: map.keySet()){
-			if(startEncoding.equals(map.get(key))){
-				encodedString = encodedString.replaceAll(key, map.get(key));
-			}
+			for(String key: map.keySet()){
+				if(startEncoding.equals(map.get(key))){
+					encodedString = encodedString.replaceAll(key, map.get(key));
+				}
 			
-		}
-		
-		for(String key: map.keySet()){
-			if(!startEncoding.equals(map.get(key))){
-			encodedString = encodedString.replaceAll(key, map.get(key));
 			}
-		}
 		
-		if(typeCheck(toEncode.getType(), encodedString)){
-			toEncode.setText(encodedString);
-		}
-		else
-		{
-			System.err.println("Type missmatch while encoding [exit code 2]"); //Something has gone horribly wrong
-			System.exit(2);
+			for(String key: map.keySet()){
+				if(!startEncoding.equals(map.get(key))){
+				encodedString = encodedString.replaceAll(key, map.get(key));
+				}
+			}
+		
+			if(typeCheck(toEncode.getType(), encodedString)){
+				toEncode.setText(encodedString);
+			}
+			else
+			{
+				System.err.println("Type missmatch while encoding [exit code 2]"); //Something has gone horribly wrong
+				System.exit(2);
+			}
+		}catch(Exception e){
+			e.printStackTrace();		
 		}
 	}
 
