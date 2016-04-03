@@ -37,38 +37,38 @@ public class ${parserName}Tool
 	{
 		System.out.println("${parserName}Tool :D");
 		
-		String inputFile = null;
-		//if ( args.length>0 ) 
+		String inputFile = new String();
+		String injection = new String();
+		if ( args.length>1 ) 
 		{
-			/*inputFile = args[0];
+			// Input File
+			inputFile = args[0];
+			injection = args[1];
 			
 			Path path = Paths.get(inputFile);
-			byte[] data = Files.readAllBytes(path);*/
+			byte[] data = Files.readAllBytes(path);
 			
-			String msg = "<p><b>Text</b></p>";        
-	        char [] carr = msg.toCharArray();
-	        byte [] message = new byte [carr.length*2];
-	        
-	        for( int i = 0; i < carr.length; i++ )
-	        {
-	        	int cVal = carr[i];
-	        	System.out.println("cVal: " + cVal);
-	        	message[2*i] = (byte) (cVal >> 8);
-	        	message[2*i+1] = (byte) cVal;
-	        }
-			
+			// Parser
 			${parserName}Parser parser = new ${parserName}Parser();
-			ParseResult res = parser.parse(message);
+			ParseResult res = parser.parse(data);
 			
 			if( res != null )
 			{
+				// TreeConverter
 				ParseTree pt = ${parserName}TreeConverter.create(res);
 				
+				System.out.println();
+				System.out.println("ParseResult:");
 				System.out.println(pt.getText());
 				
-				${parserName}Injector injector = new ${parserName}Injector();
+				// Injector
+				${parserName}Injector injector = new ${parserName}Injector(injection);
 				ParseTreeWalker walker = new ParseTreeWalker();
 				walker.walk(injector, pt); 
+				
+				System.out.println();
+				System.out.println("Injection:");
+				System.out.println(pt.getText());
 				
 				// Encode
 				System.out.println();

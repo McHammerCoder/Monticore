@@ -137,12 +137,10 @@ public class McHammerParserGenerator
 		final Path resourcesFolder =  Paths.get(outputDirectory.toString(),RESOURCES_FOLDER);
 		List<File> fileList = extractTemporaryResources(outputDirectory,"resources");
 		fileList.addAll( extractTemporaryResources(outputDirectory,"com/upstandinghackers/hammer") );
-		
-		String args [] = {"REALLY_USE_OBSOLETE_BUILD_SYSTEM=yes"};
-	      
+				
 		try
 		{
-			Process p = Runtime.getRuntime().exec("make", args, resourcesFolder.toFile());
+			Process p = Runtime.getRuntime().exec("make REALLY_USE_OBSOLETE_BUILD_SYSTEM=yes",null,resourcesFolder.toFile());
 						
 			while( p.isAlive() );
 		}
@@ -181,7 +179,7 @@ public class McHammerParserGenerator
 		        	tempPath.mkdirs();
 		        	File tempFile = new File(resourceOutput);       	
 		        	tempFile.createNewFile();
-		        	//tempFile.deleteOnExit();
+		        	tempFile.deleteOnExit();
 		        	
 		        	if (!tempFile.exists()) 
 		        	{

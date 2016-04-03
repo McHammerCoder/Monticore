@@ -45,6 +45,7 @@ import de.monticore.codegen.mccoder.McCoderGenerator;
 import de.monticore.codegen.mccoder.McCoderPPGenerator;
 import de.monticore.codegen.mchammer.MCHammerGenerator;
 import de.monticore.codegen.mchammerparser.McHammerParserGenerator;
+import de.monticore.codegen.mchcexamples.McHCExampleGenerator;
 import de.monticore.codegen.parser.ParserGenerator;
 import de.monticore.codegen.symboltable.SymbolTableGenerator;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
@@ -688,4 +689,10 @@ public class MontiCoreScript extends Script implements GroovyRunner {
 	  McCoderPPGenerator.generate(glex, outputDirectory, astGrammar);
   } 
   
+  public void generateExample(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)
+  {
+	  System.out.println("Start generating Example!");
+	  
+	  McHCExampleGenerator.generate(glex, outputDirectory, astGrammar);
+  } 
 }

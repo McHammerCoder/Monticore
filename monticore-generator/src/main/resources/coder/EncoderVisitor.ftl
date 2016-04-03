@@ -22,11 +22,8 @@ public class ${parserName}EncoderVisitor extends ${parserName}AntlrBaseListener 
 	public void visitTerminal(TerminalNode node) {
 		CommonToken token = (CommonToken)node.getPayload();
 	
-		if(encoder.check(token)){
-			System.out.print(token.getText());
-		}
-		else{
-			System.out.print(encoder.encode(token));
+		if(!encoder.check(token)) {
+			encoder.encode(token);
 		}
 	}	
 

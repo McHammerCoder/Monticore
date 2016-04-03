@@ -258,7 +258,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		for( int i = 0; i < nameChars.length; i++ )
 		{
 			int c = nameChars[i];
-			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, " + c + ", " + c + ")");
+			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + c + ", " + c + ")");
 			if( i < nameChars.length-1 )
 			{
 				addToCodeSection(", ");
@@ -368,14 +368,14 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{
 		int lower = ast.getLowerChar().chars().toArray() [0];
 		int upper = ast.getUpperChar().chars().toArray() [0];
-		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, " + lower  + ", " + upper + ")" );
+		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + lower  + ", " + upper + ")" );
 	}
 
 	@Override
 	public void visit(ASTLexChar ast)
 	{
 		int ch = ast.getChar().chars().toArray() [0];
-		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, " + ch + ", " + ch + ")" );
+		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + ch + ", " + ch + ")" );
 	}
 	
 	@Override
@@ -390,7 +390,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		for( int i = 0; i < nameChars.length; i++ )
 		{
 			int c = nameChars[i];
-			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, " + c + ", " + c + ")");
+			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + c + ", " + c + ")");
 			if( i < nameChars.length-1 )
 			{
 				addToCodeSection(", ");

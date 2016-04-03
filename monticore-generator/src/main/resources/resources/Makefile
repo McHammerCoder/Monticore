@@ -15,7 +15,7 @@ PACKAGE=com.upstandinghackers.hammer
 include ./common.mk
 
 
-CFLAGS += -fPIC -L $(TOPLEVEL) -ljhammer -I. -I $(TOPLEVEL)/src/ -I $(TOPLEVEL)/include/ -I $(TOPLEVEL)/lib/ -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux
+CFLAGS += -fPIC -L $(TOPLEVEL) -ljhammer -I. -I $(TOPLEVEL)/include/ -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux
 
 %.java: $(call ifsilent,| $(HUSH))
 	$(JC) $(CP)/$@
@@ -23,7 +23,7 @@ CFLAGS += -fPIC -L $(TOPLEVEL) -ljhammer -I. -I $(TOPLEVEL)/src/ -I $(TOPLEVEL)/
 all: javacc prepare compile link
 
 link: compile
-	$(CC) -shared $(CFLAGS) -o libjhammer_actions.so *.o libjhammer.so
+	$(CC) -shared $(CFLAGS) -o libjhammer_actions.so *.o ./build/opt/src/*.os ./build/opt/src/backends/*.os ./build/opt/src/parsers/*.os
 
 $(CSOURCES): prepare
 	$(CC) -c $(CFLAGS) $@

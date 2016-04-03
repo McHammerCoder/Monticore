@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/ 
  */
-package de.monticore.codegen.mccoder;
+package de.monticore.codegen.mchcexamples;
 
 
 import java.io.File;
@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 
 import com.google.common.base.Joiner;
 
+import de.monticore.codegen.mccoder.UsableSymbolExtractor;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
@@ -32,9 +33,9 @@ import de.monticore.grammar.grammar._ast.ASTMCGrammar;
  * @since   TODO: add version number
  *
  */
-public class McCoderPPGenerator
+public class McHCExampleGenerator
 	{
-		public static final String PARSER_PACKAGE = "_coder";
+		public static final String EXAMPLE_PACKAGE = "example";
 		
 		public static void generate(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)
 		{
@@ -43,13 +44,17 @@ public class McCoderPPGenerator
 			setup.setGlex(glex);
 			
 			// Initialize GeneratorHelper
-			final McCoderPPGeneratorHelper generatorHelper = new McCoderPPGeneratorHelper(astGrammar);
+			final McHCExampleGeneratorHelper generatorHelper = new McHCExampleGeneratorHelper(astGrammar);
 			
 			// Initialize GeneratorEngine
 			final GeneratorEngine generator = new GeneratorEngine(setup);
 			
 			// Generate _Decoder.java
-			//final Path filePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Tool.java");
-			//generator.generate("coder.Tool", filePath, astGrammar, generatorHelper);	
+			final Path filePathTool = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Tool.java");
+			generator.generate("mchc_example.Tool", filePathTool, astGrammar, generatorHelper);	
+			
+			// Generate _Injector.java
+			final Path filePathInjector = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Injector.java");
+			generator.generate("mchc_example.Injector", filePathInjector, astGrammar, generatorHelper);
 		}
 	}

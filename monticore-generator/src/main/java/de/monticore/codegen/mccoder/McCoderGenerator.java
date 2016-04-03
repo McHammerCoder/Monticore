@@ -72,11 +72,7 @@ public class McCoderGenerator
 		// Generate _EncoderVisitor.java
 		final Path filePathEVisitor = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"EncoderVisitor.java");
 		generator.generate("coder.EncoderVisitor", filePathEVisitor, astGrammar, new UsableSymbolExtractor(generatorHelper,grammarInfo));
-		
-		// Generate _Injector.java
-		final Path filePathInjector = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Injector.java");
-		generator.generate("coder.Injector", filePathInjector, astGrammar, new UsableSymbolExtractor(generatorHelper,grammarInfo));
-		
+				
 		// Generate _Range.java
 		final Path filePathRange = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Range.java");
 		generator.generate("coder.Range", filePathRange, astGrammar, new UsableSymbolExtractor(generatorHelper,grammarInfo));

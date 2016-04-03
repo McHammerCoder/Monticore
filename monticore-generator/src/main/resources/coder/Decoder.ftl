@@ -27,17 +27,17 @@ public class ${parserName}Decoder{
 
 }*/
 
-public String decode(CommonToken toDecode){ //Decodes a token and sets it text to the decoded variant
+public void decode(CommonToken toDecode){ //Decodes a token and sets it text to the decoded variant
 	String decodedString = toDecode.getText();
 	int elength = encoder.startEncoding.length();
 	@SuppressWarnings("unchecked")
 	Map<String, String> map = (Map<String, String>) encoder.getEncoding();
 	
 	if(! (decodedString.length() < elength) ){
-		for(int i = 0; i < decodedString.length()-elength; i++){
+		for(int i = 0; i <= decodedString.length()-elength; i++){
 			for(String key: map.keySet()){
 				if(encoder.startEncoding.equals(map.get(key))){
-					if(i+elength < decodedString.length() && decodedString.substring(i,elength+i).equals(map.get(key))){
+					if(i+elength <= decodedString.length() && decodedString.substring(i,elength+i).equals(map.get(key))){
 							
 						decodedString =	decodedString.substring(0, i) + decodedString.substring(i).replaceFirst(map.get(key), key);
 						break;
@@ -46,7 +46,7 @@ public String decode(CommonToken toDecode){ //Decodes a token and sets it text t
 					
 				}
 				else if(!encoder.startEncoding.equals(map.get(key))){
-					if(i+elength < decodedString.length() && decodedString.substring(i,elength+i).equals(map.get(key))){
+					if(i+elength <= decodedString.length() && decodedString.substring(i,elength+i).equals(map.get(key))){
 							
 						decodedString =	decodedString.substring(0, i) + decodedString.substring(i).replaceFirst(map.get(key), key);
 	
@@ -75,7 +75,6 @@ public String decode(CommonToken toDecode){ //Decodes a token and sets it text t
 	} */	
 	
 	toDecode.setText(decodedString);
-		return decodedString;
 }
 
 }

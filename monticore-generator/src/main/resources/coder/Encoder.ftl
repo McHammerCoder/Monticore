@@ -207,51 +207,52 @@ public class ${parserName}Encoder{
 	}
 
 	public Map<String, String> getEncoding(){ //Returns the map if none exists one is created
-	if(encodingMap.size() != 0){
- 	return encodingMap;
+		if(encodingMap.size() != 0) {
+ 			return encodingMap;
 		}
-	else {
-		createEncoding(getKeywords(), getUsableSymbols(), 0, 1);
-		return encodingMap;
-	}
-
+		else {
+			createEncoding(getKeywords(), getUsableSymbols(), 0, 1);
+			return encodingMap;
+		}
 	}
 
 	public boolean canBeEncoded(String toTest){ //Checks if a string can be encoded
-	String[] kw = getKeywords();
-	for(int i=0; i< kw.length; i++){
-		if(toTest.contains(kw[i])){
-		return true;
-		}	
+		String[] kw = getKeywords();
+		for(int i=0; i< kw.length; i++) {
+			if(toTest.contains(kw[i])) {
+				return true;
+			}	
+		}
+		return false;
 	}
-	return false;
 
-	}
-
-	public String encode (CommonToken toEncode){ //Encodes a token and sets it text to the encoded variant
+	public void encode (CommonToken toEncode){ //Encodes a token and sets it text to the encoded variant
 		String encodedString = toEncode.getText(); //CAREFUL can cause problems use decode method
 		//insteadead of contains use a window
 		@SuppressWarnings("unchecked")
 		Map<String, String> map = (Map<String, String>) getEncoding();
 
-			for(String key: map.keySet()){
-				if(startEncoding.equals(map.get(key))){
-				encodedString = encodedString.replaceAll(key, map.get(key));
-				}
-			
-			}
 		for(String key: map.keySet()){
-				if(!startEncoding.equals(map.get(key))){
+			if(startEncoding.equals(map.get(key))){
 				encodedString = encodedString.replaceAll(key, map.get(key));
-				}
 			}
+			
+		}
+		
+		for(String key: map.keySet()){
+			if(!startEncoding.equals(map.get(key))){
+			encodedString = encodedString.replaceAll(key, map.get(key));
+			}
+		}
+		
 		if(typeCheck(toEncode.getType(), encodedString)){
 			toEncode.setText(encodedString);
-			return encodedString;
-			}
+		}
+		else
+		{
 			System.err.println("Type missmatch while encoding [exit code 2]"); //Something has gone horribly wrong
 			System.exit(2);
-			return null;
+		}
 	}
 
 }

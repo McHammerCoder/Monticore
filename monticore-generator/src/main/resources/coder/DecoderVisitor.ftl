@@ -15,7 +15,7 @@ public class ${parserName}DecoderVisitor extends ${parserName}AntlrBaseListener 
 
 	public void visitTerminal(TerminalNode node) {
 		CommonToken token = (CommonToken)node.getPayload();
-	 		System.out.print(decoder.decode(token));
+	 	decoder.decode(token);
 	}
 
 }

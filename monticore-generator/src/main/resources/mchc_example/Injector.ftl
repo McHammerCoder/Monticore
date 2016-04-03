@@ -1,5 +1,4 @@
 ${tc.signature("genHelper")}
-<#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 
 package ${genHelper.getParserPackage()};
@@ -21,11 +20,17 @@ import ${genHelper.getGNameToLower()}._parser.*;
 
 public class ${parserName}Injector extends ${parserName}AntlrBaseListener {
 
+	private String injection = new String();
 
+	${parserName}Injector(String injection)
+	{
+		this.injection = injection;
+	}
+	
 	public void visitTerminal(TerminalNode node) {
 		CommonToken token = (CommonToken)node.getPayload();
-	 	if(token.getType() == 8 && token.getText().equals("replceme")){
-		token.setText("clr\", newr \"=\";varbcccc"); //Simulates an injection in the token with text testing of type 8
+	 	if(token.getText().equals("Text")){
+		token.setText(injection); //Simulates an injection in the token with text testing of type 8
 		}	
 
 	}
