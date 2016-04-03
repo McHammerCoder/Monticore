@@ -245,21 +245,21 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTTerminal ast) 
 	{
-		String name = ast.getName();
-		int [] nameChars = name.chars().toArray();
+		String name = decodeString(ast.getName());
 		
-
+		printIteration(ast.getIteration());
+		
 		addToCodeSection("\n" + indent + "Hammer.action( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.sequence( ");
 		increaseIndent();
 		
-		for( int i = 0; i < nameChars.length; i++ )
+		for( int i = 0; i < name.length(); i++ )
 		{
-			int c = nameChars[i];
-			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + c + ", " + c + ")");
-			if( i < nameChars.length-1 )
+			String c = encodeChar(name.charAt(i));
+			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + c + "', (byte)'" + c + "')");
+			if( i < name.length()-1 )
 			{
 				addToCodeSection(", ");
 			}
@@ -285,6 +285,8 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actTT_" + id + "\" )");
+		
+		printIterationEnd(ast.getIteration());
 	}
 	
 	//@Override
@@ -366,32 +368,31 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTLexCharRange ast) 
 	{
-		int lower = ast.getLowerChar().chars().toArray() [0];
-		int upper = ast.getUpperChar().chars().toArray() [0];
-		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + lower  + ", " + upper + ")" );
+		String lower = ast.getLowerChar();
+		String upper = ast.getUpperChar();
+		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + lower  + "', (byte)'" + upper + "')" );
 	}
 
 	@Override
 	public void visit(ASTLexChar ast)
 	{
-		int ch = ast.getChar().chars().toArray() [0];
-		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + ch + ", " + ch + ")" );
+		String c = ast.getChar();
+		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + c + "', (byte)'" + c + "')" );
 	}
 	
 	@Override
 	public void visit(ASTLexString ast) 
 	{
-		String name = ast.getString();
-		int [] nameChars = name.chars().toArray();
+		String name = decodeString(ast.getString());
 		
 		addToCodeSection("\n" + indent + "Hammer.sequence( ");
 		increaseIndent();
 		
-		for( int i = 0; i < nameChars.length; i++ )
+		for( int i = 0; i < name.length(); i++ )
 		{
-			int c = nameChars[i];
-			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + c + ", " + c + ")");
-			if( i < nameChars.length-1 )
+			String c = encodeChar(name.charAt(i));
+			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + c + "', (byte)'" + c + "')");
+			if( i < name.length()-1 )
 			{
 				addToCodeSection(", ");
 			}
@@ -413,7 +414,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	
 	@Override
 	public void visit(ASTLexNonTerminal ast) 
-	{
+	{		
 		addToCodeSection("\n" + indent + ast.getName().toLowerCase());
 	}
 	
@@ -432,7 +433,11 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTNonTerminal ast) 
 	{
+		printIteration(ast.getIteration());
+		
 		addToCodeSection("\n" + indent + ast.getName().toLowerCase());
+		
+		printIterationEnd(ast.getIteration());
 	}
 	
 	@Override
@@ -662,5 +667,35 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	public static void addInterface(String interfaceName)
 	{
 		interfaces.put(interfaceName.toLowerCase(), Lists.newArrayList());
+	}
+	
+	private String encodeChar(char c)
+	{
+		switch(c)
+		{
+		case '\\': return "\\\\";
+		case '\t': return "\\t";
+		case '\r': return "\\r";
+		case '\n': return "\\n";
+		case '\b': return "\\b";
+		case '\f': return "\\f";
+		case '\'': return "\\\'";
+		case '\"': return "\\\"";
+		default: return "" + c;
+		}
+	}
+	
+	private String decodeString(String str)
+	{
+		str.replace("\\\\", "\\");
+		str.replace("\\t", "\t");
+		str.replace("\\r", "\r");
+		str.replace("\\n", "\n");
+		str.replace("\\b", "\b");
+		str.replace("\\f", "\f");
+		str.replace("\\\'", "\'");
+		str.replace("\\\"", "\"");
+		
+		return str;
 	}
 }
