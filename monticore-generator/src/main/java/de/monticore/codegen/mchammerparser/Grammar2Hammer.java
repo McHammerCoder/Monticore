@@ -9,16 +9,12 @@ import static de.monticore.codegen.parser.ParserGeneratorHelper.getMCRuleForThis
 import static de.monticore.codegen.parser.ParserGeneratorHelper.getTmpVarNameForAntlrCode;
 import static de.monticore.codegen.parser.ParserGeneratorHelper.printIteration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import de.monticore.ast.ASTNode;
@@ -37,6 +33,7 @@ import de.monticore.grammar.grammar._ast.ASTConstantGroup;
 import de.monticore.grammar.grammar._ast.ASTConstantsGrammar;
 import de.monticore.grammar.grammar._ast.ASTEnumProd;
 import de.monticore.grammar.grammar._ast.ASTEof;
+import de.monticore.grammar.grammar._ast.ASTInterfaceProd;
 import de.monticore.grammar.grammar._ast.ASTLexActionOrPredicate;
 import de.monticore.grammar.grammar._ast.ASTLexAlt;
 import de.monticore.grammar.grammar._ast.ASTLexBlock;
@@ -53,6 +50,7 @@ import de.monticore.grammar.grammar._ast.ASTNonTerminal;
 import de.monticore.grammar.grammar._ast.ASTOptionValue;
 import de.monticore.grammar.grammar._ast.ASTProd;
 import de.monticore.grammar.grammar._ast.ASTRuleComponent;
+import de.monticore.grammar.grammar._ast.ASTRuleReference;
 import de.monticore.grammar.grammar._ast.ASTSemanticpredicateOrAction;
 import de.monticore.grammar.grammar._ast.ASTTerminal;
 import de.monticore.grammar.grammar._ast.GrammarNodeFactory;
@@ -94,6 +92,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	
 	private String indent = "\t\t";
 	  
+	private static Map<String,List<String>> interfaces = Maps.newHashMap();
 	
 	public Grammar2Hammer(McHammerParserGeneratorHelper parserGeneratorHelper, MCGrammarInfo grammarInfo) 
 	{
@@ -115,6 +114,12 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		addToCodeSection("\n" + indent + "Hammer.choice( ");
 		increaseIndent();
+		
+		List<ASTRuleReference> superInterfaces = ast.getSuperInterfaceRule();
+		for( ASTRuleReference i : superInterfaces )
+		{
+			interfaces.get(i.getName().toLowerCase()).add(ast.getName().toLowerCase());
+		}
 		
 		List<ASTAlt> alts = ast.getAlts();
 		for( int i = 0; i < alts.size(); i++ )
@@ -501,6 +506,41 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		return getHammerCode();
 	}
 	
+	public List<String> createHammerInterfaceCode(MCRuleSymbol ast)
+	{
+		clearHammerCode();
+		
+		startCodeSection("ASTInterfaceProd");
+		
+		addToCodeSection("\n" + indent + ast.getName().toLowerCase() + ".bindIndirect( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.choice( ");
+		increaseIndent();
+		
+		List<String> alts = interfaces.get(ast.getName().toLowerCase());
+		for(int i = 0; i < alts.size(); i++)
+		{
+			addToCodeSection("\n" + indent + alts.get(i));
+			
+			if( i < alts.size()-1 )
+			{
+				addToCodeSection(", ");
+			}
+		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ");");
+		
+		
+		endCodeSection();
+		
+		return getHammerCode();
+	}
+	
 	// ----------------------------------------------------------
 
 	/**
@@ -617,5 +657,10 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	private void resetIndent()
 	{
 		indent = "\t\t";
+	}
+	
+	public static void addInterface(String interfaceName)
+	{
+		interfaces.put(interfaceName.toLowerCase(), Lists.newArrayList());
 	}
 }

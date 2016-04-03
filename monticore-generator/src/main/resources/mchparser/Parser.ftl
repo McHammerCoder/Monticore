@@ -26,8 +26,8 @@ public class ${grammarName}Parser
 			// Load Hammer Library from Jar or Dependencies
 			try 
 			{    
-				NativeUtils.loadLibraryFromJar("/libjhammer.so");
-				NativeUtils.loadLibraryFromJar("/libjhammer_actions.so");  
+				NativeUtils.loadLibraryFromJar("/resources/libjhammer.so");
+				NativeUtils.loadLibraryFromJar("/resources/libjhammer_actions.so");  
 			} 
 			catch (IOException e1)
 			{    
@@ -57,7 +57,6 @@ public class ${grammarName}Parser
 	private com.upstandinghackers.hammer.Parser int_64 = Hammer.int64();
 	
 	/** Indirect Parsers **/
-	
 <#list genHelper.getIndirectRulesToGenerate() as indirectRule>
 	private final com.upstandinghackers.hammer.Parser ${indirectRule} = Hammer.indirect();
 </#list>
@@ -70,14 +69,20 @@ public class ${grammarName}Parser
 	public ${grammarName}Parser()
 	{
 <#list genHelper.getLexerRulesToGenerate() as lexRule>
-	<#list hammerGenerator.createHammerCode(lexRule) as rule>
-		${rule}
+	<#list hammerGenerator.createHammerCode(lexRule) as lexRuleCode>
+		${lexRuleCode}
 	</#list>
 </#list>	
 	
-<#list genHelper.getParserRulesToGenerate() as indirectRule>
-	<#list hammerGenerator.createHammerCode(indirectRule) as parserRule>
-		${parserRule}
+<#list genHelper.getParserRulesToGenerate() as parserRule>
+	<#list hammerGenerator.createHammerCode(parserRule) as parserRuleCode>
+		${parserRuleCode}
+	</#list>
+</#list>
+
+<#list genHelper.getInterfaceRulesToGenerate() as interfaceRule>
+	<#list hammerGenerator.createHammerInterfaceCode(interfaceRule) as interfaceRuleCode>
+		${interfaceRuleCode}
 	</#list>
 </#list>
 

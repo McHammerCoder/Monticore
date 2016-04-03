@@ -177,13 +177,29 @@ public class McHammerParserGeneratorHelper
 	public List<String> getIndirectRulesToGenerate()
 	{
 		List<String> prods = Lists.newArrayList();
-	    Set<String> ruleNames = grammarSymbol.getRulesWithInherited().keySet();
 	    
-	    for( Iterator<String> i = ruleNames.iterator(); i.hasNext(); )
-	    {
-	    	prods.add(i.next().toLowerCase());
-	    }
+		List<ASTProd> parserRules = getParserRulesToGenerate();
 	    
+		for(ASTProd parserRule : parserRules)
+		{
+			prods.add(parserRule.getName().toLowerCase());
+		}
+		
+		List<ASTLexProd> lexerRules = getLexerRulesToGenerate();
+	    
+		for(ASTLexProd lexerRule : lexerRules)
+		{
+			prods.add(lexerRule.getName().toLowerCase());
+		}
+		
+		List<MCRuleSymbol> interfaceRules = getInterfaceRulesToGenerate();
+	    
+		for(MCRuleSymbol interfaceRule : interfaceRules)
+		{
+			prods.add(interfaceRule.getName().toLowerCase());
+			Grammar2Hammer.addInterface(interfaceRule.getName().toLowerCase());
+		}
+		
 	    return prods;
 	}
 	
@@ -207,6 +223,28 @@ public class McHammerParserGeneratorHelper
 	        }
 		}
 	    return prods;
+	}
+	
+	public List<MCRuleSymbol> getInterfaceRulesToGenerate() 
+	{
+		List<MCRuleSymbol> interfaceRules = Lists.newArrayList();
+		
+		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited()
+		    .values()) 
+		{
+			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.INTERFACEORABSTRACTRULE)) 
+			{
+    
+				List<PredicatePair> subRules = grammarSymbol.getSubRulesForParsing(ruleSymbol.getName());
+    
+				if (subRules != null && !subRules.isEmpty()) 
+				{
+					interfaceRules.add(ruleSymbol);
+				}
+    		}
+		}
+		
+		return interfaceRules;
 	}
 	
 	public List<ASTLexProd> getLexerRulesToGenerate() 
@@ -296,11 +334,6 @@ public class McHammerParserGeneratorHelper
 			{
 				lexStrings.add(token.substring(1, token.lastIndexOf("'=")));
 			}
-		}
-		
-		for( String token : lexStrings )
-		{
-			System.out.println(token);
 		}
 	}
 }

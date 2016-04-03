@@ -5,12 +5,26 @@
  */
 package de.monticore.codegen.mchammerparser;
 
+import java.io.BufferedReader;
+import java.io.Console;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -42,6 +56,8 @@ public class McHammerParserGenerator
 	public static final String PARSER_PACKAGE = "_mch_parser";
 	
 	public static final String PARSETREE_PACKAGE = "tree";
+	
+	public static final String RESOURCES_FOLDER = "resources";
 	
 	public static void generate(Scope symbolTable, ASTMCGrammar astGrammar, File outputDirectory)
 	{
@@ -113,7 +129,97 @@ public class McHammerParserGenerator
 		generator.generate("mchtree.TreeHelper", treeHelperPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 		
 		// Generate TreeHelper.java
-		final Path hammerActionPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), "com_upstandinghackers_hammer_Hammer.c");
+		final Path hammerActionPath = Paths.get(RESOURCES_FOLDER, "com_upstandinghackers_hammer_Hammer.c");
 		generator.generate("mchparser.com_upstandinghackers_hammer_Hammer", hammerActionPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+	
+		
+		// Extract Hammer resources
+		final Path resourcesFolder =  Paths.get(outputDirectory.toString(),RESOURCES_FOLDER);
+		List<File> fileList = extractTemporaryResources(outputDirectory,"resources");
+		fileList.addAll( extractTemporaryResources(outputDirectory,"com/upstandinghackers/hammer") );
+		
+		String args [] = {"REALLY_USE_OBSOLETE_BUILD_SYSTEM=yes"};
+	      
+		try
+		{
+			Process p = Runtime.getRuntime().exec("make", args, resourcesFolder.toFile());
+						
+			while( p.isAlive() );
+		}
+		catch( Exception e )
+		{
+			e.printStackTrace();
+		}
+		
+		//System.console().readLine();
+	}
+		
+	private static List<File> extractTemporaryResources(File outputDirectory,String resourcePath)
+	{
+		try
+		{
+			// Extract Hammer resources
+			final Path resourcesFolder =  Paths.get(outputDirectory.toString(),RESOURCES_FOLDER);
+			
+			List<String> resources = (List<String>) ResourceList.getResources(Pattern.compile(resourcePath + "/.*"));
+			
+			// Prepare buffer for data copying
+	        byte[] buffer = new byte[1024];
+	        int readBytes;
+			
+	        // Prepare temporary files
+	        List<File> tempFiles = Lists.newArrayList();
+	        
+	        for(String resource : resources)
+	        {
+	        	if( !resource.endsWith("/") )
+	        	{
+	        	
+		        	//System.out.println(resource);
+		        	String resourceOutput = resourcesFolder + "/" + (resource.startsWith("resources/") ? resource.substring(resource.indexOf("resources/")+10) : resource);
+		        	File tempPath = new File(resourceOutput.substring(0,resourceOutput.lastIndexOf("/")));
+		        	tempPath.mkdirs();
+		        	File tempFile = new File(resourceOutput);       	
+		        	tempFile.createNewFile();
+		        	//tempFile.deleteOnExit();
+		        	
+		        	if (!tempFile.exists()) 
+		        	{
+		 	            throw new FileNotFoundException("File " + tempFile.getAbsolutePath() + " does not exist.");
+		 	        }
+		        	
+		        	// Open and check input stream
+			        InputStream is = McHammerParserGenerator.class.getResourceAsStream("/" + resource);
+			        if (is == null) 
+			        {
+			            throw new FileNotFoundException("File " + resource + " was not found inside class path.");
+			        }
+			        
+			        // Open output stream and copy data between source file in JAR and the temporary file
+			        OutputStream os = new FileOutputStream(tempFile);
+			        try 
+			        {
+			            while ((readBytes = is.read(buffer)) != -1) 
+			            {
+			                os.write(buffer, 0, readBytes);
+			            }
+			        } 
+			        finally 
+			        {
+			            // If read/write fails, close streams safely before throwing an exception
+			            os.close();
+			            is.close();
+			        }
+	        	}
+	        }
+	        
+	        return tempFiles;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		return new ArrayList<File>();
 	}
 }
