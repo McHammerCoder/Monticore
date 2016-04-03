@@ -21,8 +21,16 @@ public class ${parserName}Encoder{
 	private ArrayList<${parserName}Range> ranges = new ArrayList<${parserName}Range>();
 	private Map<String, String> encodingMap = new HashMap<String, String>(); 
 	public String startEncoding = "";
+	private int currentType;
 
-
+	private int getCurrentType(){
+		return currentType;
+	}
+	
+	private void setCurrentType(int type){
+		this.currentType = type;
+	}
+	
 	public String[] initiateUsableSymbols(){
 	
 	<#list genHelper.getLexerRulesToGenerate() as lexrule>
@@ -45,7 +53,7 @@ public class ${parserName}Encoder{
 	public String[] getKeywords(){
 	 	Vocabulary voc = lex("").getVocabulary();
 		String[] keywords; // final keywords list
-		keywords = new String[lex("").getTokenNames().length+2]; //This is market as deprecated but no explanation or alternative has been provided
+		keywords = new String[lex("").getTokenNames().length]; //This is market as deprecated but no explanation or alternative has been provided
 		String tmp; // temp string for filtering
 		for(int i = 0; i < keywords.length ; i++){
 		 tmp = voc.getLiteralName(i);
@@ -53,10 +61,7 @@ public class ${parserName}Encoder{
 		 	keywords[i] = "'";
 		 }
 		 else if(tmp != null){
-		 keywords[i] = tmp.replaceAll("'", "");} //Removes ' ' surronding the keywords
-		 if(i == keywords.length-2){
-		 	keywords[i] = " ";
-		 }
+		 keywords[i] = tmp.replace("'", "");} //Removes ' ' surronding the keywords
 		}
 
 		keywords = Arrays.stream(keywords).filter(s -> (s != null && s.length() > 0)).toArray(String[]::new); //Filtering NULL out
@@ -127,7 +132,7 @@ public class ${parserName}Encoder{
 	}
 
 
-	private void createEncoding(String[] kw, String[] usableSymbols, int first, int second){ //Should create a Map with different encodings
+	private void createEncoding(String[] kw, String[] usableSymbols, int first, int second, int type){ //Should create a Map with different encodings
 		/*
 		Example encoding if a \nin JSsimple
 		var -> bcbbbbbb
@@ -141,8 +146,10 @@ public class ${parserName}Encoder{
 		*/
 		//int length0 = kw.length;
 		//int length1 = 1; //makes for a total length of kw.length+1!
+		
+		setCurrentType(type);
 		String encoding = usableSymbols[first];
-		for(int j=0; j<(kw.length+1); j++){
+		for(int j=0; j <= (kw.length); j++){
 
 			
 			
@@ -155,11 +162,11 @@ public class ${parserName}Encoder{
 
 			encoding += convertToString(j, usableSymbols[first], usableSymbols[second], (int) Math.ceil((Math.log10(kw.length+1)/Math.log10(2)))); //[log_2(kw.length+1)]
 
-			if(j != kw.length && !notKeyword(encoding)){
+			if(j != kw.length && !notKeyword(encoding) && typeCheck(type,encoding)){
 			encodingMap.put(kw[j], encoding);//Save encoding and kw[j] to map
 			System.out.println(kw[j] + " = " + encoding);
 			}
-			else if(notKeyword(encoding)){ //Our created encoding contains a keyword reset and try again
+			else if(notKeyword(encoding) || !typeCheck(type,encoding)){ //Our created encoding contains a keyword reset and try again
 				encodingMap.clear();
 				second++;
 				if(first == second){
@@ -173,7 +180,8 @@ public class ${parserName}Encoder{
 					System.err.println("No viable encoding could be found, exiting with exit code 1"); //TODO Add exceptions
 					System.exit(1);
 				}
-				createEncoding(kw, usableSymbols, first, second);
+				createEncoding(kw, usableSymbols, first, second, type);
+				return ;
 			}
 			else if(j == kw.length){
 				System.out.println(usableSymbols[first] + " = " + encoding);
@@ -182,10 +190,6 @@ public class ${parserName}Encoder{
 				startEncoding = encoding;
 			}
 			encoding = usableSymbols[first]; //Reset first symbol for encoding
-			/*	if(length1 != (kw.length+1)){ //Update length of symbols untill we get all usableSymbols[0] followd by n uS[1]
-					length0--;
-					length1++;
-				}*/
 		}
 	}
 	private String convertToString( int number, String first, String second, int length)
@@ -206,12 +210,12 @@ public class ${parserName}Encoder{
 		return res;
 	}
 
-	public Map<String, String> getEncoding(){ //Returns the map if none exists one is created
-		if(encodingMap.size() != 0) {
+	public Map<String, String> getEncoding(int type){ //Returns the map if none exists one is created
+		if(encodingMap.size() != 0 && type == getCurrentType()) {
  			return encodingMap;
 		}
 		else {
-			createEncoding(getKeywords(), getUsableSymbols(), 0, 1);
+			createEncoding(getKeywords(), getUsableSymbols(), 0, 1, type);
 			return encodingMap;
 		}
 	}
@@ -230,7 +234,7 @@ public class ${parserName}Encoder{
 		String encodedString = toEncode.getText(); //CAREFUL can cause problems use decode method
 		//insteadead of contains use a window
 		@SuppressWarnings("unchecked")
-		Map<String, String> map = (Map<String, String>) getEncoding();
+		Map<String, String> map = (Map<String, String>) getEncoding(toEncode.getType());
 
 		for(String key: map.keySet()){
 			if(startEncoding.equals(map.get(key))){

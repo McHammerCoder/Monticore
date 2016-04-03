@@ -15,67 +15,47 @@ public class ${parserName}Decoder{
 
 	private ${parserName}Encoder encoder = new ${parserName}Encoder();
 
-/*public boolean canBeDecoded(String toTest){ //Checks if a string can be decoded
-	@SuppressWarnings("unchecked")
-	Map<String, String> map = (Map<String, String>) encoder.getEncoding();
-	for(String key: map.keySet()){
-		if(toTest.contains(map.get(key))){
-		return true;
-		}	
+	public void decode(CommonToken toDecode){ //Decodes a token and sets it text to the decoded variant
+		String[] kw = encoder.getKeywords();
+		for(int i=0; i<kw.length; i++)
+			if( toDecode.getType() == encoder.lex(kw[i]).nextToken().getType())
+			{
+				return ;
+			}
+		String decodedString = toDecode.getText();
+		int elength = encoder.startEncoding.length();
+		@SuppressWarnings("unchecked")
+		Map<String, String> map = (Map<String, String>) encoder.getEncoding(toDecode.getType());
+	
+		if(! (decodedString.length() < elength) )
+		{
+			for(int i = 0; i < decodedString.length()-elength; i++)
+			{
+				for(String key: map.keySet())
+				{
+					if( encoder.startEncoding.equals(map.get(key)) )
+					{
+						if( decodedString.substring(i).startsWith(map.get(key)) )
+						{
+							decodedString =	decodedString.substring(0, i) + decodedString.substring(i).replaceFirst(map.get(key), key);
+							break;
+						}
+					}
+					else
+					{
+						if( decodedString.substring(i).startsWith(map.get(key)) )
+						{
+							decodedString =	decodedString.substring(0, i) + decodedString.substring(i).replaceFirst(map.get(key), key);
+						}
+					}
+				}
+			}
+		}
+
+	
+	
+		toDecode.setText(decodedString);
 	}
-	return false;
-
-}*/
-
-public void decode(CommonToken toDecode){ //Decodes a token and sets it text to the decoded variant
-	String decodedString = toDecode.getText();
-	int elength = encoder.startEncoding.length();
-	@SuppressWarnings("unchecked")
-	Map<String, String> map = (Map<String, String>) encoder.getEncoding();
-	
-	if(! (decodedString.length() < elength) ){
-		for(int i = 0; i <= decodedString.length()-elength; i++){
-			for(String key: map.keySet()){
-				if(encoder.startEncoding.equals(map.get(key))){
-					if(i+elength <= decodedString.length() && decodedString.substring(i,elength+i).equals(map.get(key))){
-							
-						decodedString =	decodedString.substring(0, i) + decodedString.substring(i).replaceFirst(map.get(key), key);
-						break;
-	
-					}
-					
-				}
-				else if(!encoder.startEncoding.equals(map.get(key))){
-					if(i+elength <= decodedString.length() && decodedString.substring(i,elength+i).equals(map.get(key))){
-							
-						decodedString =	decodedString.substring(0, i) + decodedString.substring(i).replaceFirst(map.get(key), key);
-	
-					}
-					
-				}
-			}
-		}
-			
-	} 
-
-
-		
-	/*
-	
-	for(String key: map.keySet()){
-			if(map.containsKey(key) && !encoder.startEncoding.equals(map.get(key))){
-			decodedString = decodedString.replaceAll(map.get(key), key);
-			}
-		}
-	
-	for(String key: map.keySet()){
-		if(map.containsKey(key) && encoder.startEncoding.equals(map.get(key))){
-		decodedString = decodedString.replaceAll(map.get(key), key);
-		}
-	} */	
-	
-	toDecode.setText(decodedString);
-}
 
 }
 
