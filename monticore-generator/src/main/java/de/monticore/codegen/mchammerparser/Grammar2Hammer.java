@@ -358,13 +358,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		printIterationEnd(ast.getIteration()); 
 	}
-	
-	@Override
-	public void handle(ASTLexSimpleIteration ast) 
-	{
-		addToCodeSection("/*ASTLexSimpleIteration*/");
-	}
-	
+		
 	@Override
 	public void visit(ASTLexCharRange ast) 
 	{
@@ -407,6 +401,20 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	}
 	
 	@Override
+	public void handle(ASTLexSimpleIteration ast)
+	{
+		printIteration(ast.getIteration()); 
+				
+		Optional<ASTLexNonTerminal> nonTerminal = ast.getLexNonTerminal();
+		if (nonTerminal.isPresent()) 
+		{
+			nonTerminal.get().accept(getRealThis());
+		}
+		
+		printIterationEnd(ast.getIteration()); 
+	}
+	
+	@Override
 	public void visit(ASTLexActionOrPredicate ast) 
 	{
 		addToCodeSection("\n" + indent + "Hammer.nothingP()");
@@ -443,7 +451,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTEof ast)
 	{
-		addToCodeSection("/*ASTEof*/");
+		addToCodeSection("\n" + indent + "Hammer.endP()");
 	}
 	  
 	@Override
@@ -485,7 +493,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{
 		addToCodeSection("\n" + indent + "Hammer.sequence( ");
 		increaseIndent();
-		
+				
 		java.util.List<de.monticore.grammar.grammar._ast.ASTLexComponent> components = alt.getLexComponents();
 		
 		for( int i = 0; i < components.size(); i++ )
