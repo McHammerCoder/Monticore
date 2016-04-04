@@ -79,7 +79,7 @@ public class ${parserName}Encoder{
 		 String originaltext = receivedtoken.getText();
 		Token nextToken = lex(originaltext).nextToken();
 
-		if((originaltext.equals(nextToken.getText()) && receivedtoken.getType() == nextToken.getType()) && notKeyword(originaltext) ){
+		if((originaltext.equals(nextToken.getText()) && receivedtoken.getType() == nextToken.getType())){
 			return true;
 			}
 	
@@ -259,7 +259,8 @@ public class ${parserName}Encoder{
 				System.exit(2);
 			}
 		}catch(Exception e){
-			e.printStackTrace();		
+			System.out.println(e.getMessage());
+			//System.exit(1);		
 		}
 	}
 
