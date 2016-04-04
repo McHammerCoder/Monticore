@@ -29,8 +29,8 @@ public class ${parserName}Injector extends ${parserName}AntlrBaseListener {
 	
 	public void visitTerminal(TerminalNode node) {
 		CommonToken token = (CommonToken)node.getPayload();
-	 	if(token.getText().equals("Text")){
-		token.setText(injection); //Simulates an injection in the token with text testing of type 8
+	 	if(token.getText().contains("Text")){
+		token.setText(token.getText().replace("Text",injection)); //Simulates an injection in the token with text testing of type 8
 		}	
 
 	}

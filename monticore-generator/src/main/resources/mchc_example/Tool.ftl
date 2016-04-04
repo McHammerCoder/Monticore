@@ -79,16 +79,31 @@ public class ${parserName}Tool
 				
 				System.out.println(pt.getText());
 				
-				// Decode
-				System.out.println();
-				System.out.println("Decode Template:");
-				${parserName}DecoderVisitor decoder = new ${parserName}DecoderVisitor();
-				walker.walk(decoder, pt); 
-				System.out.println();
+				// Reparse
+				res = parser.parse(pt.getText().getBytes());
+				if( res != null )
+				{
+					pt = ${parserName}TreeConverter.create(res);
+
+					System.out.println();
+					System.out.println("ReparseResult:");
+					System.out.println(pt.getText());
+					
+					// Decode
+					System.out.println();
+					System.out.println("Decode Template:");
+					${parserName}DecoderVisitor decoder = new ${parserName}DecoderVisitor();
+					walker.walk(decoder, pt); 
+					System.out.println();
 				
-				System.out.println(pt.getText());
+					System.out.println(pt.getText());
 				
-				displayParseTree(pt);
+					displayParseTree(pt);
+				}
+				else
+				{
+					System.out.println("REPARSE FAILED");
+				}
 			}
 			else
 			{
@@ -107,7 +122,7 @@ public class ${parserName}Tool
         panel.add(viewr);
         frame.add(panel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(1900,600);
+        frame.setSize(800,600);
         frame.setVisible(true);
         
         while(frame.isVisible());
