@@ -163,18 +163,18 @@ public class ${parserName}Encoder{
 
 					if(j != kw.length && !notKeyword(encoding) && typeCheck(type,encoding)){
 					encodingMap.put(kw[j], encoding);//Save encoding and kw[j] to map
-					System.out.println(kw[j] + " = " + encoding);
+					//System.out.println(kw[j] + " = " + encoding);
 					}
 					else if(notKeyword(encoding) || !typeCheck(type,encoding)){ //Our created encoding contains a keyword reset and try again
 						encodingMap.clear();
 						break;
 					}
 					else if(j == kw.length){
-						System.out.println(usableSymbols[i] + " = " + encoding);
+						//System.out.println(usableSymbols[i] + " = " + encoding);
 				
 						encodingMap.put(usableSymbols[i], encoding); //Last save the encoding for the start
 						startEncoding = encoding;
-						System.out.println("THE GENERATED ENCODING WAS FOR TYPE: " + type);
+						//System.out.println("THE GENERATED ENCODING WAS FOR TYPE: " + type);
 						return ;
 					}
 					encoding = usableSymbols[i]; //Reset first symbol for encoding
@@ -213,15 +213,16 @@ public class ${parserName}Encoder{
 		}
 	}
 
-	public boolean canBeEncoded(String toTest){ //Checks if a string can be encoded
-		String[] kw = getKeywords();
-		for(int i=0; i< kw.length; i++) {
-			if(toTest.contains(kw[i])) {
-				return true;
-			}	
-		}
-		return false;
+	public void printEncoding(Map <String,String> map, int type ){
+		System.out.println("GENERATED (EN/DE)CODING FOR TOKEN TYPE: " + type);
+		if(map.size() != 0){
+			for(String key:map.keySet()){		
+				System.out.println(key + " = " + map.get(key));
+			
+			}
+		}		
 	}
+
 
 	public void encode (CommonToken toEncode){ //Encodes a token and sets it text to the encoded variant
 		try{
@@ -230,7 +231,7 @@ public class ${parserName}Encoder{
 			@SuppressWarnings("unchecked")
 		
 			Map<String, String> map = (Map<String, String>) getEncoding(toEncode.getType());
-
+			printEncoding(map, toEncode.getType());
 			for(String key: map.keySet()){
 				if(startEncoding.equals(map.get(key))){
 					encodedString = encodedString.replace(key, map.get(key));

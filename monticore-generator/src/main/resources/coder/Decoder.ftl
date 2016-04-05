@@ -27,7 +27,7 @@ public class ${parserName}Decoder{
 			int elength = encoder.startEncoding.length();
 			@SuppressWarnings("unchecked")
 			Map<String, String> map = (Map<String, String>) encoder.getEncoding(toDecode.getType());
-			
+			encoder.printEncoding(map, toDecode.getType());
 			if(! (decodedString.length() < elength) )
 			{
 				
