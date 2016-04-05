@@ -27,18 +27,22 @@ public class ${parserName}Decoder{
 			int elength = encoder.startEncoding.length();
 			@SuppressWarnings("unchecked")
 			Map<String, String> map = (Map<String, String>) encoder.getEncoding(toDecode.getType());
-	
+			
 			if(! (decodedString.length() < elength) )
 			{
+				
 				for(int i = 0; i <= decodedString.length()-elength; i++)
 				{
+					
 					for(String key: map.keySet())
 					{
+			
 						if( encoder.startEncoding.equals(map.get(key)) )
 						{
 							if( decodedString.substring(i).startsWith(map.get(key)) )
 							{
-								decodedString =	decodedString.substring(0, i) + decodedString.substring(i).replaceFirst(map.get(key), key);
+								
+								decodedString =	decodedString.substring(0, i) + key + decodedString.substring(i+map.get(key).length());
 								break;
 							}
 						}
@@ -46,7 +50,7 @@ public class ${parserName}Decoder{
 						{
 							if( decodedString.substring(i).startsWith(map.get(key)) )
 							{
-								decodedString =	decodedString.substring(0, i) + decodedString.substring(i).replaceFirst(map.get(key), key);
+								decodedString =	decodedString.substring(0, i) + key + decodedString.substring(i+map.get(key).length()); //.replaceFirst(map.get(key), key);
 							}
 						}
 					}

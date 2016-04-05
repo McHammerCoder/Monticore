@@ -132,7 +132,7 @@ public class ${parserName}Encoder{
 	}
 
 
-	private void createEncoding(String[] kw, String[] usableSymbols, int first, int second, int type) throws Exception{ //Should create a Map with different encodings
+	private void createEncoding(String[] kw, String[] usableSymbols, int type) throws Exception{ //Should create a Map with different encodings
 		/*
 		Example encoding if a \nin JSsimple
 		var -> bcbbbbbb
@@ -148,49 +148,43 @@ public class ${parserName}Encoder{
 		//int length1 = 1; //makes for a total length of kw.length+1!
 		
 		setCurrentType(type);
-		String encoding = usableSymbols[first];
-		for(int j=0; j <= (kw.length); j++){
+		//i == first
+		//z == second
+		for(int i=0; i< usableSymbols.length; i++){
 
-			
-			
-			/*for(int i=0; i<length1; i++){
-				encoding += usableSymbols[second];
-			}
-			for(int k = 0; k < length0; k++){
-				encoding += usableSymbols[first];
-			}*/
-
-			encoding += convertToString(j, usableSymbols[first], usableSymbols[second], (int) Math.ceil((Math.log10(kw.length+1)/Math.log10(2)))); //[log_2(kw.length+1)]
-
-			if(j != kw.length && !notKeyword(encoding) && typeCheck(type,encoding)){
-			encodingMap.put(kw[j], encoding);//Save encoding and kw[j] to map
-			System.out.println(kw[j] + " = " + encoding);
-			}
-			else if(notKeyword(encoding) || !typeCheck(type,encoding)){ //Our created encoding contains a keyword reset and try again
-				encodingMap.clear();
-				second++;
-				if(first == second){
-					second++;
-				}
-				if(second == kw.length){
-					second = 0;
-					first++;
-				}
-				if(first == kw.length && second == (kw.length+1)){
-					throw new Exception("No viable encoding can be generated for token type: " +type);
-				}
-				createEncoding(kw, usableSymbols, first, second, type);
-				return ;
-			}
-			else if(j == kw.length){
-				System.out.println(usableSymbols[first] + " = " + encoding);
+		String encoding = usableSymbols[i];
+			for(int z=i+1; z < usableSymbols.length && z != i; z=(z+1)%usableSymbols.length){ //Second
 				
-				encodingMap.put(usableSymbols[first], encoding); //Last save the encoding for the start
-				startEncoding = encoding;
+
+				for(int j=0; j <= (kw.length); j++){
+
+
+					encoding += convertToString(j, usableSymbols[i], usableSymbols[z], (int) Math.ceil((Math.log10(kw.length+1)/Math.log10(2)))); //[log_2(kw.length+1)]
+
+					if(j != kw.length && !notKeyword(encoding) && typeCheck(type,encoding)){
+					encodingMap.put(kw[j], encoding);//Save encoding and kw[j] to map
+					System.out.println(kw[j] + " = " + encoding);
+					}
+					else if(notKeyword(encoding) || !typeCheck(type,encoding)){ //Our created encoding contains a keyword reset and try again
+						encodingMap.clear();
+						break;
+					}
+					else if(j == kw.length){
+						System.out.println(usableSymbols[i] + " = " + encoding);
+				
+						encodingMap.put(usableSymbols[i], encoding); //Last save the encoding for the start
+						startEncoding = encoding;
+						System.out.println("THE GENERATED ENCODING WAS FOR TYPE: " + type);
+						return ;
+					}
+					encoding = usableSymbols[i]; //Reset first symbol for encoding
+				}
 			}
-			encoding = usableSymbols[first]; //Reset first symbol for encoding
 		}
+
+		throw new Exception("No viable encoding can be generated for token type: " +type);
 	}
+
 	private String convertToString( int number, String first, String second, int length)
 	{
 		String res = new String();
@@ -214,7 +208,7 @@ public class ${parserName}Encoder{
  			return encodingMap;
 		}
 		else {
-			createEncoding(getKeywords(), getUsableSymbols(), 0, 1, type);
+			createEncoding(getKeywords(), getUsableSymbols(), type);
 			return encodingMap;
 		}
 	}
@@ -239,14 +233,14 @@ public class ${parserName}Encoder{
 
 			for(String key: map.keySet()){
 				if(startEncoding.equals(map.get(key))){
-					encodedString = encodedString.replaceAll(key, map.get(key));
+					encodedString = encodedString.replace(key, map.get(key));
 				}
 			
 			}
 		
 			for(String key: map.keySet()){
 				if(!startEncoding.equals(map.get(key))){
-				encodedString = encodedString.replaceAll(key, map.get(key));
+				encodedString = encodedString.replace(key, map.get(key));
 				}
 			}
 		
