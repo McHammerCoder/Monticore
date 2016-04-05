@@ -179,7 +179,7 @@ public class McHammerParserGenerator
 		        	tempPath.mkdirs();
 		        	File tempFile = new File(resourceOutput);       	
 		        	tempFile.createNewFile();
-		        	tempFile.deleteOnExit();
+		        	//tempFile.deleteOnExit();
 		        	
 		        	if (!tempFile.exists()) 
 		        	{
