@@ -49,6 +49,67 @@ public class ${grammarName}Actions
 		return p.getAst();
 	}
 </#list>
-	
 
+	public static ParsedToken actEOF(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_EOF.getValue());
+		
+		return p.getAst();
+	}
+	
+	public static ParsedToken actUInt8(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_UInt8.getValue());
+		
+		return p.getAst();
+	}
+	
+	public static ParsedToken actUInt16(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_UInt16.getValue());
+		
+		return p.getAst();
+	}
+	
+	public static ParsedToken actUInt32(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_UInt32.getValue());
+		
+		return p.getAst();
+	}
+	
+	public static ParsedToken actUInt64(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_UInt64.getValue());
+		
+		return p.getAst();
+	}
+	
+	public static ParsedToken actInt8(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_Int8.getValue());
+		
+		return p.getAst();
+	}
+	
+	public static ParsedToken actInt16(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_Int16.getValue());
+		
+		return p.getAst();
+	}
+	
+	public static ParsedToken actInt32(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_Int32.getValue());
+		
+		return p.getAst();
+	}
+	
+	public static ParsedToken actInt64(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_Int64.getValue());
+		
+		return p.getAst();
+	}
 }

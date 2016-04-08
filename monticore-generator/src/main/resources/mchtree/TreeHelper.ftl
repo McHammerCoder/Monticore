@@ -93,7 +93,23 @@ public class ${grammarName}TreeHelper
 		UTT_${lexRuleName}(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter=iter+1>
 </#list>	
-		UTT_END(Hammer.TokenType.USER.getValue()+${iter});
+		UTT_EOF(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>	
+		UTT_UInt8(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+		UTT_UInt16(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+		UTT_UInt32(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+		UTT_UInt64(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+		UTT_Int8(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+		UTT_Int16(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+		UTT_Int32(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+		UTT_Int64(Hammer.TokenType.USER.getValue()+${iter});
 
 		UserTokenTypes(int numValue)
 		{
@@ -125,7 +141,15 @@ public class ${grammarName}TreeHelper
 <#list genHelper.getLexerRuleNames() as lexRuleName>
 		TT_${lexRuleName},
 </#list>		
-		TT_END		
+		TT_EOF,
+		TT_UInt8,
+		TT_UInt16,
+		TT_UInt32,
+		TT_UInt64,
+		TT_Int8,
+		TT_Int16,
+		TT_Int32,
+		TT_Int64
 	}
 	
 	public static String [] TokenTypeNames =

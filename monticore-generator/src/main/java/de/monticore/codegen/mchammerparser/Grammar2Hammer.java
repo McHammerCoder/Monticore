@@ -53,6 +53,14 @@ import de.monticore.grammar.grammar._ast.ASTRuleComponent;
 import de.monticore.grammar.grammar._ast.ASTRuleReference;
 import de.monticore.grammar.grammar._ast.ASTSemanticpredicateOrAction;
 import de.monticore.grammar.grammar._ast.ASTTerminal;
+import de.monticore.grammar.grammar._ast.ASTUInt8;
+import de.monticore.grammar.grammar._ast.ASTUInt16;
+import de.monticore.grammar.grammar._ast.ASTUInt32;
+import de.monticore.grammar.grammar._ast.ASTUInt64;
+import de.monticore.grammar.grammar._ast.ASTInt8;
+import de.monticore.grammar.grammar._ast.ASTInt16;
+import de.monticore.grammar.grammar._ast.ASTInt32;
+import de.monticore.grammar.grammar._ast.ASTInt64;
 import de.monticore.grammar.grammar._ast.GrammarNodeFactory;
 import de.monticore.grammar.grammar_withconcepts._ast.ASTAction;
 import de.monticore.grammar.grammar_withconcepts._visitor.Grammar_WithConceptsVisitor;
@@ -451,7 +459,28 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTEof ast)
 	{
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.sequence( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.choice( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'\\n', (byte)'\\n'),");		
+		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'\\r', (byte)'\\r')");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + "),");
+		
 		addToCodeSection("\n" + indent + "Hammer.endP()");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actEOF\")");
 	}
 	  
 	@Override
@@ -508,6 +537,104 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ") ");
+	}
+	
+	// ----------------- Binary Token Visitors -----------------------------------------------------
+	
+	@Override
+	public void visit(ASTUInt8 uint8)
+	{
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "uInt_8");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actUInt8\") ");
+	}
+	
+	@Override
+	public void visit(ASTUInt16 uint16)
+	{
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "uInt_16");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actUInt16\") ");
+	}
+	
+	@Override
+	public void visit(ASTUInt32 uint32)
+	{
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "uInt_32");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actUInt32\") ");
+	}
+	
+	@Override
+	public void visit(ASTUInt64 uint64)
+	{
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "uInt_64");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actUInt64\") ");
+	}
+	
+	@Override
+	public void visit(ASTInt8 int8)
+	{
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "int_8");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actInt8\") ");
+	}
+	
+	@Override
+	public void visit(ASTInt16 int16)
+	{
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "int_16");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actInt16\") ");
+	}
+	
+	@Override
+	public void visit(ASTInt32 int32)
+	{
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "int_32");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actInt32\") ");
+	}
+	
+	@Override
+	public void visit(ASTInt64 int64)
+	{
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "int_64");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actInt64\") ");
 	}
 
 	// ----------------- End of visit methods ---------------------------------------------

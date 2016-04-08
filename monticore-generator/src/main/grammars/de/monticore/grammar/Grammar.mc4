@@ -185,8 +185,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
       )? 
     )
     ";";
- 
- 
+    
   /** An Enumeration-Production
   @attribute name Name of the production
   @attribute constant List of all constants
@@ -431,7 +430,31 @@ component grammar Grammar extends de.monticore.literals.Literals {
       "{" Action "}"
      ;
       
-
+  UInt8 implements RuleComponent =
+    "uint8";
+    
+  UInt16 implements RuleComponent =
+    "uint16";
+    
+  UInt32 implements RuleComponent =
+    "uint32";
+    
+  UInt64 implements RuleComponent =
+    "uint64";
+    
+  Int8 implements RuleComponent =
+    "int8";
+    
+  Int16 implements RuleComponent =
+    "int16";
+    
+  Int32 implements RuleComponent =
+    "int32";
+    
+  Int64 implements RuleComponent =
+    "int64";
+  
+  
   // ------------------------------------------------------------------------------
   // Concept
  

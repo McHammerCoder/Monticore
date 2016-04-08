@@ -98,6 +98,42 @@ public class ${grammarName}TreeConverter
 					return buildStringTree(tok, ${grammarName}TreeHelper.TokenType.TT_${lexRuleName}.ordinal()+1);
 				}
 </#list>
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_EOF.getValue())
+				{
+					return buildStringTree(tok, ${grammarName}TreeHelper.TokenType.TT_EOF.ordinal()+1);
+				}
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_UInt8.getValue())
+				{
+					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_UInt8);
+				}
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_UInt16.getValue())
+				{
+					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_UInt16);
+				}
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_UInt32.getValue())
+				{
+					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_UInt32);
+				}
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_UInt64.getValue())
+				{
+					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_UInt64);
+				}
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_Int8.getValue())
+				{
+					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_Int8);
+				}
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_Int16.getValue())
+				{
+					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_Int16);
+				}
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_Int32.getValue())
+				{
+					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_Int32);
+				}
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_Int64.getValue())
+				{
+					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_Int64);
+				}
 				else
 				{
 					System.out.println("User"); 
@@ -149,6 +185,44 @@ public class ${grammarName}TreeConverter
 		}
 		
 		HAParseTree pt = new HATerminalNode( fac.create(tokenType, text) );
+		   
+		return pt;
+	}
+	
+	private static HAParseTree buildIntTree(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType)
+	{
+		CommonTokenFactory fac = new CommonTokenFactory();
+		
+		HAParseTree pt;
+		switch(tokenType)
+		{
+		case TT_UInt8:
+			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(uint8) " + tok.getUIntValue()) );
+			break;
+		case TT_UInt16:
+			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(uint16) " + tok.getUIntValue()) );
+			break;
+		case TT_UInt32:
+			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(uint32) " + tok.getUIntValue()) );
+			break;
+		case TT_UInt64:
+			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(uint64) " + tok.getUIntValue()) );
+			break;
+		case TT_Int8:
+			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(int8) " + tok.getSIntValue()) );
+			break;
+		case TT_Int16:
+			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(int16) " + tok.getSIntValue()) );
+			break;
+		case TT_Int32:
+			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(int32) " + tok.getSIntValue()) );
+			break;
+		case TT_Int64:
+			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(int64) " + tok.getSIntValue()) );
+			break;
+		default:
+			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "INVALID_INT_VALUE") );
+		}
 		   
 		return pt;
 	}

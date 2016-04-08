@@ -68,6 +68,51 @@ HParsedToken* act_${lexRuleName}(const HParseResult *p, void* user_data)
 }
 </#list>
 
+HParsedToken* act_EOF(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actEOF");
+}
+
+HParsedToken* act_UInt8(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actUInt8");
+}
+
+HParsedToken* act_UInt16(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actUInt16");
+}
+
+HParsedToken* act_UInt32(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actUInt32");
+}
+
+HParsedToken* act_UInt64(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actUInt64");
+}
+
+HParsedToken* act_Int8(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actInt8");
+}
+
+HParsedToken* act_Int16(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actInt16");
+}
+
+HParsedToken* act_Int32(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actInt32");
+}
+
+HParsedToken* act_Int64(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actInt64");
+}
+
 JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_Hammer_action
   (JNIEnv *env, jclass class, jobject p, jstring a)
 {
@@ -102,6 +147,41 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_Hammer_action
 		RETURNWRAP( env, h_action(UNWRAP(env, p), act_${lexRuleName}, NULL) );
 	}
 </#list>
-	
+	else if( strcmp(actionName,"actEOF") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_EOF, NULL) );
+	}
+	else if( strcmp(actionName,"actUInt8") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_UInt8, NULL) );
+	}
+	else if( strcmp(actionName,"actUInt16") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_UInt16, NULL) );
+	}
+	else if( strcmp(actionName,"actUInt32") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_UInt32, NULL) );
+	}
+	else if( strcmp(actionName,"actUInt64") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_UInt64, NULL) );
+	}
+	else if( strcmp(actionName,"actInt8") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_Int8, NULL) );
+	}
+	else if( strcmp(actionName,"actInt16") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_Int16, NULL) );
+	}
+	else if( strcmp(actionName,"actInt32") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_Int32, NULL) );
+	}
+	else if( strcmp(actionName,"actInt64") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_Int64, NULL) );
+	}
 	else return p;
 }
