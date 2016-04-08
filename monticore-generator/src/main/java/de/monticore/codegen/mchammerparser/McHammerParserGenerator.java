@@ -128,7 +128,11 @@ public class McHammerParserGenerator
 		final Path treeHelperPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), astGrammar.getName()+"TreeHelper.java");
 		generator.generate("mchtree.TreeHelper", treeHelperPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 		
-		// Generate TreeHelper.java
+		// Generate HABinaryToken.java
+		final Path binaryTokenPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HABinaryToken.java");
+		generator.generate("mchtree.HABinaryToken", binaryTokenPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		
+		// Generate com_upstandinghackers_hammer_Hammer.c
 		final Path hammerActionPath = Paths.get(RESOURCES_FOLDER, "com_upstandinghackers_hammer_Hammer.c");
 		generator.generate("mchparser.com_upstandinghackers_hammer_Hammer", hammerActionPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 	

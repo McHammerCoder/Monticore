@@ -197,28 +197,28 @@ public class ${grammarName}TreeConverter
 		switch(tokenType)
 		{
 		case TT_UInt8:
-			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(uint8) " + tok.getUIntValue()) );
+			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getUIntValue(), 8, true)  );
 			break;
 		case TT_UInt16:
-			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(uint16) " + tok.getUIntValue()) );
+			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getUIntValue(), 16, true)  );
 			break;
 		case TT_UInt32:
-			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(uint32) " + tok.getUIntValue()) );
+			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getUIntValue(), 32, true)  );
 			break;
 		case TT_UInt64:
-			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(uint64) " + tok.getUIntValue()) );
+			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getUIntValue(), 64, true)  );
 			break;
 		case TT_Int8:
-			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(int8) " + tok.getSIntValue()) );
+			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getSIntValue(), 8, true)  );
 			break;
 		case TT_Int16:
-			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(int16) " + tok.getSIntValue()) );
+			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getSIntValue(), 16, true) );
 			break;
 		case TT_Int32:
-			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(int32) " + tok.getSIntValue()) );
+			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getSIntValue(), 32, true) );
 			break;
 		case TT_Int64:
-			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "(int64) " + tok.getSIntValue()) );
+			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getSIntValue(), 64, true) );
 			break;
 		default:
 			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "INVALID_INT_VALUE") );
