@@ -190,6 +190,7 @@ public class McHammerParserGeneratorHelper
 		for(ASTLexProd lexerRule : lexerRules)
 		{
 			prods.add(lexerRule.getName().toLowerCase());
+			prods.add("not_" + lexerRule.getName().toLowerCase());
 		}
 		
 		List<MCRuleSymbol> interfaceRules = getInterfaceRulesToGenerate();

@@ -335,34 +335,82 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		endCodeSection();
 	}
 
+	private boolean negated = false;
+	
 	@Override
 	public void handle(ASTLexBlock ast) 
 	{
 		printIteration(ast.getIteration()); 
 				
-		addToCodeSection("\n" + indent + "Hammer.choice( ");
-		increaseIndent();
-		
-		List<ASTLexAlt> alts = ast.getLexAlts();
-		for( int i = 0; i < alts.size(); i++ )
+		if( ast.isNegate() )
 		{
+			negated = true;
+			
 			addToCodeSection("\n" + indent + "Hammer.action( ");
 			increaseIndent();
 			
-			ASTLexAlt alt = alts.get(i);
-			alt.accept(getRealThis());
+			addToCodeSection("\n" + indent + "Hammer.sequence( ");
+			increaseIndent();
+			
+			List<ASTLexAlt> alts = ast.getLexAlts();
+			for( int i = 0; i < alts.size(); i++ )
+			{
+				if( i < alts.size()-1 )
+				{
+					addToCodeSection("\n" + indent + "Hammer.and( ");
+					increaseIndent();
+				}
+				
+				addToCodeSection("\n" + indent + "Hammer.action( ");
+				increaseIndent();
+				
+				ASTLexAlt alt = alts.get(i);
+				alt.accept(getRealThis());
+				
+				decreaseIndent();
+				addToCodeSection("\n" + indent + ", \"actUndefined\" )");
+				
+				if( i < alts.size()-1 )
+				{
+					decreaseIndent();
+					addToCodeSection("\n" + indent + "),");
+				}
+			}
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")");
 			
 			decreaseIndent();
 			addToCodeSection("\n" + indent + ", \"actUndefined\" )");
 			
-			if( i < alts.size()-1 )
-			{
-				addToCodeSection(", ");
-			}
+			negated = false;
 		}
-		
-		decreaseIndent();
-		addToCodeSection("\n" + indent + ")");
+		else
+		{
+			addToCodeSection("\n" + indent + "Hammer.choice( ");
+			increaseIndent();
+			
+			List<ASTLexAlt> alts = ast.getLexAlts();
+			for( int i = 0; i < alts.size(); i++ )
+			{
+				addToCodeSection("\n" + indent + "Hammer.action( ");
+				increaseIndent();
+				
+				ASTLexAlt alt = alts.get(i);
+				alt.accept(getRealThis());
+				
+				decreaseIndent();
+				addToCodeSection("\n" + indent + ", \"actUndefined\" )");
+				
+				if( i < alts.size()-1 )
+				{
+					addToCodeSection(", ");
+				}
+			}
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")");
+		}
 		
 		printIterationEnd(ast.getIteration()); 
 	}
@@ -372,14 +420,32 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{
 		String lower = ast.getLowerChar();
 		String upper = ast.getUpperChar();
-		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + lower  + "', (byte)'" + upper + "')" );
+		
+		if( (negated ? !ast.isNegate() : ast.isNegate()) )
+		{
+			addToCodeSection("\n" + indent + "Hammer.butNot( uInt_8, Hammer.intRange( uInt_8, (byte)'" + lower + "', (byte)'" + upper + "') )" );
+		}
+		else
+		{
+			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + lower  + "', (byte)'" + upper + "')" );
+		}
+		
+		
 	}
 
 	@Override
 	public void visit(ASTLexChar ast)
 	{
 		String c = ast.getChar();
-		addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + c + "', (byte)'" + c + "')" );
+		
+		if( (negated ? !ast.isNegate() : ast.isNegate()) )
+		{
+			addToCodeSection("\n" + indent + "Hammer.butNot( uInt_8, Hammer.intRange( uInt_8, (byte)'" + c + "', (byte)'" + c + "') )" );
+		}
+		else
+		{
+			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + c + "', (byte)'" + c + "')" );
+		}
 	}
 	
 	@Override
