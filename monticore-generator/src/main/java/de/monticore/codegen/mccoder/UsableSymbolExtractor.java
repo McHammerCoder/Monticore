@@ -117,6 +117,17 @@ private MCGrammarSymbol grammarEntry;
 		addToCodeSection(indent + "ranges.add(new " + parserGeneratorHelper.getQualifiedGrammarName() + "Range(" + "'" + ast.getChar() + "'" + " ,"  + "'" + ast.getChar() + "'" +  " , "  + ast.isNegate() + "));\n" );
 	}
 	
+	@Override
+	public void visit(ASTTerminal ast) 
+	{
+		addToCodeSection(indent + "kws.add(new String(\"" + ast.getName() +  "\"));\n" );
+	}
+	
+	@Override
+	public void visit(ASTLexString ast) 
+	{
+		addToCodeSection(indent + "kws.add(new String(\"" + ast.getString() +  "\"));\n" );
+	}
 	
 
 	// ----------------- End of visit methods ---------------------------------------------

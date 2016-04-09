@@ -19,6 +19,7 @@ import java.lang.Math;
 public class ${parserName}Encoder{
 
 	private ArrayList<${parserName}Range> ranges = new ArrayList<${parserName}Range>();
+	private ArrayList<String> kws = new ArrayList<String>();
 	private Map<String, String> encodingMap = new HashMap<String, String>(); 
 	public String startEncoding = "";
 	private int currentType;
@@ -34,9 +35,14 @@ public class ${parserName}Encoder{
 	public String[] initiateUsableSymbols(){
 	
 	<#list genHelper.getLexerRulesToGenerate() as lexrule>
-		<#list coderGenerator.createUsableSymbolsCode(lexrule) as asd>
-			${asd}
+		<#list coderGenerator.createUsableSymbolsCode(lexrule) as ranges>
+			${ranges}
 		</#list>
+	</#list>
+	<#list genHelper.getParserRulesToGenerate() as parserRule>
+	<#list coderGenerator.createUsableSymbolsCode(parserRule) as parserRuleCode>
+		${parserRuleCode}
+	</#list>
 	</#list>
 	return ${parserName}Range.union(ranges);	
 

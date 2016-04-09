@@ -242,7 +242,7 @@ public class McCoderGeneratorHelper
 	{
 		// Iterate over all Rules
 		List<ASTProd> prods = Lists.newArrayList();
-		/*for(MCGrammarSymbol mcgrammarsymbol : grammarSymbol.getAllSuperGrammars()){
+		for(MCGrammarSymbol mcgrammarsymbol : grammarSymbol.getAllSuperGrammars()){
 			
 			for (MCRuleSymbol ruleSymbol : mcgrammarsymbol.getRulesWithInherited().values()) 
 			{
@@ -259,7 +259,8 @@ public class McCoderGeneratorHelper
 					prods.add(((MCEnumRuleSymbol) ruleSymbol).getRule());
 		        }
 			}
-		}*/
+		}
+		
 		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited().values()) 
 		{
 			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.PARSERRULE)) 
