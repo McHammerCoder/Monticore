@@ -24,6 +24,10 @@ public class ${parserName}Encoder{
 	public String startEncoding = "";
 	private int currentType;
 
+	public ${parserName}Encoder(){
+		initiateKWAndUS();
+	}
+
 	private int getCurrentType(){
 		return currentType;
 	}
@@ -32,7 +36,7 @@ public class ${parserName}Encoder{
 		this.currentType = type;
 	}
 	
-	public String[] initiateUsableSymbols(){
+	public void initiateKWAndUS(){
 	
 	<#list genHelper.getLexerRulesToGenerate() as lexrule>
 		<#list coderGenerator.createUsableSymbolsCode(lexrule) as ranges>
@@ -44,10 +48,13 @@ public class ${parserName}Encoder{
 		${parserRuleCode}
 	</#list>
 	</#list>
-	return ${parserName}Range.union(ranges);	
+		
 
 	}
 
+	public String[] getFreeSymbols(){
+		return ${parserName}Range.union(ranges);
+	}
 
 	public ${parserName}AntlrLexer lex(String string){
 		ANTLRInputStream input = new ANTLRInputStream(string);
@@ -55,25 +62,11 @@ public class ${parserName}Encoder{
 		return lexer;
 
 	}
-	
+
 	public String[] getKeywords(){
-	 	Vocabulary voc = lex("").getVocabulary();
-		String[] keywords; // final keywords list
-		keywords = new String[lex("").getTokenNames().length]; //This is market as deprecated but no explanation or alternative has been provided
-		String tmp; // temp string for filtering
-		for(int i = 0; i < keywords.length ; i++){
-		 tmp = voc.getLiteralName(i);
-		 if (tmp == "'''"){ //Readd '
-		 	keywords[i] = "'";
-		 }
-		 else if(tmp != null){
-		 keywords[i] = tmp.replace("'", "");} //Removes ' ' surronding the keywords
-		}
+		return kws.toArray(new String[kws.size()]);
 
-		keywords = Arrays.stream(keywords).filter(s -> (s != null && s.length() > 0)).toArray(String[]::new); //Filtering NULL out
-		return keywords;
 	}
-
   
 	  public boolean check(CommonToken receivedtoken){
 	/*
@@ -92,7 +85,7 @@ public class ${parserName}Encoder{
 		return false;
 	}
 
-	public boolean notKeyword(String toCheck){ //This returns if a string matches a keyword.
+	public boolean isKeyword(String toCheck){ //This returns if a string matches a keyword.
 		String[] allKW = getKeywords();
 		String res="";
 		for(int i=0; i<allKW.length; i++){
@@ -116,8 +109,7 @@ public class ${parserName}Encoder{
 
 	public String[] getUsableSymbols(){
 		//Each usable symbol should be lexable. No usable symbol should be a keyword.
-		//String[] alphanumeric = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
-		String[] alphanumeric = initiateUsableSymbols();
+		String[] alphanumeric = getFreeSymbols();
 		String[] keyword = getKeywords();
 		String[] usableSymbols = new String[alphanumeric.length];
 		for(int i=0; i< alphanumeric.length; i++){
@@ -167,11 +159,11 @@ public class ${parserName}Encoder{
 
 					encoding += convertToString(j, usableSymbols[i], usableSymbols[z], (int) Math.ceil((Math.log10(kw.length+1)/Math.log10(2)))); //[log_2(kw.length+1)]
 
-					if(j != kw.length && !notKeyword(encoding) && typeCheck(type,encoding)){
+					if(j != kw.length && !isKeyword(encoding) && typeCheck(type,encoding)){
 					encodingMap.put(kw[j], encoding);//Save encoding and kw[j] to map
 					//System.out.println(kw[j] + " = " + encoding);
 					}
-					else if(notKeyword(encoding) || !typeCheck(type,encoding)){ //Our created encoding contains a keyword reset and try again
+					else if(isKeyword(encoding) || !typeCheck(type,encoding)){ //Our created encoding contains a keyword reset and try again
 						encodingMap.clear();
 						break;
 					}
