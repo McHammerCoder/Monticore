@@ -49,9 +49,13 @@ public class McHCExampleGenerator
 			// Initialize GeneratorEngine
 			final GeneratorEngine generator = new GeneratorEngine(setup);
 			
-			// Generate _Decoder.java
+			// Generate Tool.java
 			final Path filePathTool = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Tool.java");
 			generator.generate("mchc_example.Tool", filePathTool, astGrammar, generatorHelper);	
+			
+			// Generate ParserTool.java
+			final Path filePathParserTool = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"ParserTool.java");
+			generator.generate("mchc_example.ParserTool", filePathParserTool, astGrammar, generatorHelper);	
 			
 			// Generate _Injector.java
 			final Path filePathInjector = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Injector.java");

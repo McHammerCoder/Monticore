@@ -84,6 +84,12 @@ public class ${grammarName}TreeConverter
 					return buildRuleTree(tok, ${grammarName}TreeHelper.RuleType.RT_${ruleName}.ordinal());
 				}
 </#list>
+<#list genHelper.getBinaryRuleNames() as ruleName>
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_${ruleName}.getValue())
+				{
+					return buildRuleTree(tok, ${grammarName}TreeHelper.RuleType.RT_${ruleName}.ordinal());
+				}
+</#list>
 <#assign iter=1>
 <#list genHelper.getLexStrings() as lexString>
 				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_${iter}.getValue())

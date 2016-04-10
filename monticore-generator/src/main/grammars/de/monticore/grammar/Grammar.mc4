@@ -50,6 +50,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
   @attribute supergrammar Supergrammars of this grammar
   @attribute GrammarOption Options for this grammar
   @attribute LexProd Lexical productions
+  @attribute BinaryProd Binary productions
   @attribute ClassProd Class productions
   @attribute EnumProd Enumeration productions
   @attribute ExternalProd External productions
@@ -70,6 +71,8 @@ component grammar Grammar extends de.monticore.literals.Literals {
            GrammarOption
          |
            LexProd
+         |
+           BinaryProd
          |
            ClassProd
          |
@@ -154,6 +157,24 @@ component grammar Grammar extends de.monticore.literals.Literals {
  
  // ------------------------------------------------------------------------------
  // Productions
+ 
+  /** BinaryProd **/
+  BinaryProd implements Prod =
+    (["fragment"] | ["comment"]  )*
+    ("binary") Name
+    (
+      /*(
+        BinaryOption ("{" initAction:Action "}")? // Statements
+      |
+        "{" initAction:Action "}"
+      )?*/
+      "=" alts:(BinaryAlt || "|")+
+      
+     /* (":" ("{" endAction:Action  "}")? (variable:Name&
+        ("->" type:( Name& || ".")+ (":" "{" block:Action "}" )? )? )? // Statements
+      )? */
+    )
+    ";";
  
   /** A LexProd is formed by the keyword ident in the beginning followed by an option
   slash indicating that this LexProd is protected. The following name, options and
@@ -429,30 +450,6 @@ component grammar Grammar extends de.monticore.literals.Literals {
      |
       "{" Action "}"
      ;
-      
-  UInt8 implements RuleComponent =
-    "uint8";
-    
-  UInt16 implements RuleComponent =
-    "uint16";
-    
-  UInt32 implements RuleComponent =
-    "uint32";
-    
-  UInt64 implements RuleComponent =
-    "uint64";
-    
-  Int8 implements RuleComponent =
-    "int8";
-    
-  Int16 implements RuleComponent =
-    "int16";
-    
-  Int32 implements RuleComponent =
-    "int32";
-    
-  Int64 implements RuleComponent =
-    "int64";
   
   
   // ------------------------------------------------------------------------------
@@ -614,5 +611,130 @@ component grammar Grammar extends de.monticore.literals.Literals {
 
   SymbolDefinition =
     "@!" symbolKind:Name?;
-
+    
+  // ------------------------------------------------------------------------------
+  // Binary
+  
+  BinaryAlt =
+    (binaryComponents:BinaryComponent)*;
+ 
+  interface BinaryComponent;
+      
+  BinaryBlock implements BinaryComponent =
+    (negate:["~"])? "("
+    (
+      (
+        option:BinaryOption ("init" "{" initAction:Action "}")? // Statements
+      |
+        "init" "{" initAction:Action "}" // Statements
+      )
+      ":"
+     )?
+     binaryAlts:(BinaryAlt || "|")+ ")"
+     (iteration:["?"|"*"|"+"])?; 
+                
+  UInt8 implements BinaryComponent =
+    "UInt8" 
+    ( ranged:["["]
+      ( lowerUInt:IntLiteral ".." upperUInt:IntLiteral
+      | lowerChar:Char ".." upperChar:Char
+      | valueUInt:IntLiteral
+      | valueChar:Char ) 
+    "]")?
+    ;
+    
+  UInt16 implements BinaryComponent =
+    "UInt16"
+    ( valued:["["]
+      ( lower:IntLiteral ranged:[".."] upper:IntLiteral
+      | value:IntLiteral )
+    "]")?
+    ;
+    
+  UInt32 implements BinaryComponent =
+    "UInt32"
+    ( valued:["["]
+      ( lower:IntLiteral ranged:[".."] upper:IntLiteral
+      | value:IntLiteral )
+    "]")?
+    ;
+    
+  UInt64 implements BinaryComponent =
+    "UInt64"
+    ( valued:["["]
+      ( lower:IntLiteral ranged:[".."] upper:IntLiteral
+      | value:IntLiteral )
+    "]")?
+    ;
+    
+  Int8 implements BinaryComponent =
+    "Int8"
+    ( valued:["["]
+      ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
+      | value:SignedIntLiteral )
+    "]")?
+    ;
+    
+  Int16 implements BinaryComponent =
+    "Int16"
+    ( valued:["["]
+      ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
+      | value:SignedIntLiteral )
+    "]")?
+    ;
+    
+  Int32 implements BinaryComponent =
+    "Int32"
+    ( valued:["["]
+      ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
+      | value:SignedIntLiteral )
+    "]")?
+    ;
+    
+  Int64 implements BinaryComponent =
+    "Int64"
+    ( valued:["["]
+      ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
+      | value:SignedIntLiteral )
+    "]")?
+    ; 
+    
+  UBits implements BinaryComponent =
+    "UBits["
+    ( numBits:SignedIntLiteral
+      ( valued:[","]
+        ( lower:IntLiteral ranged:[".."] upper:IntLiteral
+        | value:IntLiteral )
+      )?
+    )
+    "]"
+    ; 
+    
+  Bits implements BinaryComponent =
+    "Bits["
+    ( numBits:SignedIntLiteral
+      ( valued:[","]
+        ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
+        | value:SignedIntLiteral )
+      )?
+    )
+    "]"
+    ; 
+    
+  NRepeat implements BinaryComponent =
+    "NRepeat["
+    ( nName:Name | nVal:IntLiteral )
+    ","
+    repeat:Name
+    "]"
+    ; 
+          
+  BinaryNonTerminal implements BinaryComponent =
+    (variable:Name& "=")? Name ;
+   
+  BinarySimpleIteration implements BinaryComponent =
+    (BinaryNonTerminal | UInt8 | UInt16 | UInt32 | UInt64 | Int8 | Int16 | Int32 | Int64 ) iteration:["?"|"*"|"+"];
+   
+  BinaryOption =
+    "options" "{" iD:Name "=" value:Name ";" "}";
 } 

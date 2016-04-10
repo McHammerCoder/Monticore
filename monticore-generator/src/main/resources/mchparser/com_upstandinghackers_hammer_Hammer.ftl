@@ -67,6 +67,12 @@ HParsedToken* act_${lexRuleName}(const HParseResult *p, void* user_data)
     return callAction(p,"act${lexRuleName}");
 }
 </#list>
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+HParsedToken* act_${binRuleName}(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"act${binRuleName}");
+}
+</#list>
 
 HParsedToken* act_EOF(const HParseResult *p, void* user_data) 
 {
@@ -145,6 +151,12 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_Hammer_action
 	else if( strcmp(actionName,"act${lexRuleName}") == 0 )
 	{
 		RETURNWRAP( env, h_action(UNWRAP(env, p), act_${lexRuleName}, NULL) );
+	}
+</#list>
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+	else if( strcmp(actionName,"act${binRuleName}") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_${binRuleName}, NULL) );
 	}
 </#list>
 	else if( strcmp(actionName,"actEOF") == 0 )

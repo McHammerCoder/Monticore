@@ -44,6 +44,9 @@ import de.monticore.grammar.grammar._ast.ASTInt8;
 import de.monticore.grammar.grammar._ast.ASTInt16;
 import de.monticore.grammar.grammar._ast.ASTInt32;
 import de.monticore.grammar.grammar._ast.ASTInt64;
+import de.monticore.grammar.grammar._ast.ASTUBits;
+import de.monticore.grammar.grammar._ast.ASTBits;
+import de.monticore.grammar.grammar._ast.ASTNRepeat;
 import de.monticore.languages.grammar.MCGrammarSymbol;
 import de.se_rwth.commons.StringTransformations;
 import de.se_rwth.commons.logging.Log;
@@ -114,6 +117,15 @@ public class MCAttributeInfoCalculator {
 	if (ruleComponent instanceof ASTInt64) {
 	    return calculateAttributes((ASTInt64) ruleComponent);
 	}
+	if (ruleComponent instanceof ASTUBits) {
+	    return calculateAttributes((ASTUBits) ruleComponent);
+	}
+	if (ruleComponent instanceof ASTBits) {
+	    return calculateAttributes((ASTBits) ruleComponent);
+	}
+	if (ruleComponent instanceof ASTNRepeat) {
+	    return calculateAttributes((ASTNRepeat) ruleComponent);
+	}	
 
     throw new IllegalArgumentException("0xA4079 Unknown rule component type '" + ruleComponent.getClass() + "'.");
   }
@@ -320,5 +332,17 @@ public class MCAttributeInfoCalculator {
   public static MCAttributeInfoMap calculateAttributes(ASTInt64 int64) {
 	return MCAttributeInfoMap.getEmptyMap();
   }
+  
+  public static MCAttributeInfoMap calculateAttributes(ASTUBits ubits) {
+	return MCAttributeInfoMap.getEmptyMap();
+  }
+	  
+  public static MCAttributeInfoMap calculateAttributes(ASTBits bits) {
+	return MCAttributeInfoMap.getEmptyMap();
+  }
+  
+  public static MCAttributeInfoMap calculateAttributes(ASTNRepeat nRepeat) {
+		return MCAttributeInfoMap.getEmptyMap();
+  }  
   
 }

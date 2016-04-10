@@ -49,6 +49,14 @@ public class ${grammarName}Actions
 		return p.getAst();
 	}
 </#list>
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+	public static ParsedToken act${binRuleName}(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${binRuleName}.getValue());
+		
+		return p.getAst();
+	}
+</#list>
 
 	public static ParsedToken actEOF(ParseResult p)
 	{		

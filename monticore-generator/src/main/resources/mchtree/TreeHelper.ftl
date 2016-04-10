@@ -93,6 +93,10 @@ public class ${grammarName}TreeHelper
 		UTT_${lexRuleName}(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter=iter+1>
 </#list>	
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+		UTT_${binRuleName}(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+</#list>	
 		UTT_EOF(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter=iter+1>	
 		UTT_UInt8(Hammer.TokenType.USER.getValue()+${iter}),
@@ -178,6 +182,9 @@ public class ${grammarName}TreeHelper
 <#list genHelper.getParserRuleNames() as parserRuleName>
 		RT_${parserRuleName},
 </#list>	
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+		RT_${binRuleName},
+</#list>
 		RT_Undefined
 	}
 	
@@ -185,6 +192,9 @@ public class ${grammarName}TreeHelper
 	{
 <#list genHelper.getParserRuleNames() as parserRuleName>
 		"${parserRuleName}",
+</#list>
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+		"${binRuleName}",
 </#list>
 		"Undefined"
 	};
