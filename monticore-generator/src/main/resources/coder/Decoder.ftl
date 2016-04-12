@@ -16,7 +16,6 @@ public class ${parserName}Decoder{
 	private ${parserName}Encoder encoder = new ${parserName}Encoder();
 
 	public void decode(CommonToken toDecode){ //Decodes a token and sets it text to the decoded variant
-		try{
 			String[] kw = encoder.getKeywords();
 			for(int i=0; i<kw.length; i++)
 				if( toDecode.getType() == encoder.lex(kw[i]).nextToken().getType())
@@ -24,10 +23,17 @@ public class ${parserName}Decoder{
 					return ;
 				}
 			String decodedString = toDecode.getText();
-			int elength = encoder.startEncoding.length();
+			if(!encoder.hasEncoding(toDecode.getType()))
+			{
+			 return;
+			}
 			@SuppressWarnings("unchecked")
-			Map<String, String> map = (Map<String, String>) encoder.getEncoding(toDecode.getType());
-			encoder.printEncoding(map, toDecode.getType());
+			${parserName}Encoding encoding = encoder.getEncoding(toDecode.getType());
+			Map<String, String> map = (Map<String, String>) encoding.getMap();
+			String startEncoding = encoding.getStartEncoding();
+			int elength = startEncoding.length();
+			
+			//encoder.printEncoding(map, toDecode.getType());
 			if(! (decodedString.length() < elength) )
 			{
 				
@@ -37,7 +43,7 @@ public class ${parserName}Decoder{
 					for(String key: map.keySet())
 					{
 			
-						if( encoder.startEncoding.equals(map.get(key)) )
+						if( startEncoding.equals(map.get(key)) )
 						{
 							if( decodedString.substring(i).startsWith(map.get(key)) )
 							{
@@ -58,7 +64,6 @@ public class ${parserName}Decoder{
 			}
 
 			toDecode.setText(decodedString);
-		}catch(Exception e){}
 	}
 
 }

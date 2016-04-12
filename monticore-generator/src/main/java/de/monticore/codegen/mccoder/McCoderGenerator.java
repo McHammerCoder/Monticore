@@ -6,10 +6,14 @@
 package de.monticore.codegen.mccoder;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 import de.monticore.codegen.mccoder.UsableSymbolExtractor;
 import de.monticore.generating.GeneratorEngine;
@@ -54,7 +58,20 @@ public class McCoderGenerator
 		
 		// Initialize GeneratorEngine
 		final GeneratorEngine generator = new GeneratorEngine(setup);
+		de.monticore.codegen.parser.ParserGeneratorHelper tmpGenHelper = new de.monticore.codegen.parser.ParserGeneratorHelper(astGrammar, generatorHelper.getGrammarSymbol());
+		final Path tokenPath = Paths.get(outputDirectory.getPath(), Names.getPathFromPackage(tmpGenHelper.getParserPackage()), astGrammar.getName()+"AntlrLexer.tokens");
+		List<String> tokens = Lists.newArrayList();
+		try 
+		{
+			tokens = Files.readAllLines(tokenPath);
+		} 
+		catch (IOException e)
+		{
+			System.out.println("Could not load AntlrLexer.tokens!");
+			//e.printStackTrace();			
+		}
 		
+		generatorHelper.setTokenTypes(tokens);
 		
 		
 		// Generate _Decoder.java
@@ -76,6 +93,10 @@ public class McCoderGenerator
 		// Generate _Range.java
 		final Path filePathRange = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Range.java");
 		generator.generate("coder.Range", filePathRange, astGrammar, new UsableSymbolExtractor(generatorHelper,grammarInfo));
+		
+		// Generate _Range.java
+		final Path filePathEncoding = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Encoding.java");
+		generator.generate("coder.Encoding", filePathEncoding, astGrammar, new UsableSymbolExtractor(generatorHelper,grammarInfo));
 				
 	}
 	private McCoderGenerator() {

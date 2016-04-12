@@ -73,6 +73,8 @@ public class McCoderGeneratorHelper
 	
 	private MCGrammarSymbol grammarSymbol;
 	
+	private int tokenTypes;
+	
 	public McCoderGeneratorHelper(ASTMCGrammar ast, Scope symbolTable) 
 	{
 		Log.errorIfNull(ast);
@@ -282,5 +284,21 @@ public class McCoderGeneratorHelper
 	public static String getASTClassName(MCRuleSymbol rule) 
 	{
 		return rule.getType().getQualifiedName();
+	}
+	
+	public int getTokenTypes()
+	{
+		return tokenTypes;		
+	}
+	
+	public void setTokenTypes(List<String> tokens)
+	{
+		for( String token : tokens )
+		{
+			if( !token.startsWith("'") )
+			{
+				tokenTypes++;
+			}
+		}
 	}
 }

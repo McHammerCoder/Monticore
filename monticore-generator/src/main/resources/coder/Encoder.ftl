@@ -16,26 +16,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.lang.Math;
 
+//${genHelper.getTokenTypes()}
+
 public class ${parserName}Encoder{
 
 	private ArrayList<${parserName}Range> ranges = new ArrayList<${parserName}Range>();
 	private ArrayList<String> kws = new ArrayList<String>();
+	private ArrayList<${parserName}Encoding> allEncodings = new ArrayList<${parserName}Encoding>();
 	private Map<String, String> encodingMap = new HashMap<String, String>(); 
-	public String startEncoding = "";
-	private int currentType;
+	private Boolean[] hasEncodingArray = new Boolean[(${genHelper.getTokenTypes()}+1)]; //Should be sum of types+1
 
 	public ${parserName}Encoder(){
 		initiateKWAndUS();
+		fillAllEncodings();
 	}
-
-	private int getCurrentType(){
-		return currentType;
-	}
-	
-	private void setCurrentType(int type){
-		this.currentType = type;
-	}
-	
 	public void initiateKWAndUS(){
 	
 	<#list genHelper.getLexerRulesToGenerate() as lexrule>
@@ -77,14 +71,39 @@ public class ${parserName}Encoder{
 	*/
 		 String originaltext = receivedtoken.getText();
 		Token nextToken = lex(originaltext).nextToken();
-
+		for(${parserName}Encoding encoding : allEncodings){
+			//System.out.println("HERE I AM");
+			if(encoding.getMap().size() != 0 && receivedtoken.getType() == encoding.getType()) {
+				//System.out.println("ONCE AGAIN");
+				//printEncoding(encodingMap.getMap(), encodingMap.getType());
+				 Map<String, String> map = encoding.getMap();
+				for( String key : map.keySet()){
+				//System.out.println(encodingMap.getMap().get(encodingMap.getStartEncoding()));
+					if(encoding.getStartEncoding().equals(map.get(key)) && originaltext.contains(key)){
+						//System.out.println("RIGHT IN THE MIDDLE OF DANGER");
+						 return false;
+					}
+				}
+			}	
+		}
 		if((originaltext.equals(nextToken.getText()) && receivedtoken.getType() == nextToken.getType())){
 			return true;
 			}
-	
+		if(!hasEncoding(receivedtoken.getType())){
+			System.out.println("Problem with token: " + originaltext + " terminating.");
+			System.exit(2);		
+			return false;
+		}
 		return false;
 	}
+	
+	public boolean hasEncoding(int type){
+		
+		return hasEncodingArray[type];
 
+	}
+	
+	
 	public boolean isKeyword(String toCheck){ //This returns if a string matches a keyword.
 		String[] allKW = getKeywords();
 		String res="";
@@ -130,7 +149,7 @@ public class ${parserName}Encoder{
 	}
 
 
-	private void createEncoding(String[] kw, String[] usableSymbols, int type) throws Exception{ //Should create a Map with different encodings
+	private boolean createEncoding(String[] kw, String[] usableSymbols, int type){ //Should create a Map with different encodings
 		/*
 		Example encoding if a \nin JSsimple
 		var -> bcbbbbbb
@@ -144,8 +163,8 @@ public class ${parserName}Encoder{
 		*/
 		//int length0 = kw.length;
 		//int length1 = 1; //makes for a total length of kw.length+1!
-		
-		setCurrentType(type);
+		Map<String, String> encodingMap = new HashMap<String, String>();
+		String startEncoding = new String();
 		//i == first
 		//z == second
 		for(int i=0; i< usableSymbols.length; i++){
@@ -173,14 +192,16 @@ public class ${parserName}Encoder{
 						encodingMap.put(usableSymbols[i], encoding); //Last save the encoding for the start
 						startEncoding = encoding;
 						//System.out.println("THE GENERATED ENCODING WAS FOR TYPE: " + type);
-						return ;
+						allEncodings.add(new ${parserName}Encoding(type, encodingMap , startEncoding));
+						printEncoding(encodingMap, type);
+						return true;
 					}
 					encoding = usableSymbols[i]; //Reset first symbol for encoding
 				}
 			}
 		}
 
-		throw new Exception("No viable encoding can be generated for token type: " +type);
+		return false;
 	}
 
 	private String convertToString( int number, String first, String second, int length)
@@ -200,15 +221,33 @@ public class ${parserName}Encoder{
 		}
 		return res;
 	}
+	
+	public void fillAllEncodings(){
+		
+		String[] usableSymb = getUsableSymbols();
+		String[] kw = getKeywords();
+		for(int j = (kw.length+1) ; j<=${genHelper.getTokenTypes()}; j++){
+			hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
+			if(!hasEncodingArray[j]) System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
+					
+		
+		}
+		/*for(Encoding encodingMap : allEncodings){
+			printEncoding(encodingMap.getMap(), encodingMap.getType());
+		}*/
 
-	public Map<String, String> getEncoding(int type) throws Exception{ //Returns the map if none exists one is created
-		if(encodingMap.size() != 0 && type == getCurrentType()) {
- 			return encodingMap;
+	}
+
+
+	public ${parserName}Encoding getEncoding(int type) { //Returns the map if none exists one is created
+		for(${parserName}Encoding encodingMap : allEncodings){
+			if(encodingMap.getMap().size() != 0 && type == encodingMap.getType()) {
+				return encodingMap;
+			}	
 		}
-		else {
-			createEncoding(getKeywords(), getUsableSymbols(), type);
-			return encodingMap;
-		}
+		System.out.println("NO SUCH MAP WAS FOUND: " + type + "\n Something went wrong terminating.");
+		System.exit(4);
+		return null;
 	}
 
 	public void printEncoding(Map <String,String> map, int type ){
@@ -223,13 +262,12 @@ public class ${parserName}Encoder{
 
 
 	public void encode (CommonToken toEncode){ //Encodes a token and sets it text to the encoded variant
-		try{
+
 			String encodedString = toEncode.getText(); //CAREFUL can cause problems use decode method
-			//insteadead of contains use a window
 			@SuppressWarnings("unchecked")
-		
-			Map<String, String> map = (Map<String, String>) getEncoding(toEncode.getType());
-			printEncoding(map, toEncode.getType());
+			${parserName}Encoding encoding = getEncoding(toEncode.getType());
+			Map<String, String> map = (Map<String, String>) encoding.getMap();
+			String startEncoding = encoding.getStartEncoding();
 			for(String key: map.keySet()){
 				if(startEncoding.equals(map.get(key))){
 					encodedString = encodedString.replace(key, map.get(key));
@@ -251,10 +289,6 @@ public class ${parserName}Encoder{
 				System.err.println("Type missmatch while encoding [exit code 2]"); //Something has gone horribly wrong
 				System.exit(2);
 			}
-		}catch(Exception e){
-			System.out.println(e.getMessage());
-			//System.exit(1);		
 		}
-	}
 
 }
