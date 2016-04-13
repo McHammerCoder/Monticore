@@ -634,7 +634,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
      (iteration:["?"|"*"|"+"])?; 
                 
   UInt8 implements BinaryComponent =
-    "UInt8" 
+    (negate:["~"])? "uint8" 
     ( ranged:["["]
       ( lowerUInt:IntLiteral ".." upperUInt:IntLiteral
       | lowerChar:Char ".." upperChar:Char
@@ -644,7 +644,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     ;
     
   UInt16 implements BinaryComponent =
-    "UInt16"
+    (negate:["~"])? "uint16"
     ( valued:["["]
       ( lower:IntLiteral ranged:[".."] upper:IntLiteral
       | value:IntLiteral )
@@ -652,7 +652,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     ;
     
   UInt32 implements BinaryComponent =
-    "UInt32"
+    (negate:["~"])? "uint32"
     ( valued:["["]
       ( lower:IntLiteral ranged:[".."] upper:IntLiteral
       | value:IntLiteral )
@@ -660,7 +660,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     ;
     
   UInt64 implements BinaryComponent =
-    "UInt64"
+    (negate:["~"])? "uint64"
     ( valued:["["]
       ( lower:IntLiteral ranged:[".."] upper:IntLiteral
       | value:IntLiteral )
@@ -668,7 +668,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     ;
     
   Int8 implements BinaryComponent =
-    "Int8"
+    (negate:["~"])? "int8"
     ( valued:["["]
       ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
       | value:SignedIntLiteral )
@@ -676,7 +676,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     ;
     
   Int16 implements BinaryComponent =
-    "Int16"
+    (negate:["~"])? "int16"
     ( valued:["["]
       ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
       | value:SignedIntLiteral )
@@ -684,7 +684,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     ;
     
   Int32 implements BinaryComponent =
-    "Int32"
+    (negate:["~"])? "int32"
     ( valued:["["]
       ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
       | value:SignedIntLiteral )
@@ -692,48 +692,78 @@ component grammar Grammar extends de.monticore.literals.Literals {
     ;
     
   Int64 implements BinaryComponent =
-    "Int64"
+    (negate:["~"])? "int64"
     ( valued:["["]
       ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
       | value:SignedIntLiteral )
     "]")?
     ; 
     
+  
+    
   UBits implements BinaryComponent =
-    "UBits["
-    ( numBits:SignedIntLiteral
-      ( valued:[","]
-        ( lower:IntLiteral ranged:[".."] upper:IntLiteral
-        | value:IntLiteral )
-      )?
-    )
-    "]"
+    bits:["ubits1"|"ubits2"|"ubits3"|"ubits4"
+    	 |"ubits5"|"ubits6"|"ubits7"|"ubits8"
+    	 |"ubits9"|"ubits10"|"ubits11"|"ubits12"
+    	 |"ubits13"|"ubits14"|"ubits15"|"ubits16"
+    	 |"ubits17"|"ubits18"|"ubits19"|"ubits20"
+    	 |"ubits21"|"ubits22"|"ubits23"|"ubits24"
+    	 |"ubits25"|"ubits26"|"ubits27"|"ubits28"
+    	 |"ubits29"|"ubits30"|"ubits31"|"ubits32"
+    	 |"ubits33"|"ubits34"|"ubits35"|"ubits36"
+    	 |"ubits37"|"ubits38"|"ubits39"|"ubits40"
+    	 |"ubits41"|"ubits42"|"ubits43"|"ubits44"
+    	 |"ubits45"|"ubits46"|"ubits47"|"ubits48"
+    	 |"ubits49"|"ubits50"|"ubits51"|"ubits52"
+    	 |"ubits53"|"ubits54"|"ubits55"|"ubits56"
+    	 |"ubits57"|"ubits58"|"ubits59"|"ubits60"
+    	 |"ubits61"|"ubits62"|"ubits63"|"ubits64"
+    	 ]
+    ( 
+      valued:["["]
+      ( lower:IntLiteral ranged:[".."] upper:IntLiteral
+      | value:IntLiteral )
+      "]"
+    )?
     ; 
     
   Bits implements BinaryComponent =
-    "Bits["
-    ( numBits:SignedIntLiteral
-      ( valued:[","]
-        ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
-        | value:SignedIntLiteral )
-      )?
-    )
-    "]"
+    bits:["bits1"|"bits2"|"bits3"|"bits4"
+    	 |"bits5"|"bits6"|"bits7"|"bits8"
+    	 |"bits9"|"bits10"|"bits11"|"bits12"
+    	 |"bits13"|"bits14"|"bits15"|"bits16"
+    	 |"bits17"|"bits18"|"bits19"|"bits20"
+    	 |"bits21"|"bits22"|"bits23"|"bits24"
+    	 |"bits25"|"bits26"|"bits27"|"bits28"
+    	 |"bits29"|"bits30"|"bits31"|"bits32"
+    	 |"bits33"|"bits34"|"bits35"|"bits36"
+    	 |"bits37"|"bits38"|"bits39"|"bits40"
+    	 |"bits41"|"bits42"|"bits43"|"bits44"
+    	 |"bits45"|"bits46"|"bits47"|"bits48"
+    	 |"bits49"|"bits50"|"bits51"|"bits52"
+    	 |"bits53"|"bits54"|"bits55"|"bits56"
+    	 |"bits57"|"bits58"|"bits59"|"bits60"
+    	 |"bits61"|"bits62"|"bits63"|"bits64"
+    	 ]
+    ( 
+      valued:["["]
+      ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
+      | value:SignedIntLiteral )
+      "]"
+    )?
     ; 
     
-  NRepeat implements BinaryComponent =
-    "NRepeat["
-    ( nName:Name | nVal:IntLiteral )
-    ","
-    repeat:Name
-    "]"
-    ; 
+  BinaryLengthValue implements BinaryComponent =
+    (UInt8 | UInt16 | UInt32 | UInt64 | UBits) "->" repeat:BinaryComponent ; 
+    
+  BinaryNRepeat implements BinaryComponent =
+    uIntValue:IntLiteral "->" repeat:BinaryComponent ; 
           
   BinaryNonTerminal implements BinaryComponent =
     (variable:Name& "=")? Name ;
    
   BinarySimpleIteration implements BinaryComponent =
-    (BinaryNonTerminal | UInt8 | UInt16 | UInt32 | UInt64 | Int8 | Int16 | Int32 | Int64 ) iteration:["?"|"*"|"+"];
+    (BinaryNonTerminal | UInt8 | UInt16 | UInt32 | UInt64 | Int8 | Int16 | Int32 | Int64 | UBits | Bits ) iteration:["?"|"*"|"+"];
    
   BinaryOption =
     "options" "{" iD:Name "=" value:Name ";" "}";
