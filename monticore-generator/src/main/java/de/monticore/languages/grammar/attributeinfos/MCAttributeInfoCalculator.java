@@ -36,14 +36,6 @@ import de.monticore.grammar.grammar._ast.ASTNonTerminalSeparator;
 import de.monticore.grammar.grammar._ast.ASTRuleComponent;
 import de.monticore.grammar.grammar._ast.ASTSemanticpredicateOrAction;
 import de.monticore.grammar.grammar._ast.ASTTerminal;
-import de.monticore.grammar.grammar._ast.ASTUInt8;
-import de.monticore.grammar.grammar._ast.ASTUInt16;
-import de.monticore.grammar.grammar._ast.ASTUInt32;
-import de.monticore.grammar.grammar._ast.ASTUInt64;
-import de.monticore.grammar.grammar._ast.ASTInt8;
-import de.monticore.grammar.grammar._ast.ASTInt16;
-import de.monticore.grammar.grammar._ast.ASTInt32;
-import de.monticore.grammar.grammar._ast.ASTInt64;
 import de.monticore.languages.grammar.MCGrammarSymbol;
 import de.se_rwth.commons.StringTransformations;
 import de.se_rwth.commons.logging.Log;
@@ -90,30 +82,6 @@ public class MCAttributeInfoCalculator {
     if (ruleComponent instanceof ASTNonTerminalSeparator) {
       return calculateAttributes((ASTNonTerminalSeparator) ruleComponent);
     }
-    if (ruleComponent instanceof ASTUInt8) {
-      return calculateAttributes((ASTUInt8) ruleComponent);
-    }
-    if (ruleComponent instanceof ASTUInt16) {
-        return calculateAttributes((ASTUInt16) ruleComponent);
-    }
-    if (ruleComponent instanceof ASTUInt32) {
-        return calculateAttributes((ASTUInt32) ruleComponent);
-    }
-    if (ruleComponent instanceof ASTUInt64) {
-        return calculateAttributes((ASTUInt64) ruleComponent);
-    }
-    if (ruleComponent instanceof ASTInt8) {
-	    return calculateAttributes((ASTInt8) ruleComponent);
-	}
-	if (ruleComponent instanceof ASTInt16) {
-	    return calculateAttributes((ASTInt16) ruleComponent);
-	}
-	if (ruleComponent instanceof ASTInt32) {
-	    return calculateAttributes((ASTInt32) ruleComponent);
-	}
-	if (ruleComponent instanceof ASTInt64) {
-	    return calculateAttributes((ASTInt64) ruleComponent);
-	}
 
     throw new IllegalArgumentException("0xA4079 Unknown rule component type '" + ruleComponent.getClass() + "'.");
   }
@@ -287,38 +255,6 @@ public class MCAttributeInfoCalculator {
   
   public static MCAttributeInfoMap calculateAttributes(ASTAnything anything) {
     return MCAttributeInfoMap.getEmptyMap();
-  }
-  
-  public static MCAttributeInfoMap calculateAttributes(ASTUInt8 uint8) {
-	return MCAttributeInfoMap.getEmptyMap();
-  }
-  
-  public static MCAttributeInfoMap calculateAttributes(ASTUInt16 uint16) {
-		return MCAttributeInfoMap.getEmptyMap();
-  }
-  
-  public static MCAttributeInfoMap calculateAttributes(ASTUInt32 uint32) {
-		return MCAttributeInfoMap.getEmptyMap();
-  }
-  
-  public static MCAttributeInfoMap calculateAttributes(ASTUInt64 uint64) {
-	return MCAttributeInfoMap.getEmptyMap();
-  }
-  
-  public static MCAttributeInfoMap calculateAttributes(ASTInt8 int8) {
-    return MCAttributeInfoMap.getEmptyMap();
-  }
-	  
-  public static MCAttributeInfoMap calculateAttributes(ASTInt16 int16) {
-	return MCAttributeInfoMap.getEmptyMap();
-  }
-	  
-  public static MCAttributeInfoMap calculateAttributes(ASTInt32 int32) {
-	return MCAttributeInfoMap.getEmptyMap();
-  }
-	  
-  public static MCAttributeInfoMap calculateAttributes(ASTInt64 int64) {
-	return MCAttributeInfoMap.getEmptyMap();
   }
   
 }

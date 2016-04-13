@@ -20,6 +20,7 @@
 package de.monticore.languages.grammar;
 
 import de.monticore.ast.ASTNode;
+import de.monticore.grammar.grammar._ast.ASTBinaryProd;
 import de.monticore.grammar.grammar._ast.ASTClassProd;
 import de.monticore.grammar.grammar._ast.ASTEnumProd;
 import de.monticore.grammar.grammar._ast.ASTExternalProd;
@@ -120,6 +121,17 @@ public class MCGrammarSymbolsFactory {
       factory = new MCGrammarSymbolsFactory();
     }
     return factory.doCreateMCRuleComponentSymbol(name);
+  }
+  
+  public static MCBinaryRuleSymbol createBinaryProdSymbol(ASTBinaryProd astBinaryProd) {
+    if (factory == null) {
+      factory = new MCGrammarSymbolsFactory();
+    }
+    return factory.doCreateMCBinaryProdSymbol(astBinaryProd);
+  }
+  
+  protected MCBinaryRuleSymbol doCreateMCBinaryProdSymbol(ASTBinaryProd astBinaryProd) {
+    return new MCBinaryRuleSymbol(astBinaryProd);
   }
 
   protected MCClassRuleSymbol doCreateMCClassProdSymbol(ASTClassProd classProd) {

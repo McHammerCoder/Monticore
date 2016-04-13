@@ -84,6 +84,12 @@ public class ${grammarName}TreeConverter
 					return buildRuleTree(tok, ${grammarName}TreeHelper.RuleType.RT_${ruleName}.ordinal());
 				}
 </#list>
+<#list genHelper.getBinaryRuleNames() as ruleName>
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_${ruleName}.getValue())
+				{
+					return buildRuleTree(tok, ${grammarName}TreeHelper.RuleType.RT_${ruleName}.ordinal());
+				}
+</#list>
 <#assign iter=1>
 <#list genHelper.getLexStrings() as lexString>
 				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_${iter}.getValue())
@@ -98,41 +104,33 @@ public class ${grammarName}TreeConverter
 					return buildStringTree(tok, ${grammarName}TreeHelper.TokenType.TT_${lexRuleName}.ordinal()+1);
 				}
 </#list>
+<#list [8,16,32,64] as bits>
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_UInt${bits}.getValue())
+				{
+					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_UInt${bits});
+				}
+</#list>
+<#list [8,16,32,64] as bits>
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_Int${bits}.getValue())
+				{
+					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_Int${bits});
+				}
+</#list>
+<#list 1..64 as bits>
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_UBits${bits}.getValue())
+				{
+					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_UBits${bits});
+				}
+</#list>
+<#list 1..64 as bits>
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_Bits${bits}.getValue())
+				{
+					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_Bits${bits});
+				}
+</#list>	
 				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_EOF.getValue())
 				{
 					return buildStringTree(tok, ${grammarName}TreeHelper.TokenType.TT_EOF.ordinal()+1);
-				}
-				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_UInt8.getValue())
-				{
-					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_UInt8);
-				}
-				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_UInt16.getValue())
-				{
-					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_UInt16);
-				}
-				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_UInt32.getValue())
-				{
-					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_UInt32);
-				}
-				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_UInt64.getValue())
-				{
-					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_UInt64);
-				}
-				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_Int8.getValue())
-				{
-					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_Int8);
-				}
-				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_Int16.getValue())
-				{
-					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_Int16);
-				}
-				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_Int32.getValue())
-				{
-					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_Int32);
-				}
-				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_Int64.getValue())
-				{
-					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_Int64);
 				}
 				else
 				{
@@ -196,30 +194,26 @@ public class ${grammarName}TreeConverter
 		HAParseTree pt;
 		switch(tokenType)
 		{
-		case TT_UInt8:
-			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getUIntValue(), 8, true)  );
-			break;
-		case TT_UInt16:
-			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getUIntValue(), 16, true)  );
-			break;
-		case TT_UInt32:
-			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getUIntValue(), 32, true)  );
-			break;
-		case TT_UInt64:
-			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getUIntValue(), 64, true)  );
-			break;
-		case TT_Int8:
-			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getSIntValue(), 8, true)  );
-			break;
-		case TT_Int16:
-			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getSIntValue(), 16, true) );
-			break;
-		case TT_Int32:
-			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getSIntValue(), 32, true) );
-			break;
-		case TT_Int64:
-			pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getSIntValue(), 64, true) );
-			break;
+<#list [8,16,32,64] as bits>
+			case TT_UInt${bits}:
+				pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getUIntValue(), ${bits}, true)  );
+				break;
+</#list>
+<#list [8,16,32,64] as bits>
+			case TT_Int${bits}:
+				pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getSIntValue(), ${bits}, false)  );
+				break;
+</#list>
+<#list 1..64 as bits>
+			case TT_UBits${bits}:
+				pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getUIntValue(), ${bits}, true)  );
+				break;
+</#list>
+<#list 1..64 as bits>
+			case TT_Bits${bits}:
+				pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getSIntValue(), ${bits}, false)  );
+				break;
+</#list>
 		default:
 			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "INVALID_INT_VALUE") );
 		}

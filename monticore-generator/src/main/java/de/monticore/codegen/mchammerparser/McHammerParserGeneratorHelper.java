@@ -24,6 +24,7 @@ import com.google.common.collect.Sets;
 
 import de.monticore.ast.ASTNode;
 import de.monticore.grammar.grammar._ast.ASTBlock;
+import de.monticore.grammar.grammar._ast.ASTBinaryProd;
 import de.monticore.grammar.grammar._ast.ASTClassProd;
 import de.monticore.grammar.grammar._ast.ASTConstantGroup;
 import de.monticore.grammar.grammar._ast.ASTConstantsGrammar;
@@ -39,6 +40,7 @@ import de.monticore.grammar.grammar_withconcepts._ast.ASTJavaCode;
 import de.monticore.grammar.prettyprint.Grammar_WithConceptsPrettyPrinter;
 import de.monticore.java.javadsl._ast.ASTBlockStatement;
 import de.monticore.java.javadsl._ast.ASTClassMemberDeclaration;
+import de.monticore.languages.grammar.MCBinaryRuleSymbol;
 import de.monticore.languages.grammar.MCClassRuleSymbol;
 import de.monticore.languages.grammar.MCEnumRuleSymbol;
 import de.monticore.languages.grammar.MCExternalTypeSymbol;
@@ -185,12 +187,19 @@ public class McHammerParserGeneratorHelper
 			prods.add(parserRule.getName().toLowerCase());
 		}
 		
+		List<ASTProd> binaryRules = getBinaryRulesToGenerate() ;
+	    
+		for(ASTProd binaryRule : binaryRules)
+		{
+			prods.add(binaryRule.getName().toLowerCase());
+		}
+		
+		
 		List<ASTLexProd> lexerRules = getLexerRulesToGenerate();
 	    
 		for(ASTLexProd lexerRule : lexerRules)
 		{
 			prods.add(lexerRule.getName().toLowerCase());
-			prods.add("not_" + lexerRule.getName().toLowerCase());
 		}
 		
 		List<MCRuleSymbol> interfaceRules = getInterfaceRulesToGenerate();
@@ -222,6 +231,24 @@ public class McHammerParserGeneratorHelper
 			{
 				prods.add(((MCEnumRuleSymbol) ruleSymbol).getRule());
 	        }
+		}
+	    return prods;
+	}
+	
+	public List<ASTProd> getBinaryRulesToGenerate() 
+	{
+		// Iterate over all Rules
+		List<ASTProd> prods = Lists.newArrayList();
+		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited().values()) 
+		{
+			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.BINARYRULE)) 
+			{
+				Optional<ASTBinaryProd> astProd = ((MCBinaryRuleSymbol) ruleSymbol).getRuleNode();
+				if (astProd.isPresent()) 
+				{
+					prods.add(astProd.get());
+				}
+			}
 		}
 	    return prods;
 	}
@@ -309,6 +336,19 @@ public class McHammerParserGeneratorHelper
 	    
 	    List<String> ruleNames = Lists.newArrayList();
 	    for( ASTLexProd prod : prods )
+	    {
+	    	ruleNames.add(prod.getName());
+	    }
+	    return ruleNames;
+	}
+	
+	public List<String> getBinaryRuleNames()
+	{
+		// Iterate over all LexRules
+		List<ASTProd> prods = getBinaryRulesToGenerate();
+	    
+	    List<String> ruleNames = Lists.newArrayList();
+	    for( ASTProd prod : prods )
 	    {
 	    	ruleNames.add(prod.getName());
 	    }

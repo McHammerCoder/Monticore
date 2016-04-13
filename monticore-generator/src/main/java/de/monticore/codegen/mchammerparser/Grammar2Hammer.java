@@ -26,6 +26,16 @@ import de.monticore.grammar.HelperGrammar;
 import de.monticore.grammar.MCGrammarInfo;
 import de.monticore.grammar.grammar._ast.ASTAlt;
 import de.monticore.grammar.grammar._ast.ASTAnything;
+import de.monticore.grammar.grammar._ast.ASTBinaryAlt;
+import de.monticore.grammar.grammar._ast.ASTBinaryBlock;
+import de.monticore.grammar.grammar._ast.ASTBinaryComponent;
+import de.monticore.grammar.grammar._ast.ASTBinaryLengthValue;
+import de.monticore.grammar.grammar._ast.ASTBinaryNonTerminal;
+import de.monticore.grammar.grammar._ast.ASTBinaryNRepeat;
+import de.monticore.grammar.grammar._ast.ASTBinaryProd;
+import de.monticore.grammar.grammar._ast.ASTBinarySimpleIteration;
+import de.monticore.grammar.grammar._ast.ASTBits;
+import de.monticore.grammar.grammar._ast.ASTUBits;
 import de.monticore.grammar.grammar._ast.ASTBlock;
 import de.monticore.grammar.grammar._ast.ASTClassProd;
 import de.monticore.grammar.grammar._ast.ASTConstant;
@@ -297,7 +307,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		printIterationEnd(ast.getIteration());
 	}
 	
-	//@Override
+	@Override
 	public void handle(ASTLexProd ast) 
 	{
 		startCodeSection("ASTLexProd");
@@ -478,12 +488,16 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	public void handle(ASTLexSimpleIteration ast)
 	{
 		printIteration(ast.getIteration()); 
-				
-		Optional<ASTLexNonTerminal> nonTerminal = ast.getLexNonTerminal();
-		if (nonTerminal.isPresent()) 
-		{
-			nonTerminal.get().accept(getRealThis());
-		}
+		
+		if (ast.getLexChar().isPresent()) {
+			ast.getLexChar().get().accept(getRealThis());
+	    }
+	    else if (ast.getLexString().isPresent()) {
+	    	ast.getLexString().get().accept(getRealThis());
+	    } 
+	    else if (ast.getLexNonTerminal().isPresent()) {
+	    	ast.getLexNonTerminal().get().accept(getRealThis());
+	    }
 		
 		printIterationEnd(ast.getIteration()); 
 	}
@@ -608,12 +622,292 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	// ----------------- Binary Token Visitors -----------------------------------------------------
 	
 	@Override
-	public void visit(ASTUInt8 uint8)
+	public void handle(ASTBinaryProd ast) 
 	{
+		startCodeSection("ASTBinaryProd");
+		
+		addToCodeSection(indent + ast.getName().toLowerCase() + ".bindIndirect( ");
+		increaseIndent();
+		
 		addToCodeSection("\n" + indent + "Hammer.action( ");
 		increaseIndent();
 		
-		addToCodeSection("\n" + indent + "uInt_8");
+		addToCodeSection("\n" + indent + "Hammer.choice( ");
+		increaseIndent();
+		
+		List<ASTBinaryAlt> alts = ast.getAlts();
+		for( int i = 0; i < alts.size(); i++ )
+		{
+			ASTBinaryAlt alt = alts.get(i);
+			alt.accept(getRealThis());
+			
+			if( i < alts.size()-1 )
+			{
+				addToCodeSection(", ");
+			}
+		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"act" + ast.getName() + "\" )");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ");");
+		
+		endCodeSection();
+	}
+	
+	@Override
+	public void handle(ASTBinaryAlt alt)
+	{
+		addToCodeSection("\n" + indent + "Hammer.sequence( ");
+		increaseIndent();
+				
+		java.util.List<de.monticore.grammar.grammar._ast.ASTBinaryComponent> components = alt.getBinaryComponents();
+		
+		for( int i = 0; i < components.size(); i++ )
+		{
+			components.get(i).accept(getRealThis());
+			
+			if( i < components.size()-1 )
+			{
+				addToCodeSection(", ");
+			}
+		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ") ");
+	}
+	
+	@Override
+	public void handle(ASTBinaryBlock ast)
+	{
+		printIteration(ast.getIteration()); 
+		
+		if( ast.isNegate() )
+		{
+			negated = true;
+			
+			addToCodeSection("\n" + indent + "Hammer.action( ");
+			increaseIndent();
+			
+			addToCodeSection("\n" + indent + "Hammer.sequence( ");
+			increaseIndent();
+			
+			List<ASTBinaryAlt> alts = ast.getBinaryAlts();
+			for( int i = 0; i < alts.size(); i++ )
+			{
+				if( i < alts.size()-1 )
+				{
+					addToCodeSection("\n" + indent + "Hammer.and( ");
+					increaseIndent();
+				}
+				
+				addToCodeSection("\n" + indent + "Hammer.action( ");
+				increaseIndent();
+				
+				ASTBinaryAlt alt = alts.get(i);
+				alt.accept(getRealThis());
+				
+				decreaseIndent();
+				addToCodeSection("\n" + indent + ", \"actUndefined\" )");
+				
+				if( i < alts.size()-1 )
+				{
+					decreaseIndent();
+					addToCodeSection("\n" + indent + "),");
+				}
+			}
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")");
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ", \"actUndefined\" )");
+			
+			negated = false;
+			
+		}
+		else
+		{
+			addToCodeSection("\n" + indent + "Hammer.choice( ");
+			increaseIndent();
+			
+			List<ASTBinaryAlt> alts = ast.getBinaryAlts();
+			for( int i = 0; i < alts.size(); i++ )
+			{
+				addToCodeSection("\n" + indent + "Hammer.action( ");
+				increaseIndent();
+				
+				ASTBinaryAlt alt = alts.get(i);
+				alt.accept(getRealThis());
+				
+				decreaseIndent();
+				addToCodeSection("\n" + indent + ", \"actUndefined\" )");
+				
+				if( i < alts.size()-1 )
+				{
+					addToCodeSection(", ");
+				}
+			}
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")");
+		}
+		
+		printIterationEnd(ast.getIteration()); 
+	}
+	
+	@Override
+	public void handle(ASTBinarySimpleIteration ast)
+	{
+		printIteration(ast.getIteration()); 
+				
+		if (ast.getBinaryNonTerminal().isPresent()) {
+			ast.getBinaryNonTerminal().get().accept(getRealThis());
+	    }
+	    else if (ast.getUInt8().isPresent()) {
+	    	ast.getUInt8().get().accept(getRealThis());
+	    } 
+	    else if (ast.getUInt16().isPresent()) {
+	    	ast.getUInt16().get().accept(getRealThis());
+	    } 
+	    else if (ast.getUInt32().isPresent()) {
+	    	ast.getUInt32().get().accept(getRealThis());
+	    } 
+	    else if (ast.getUInt64().isPresent()) {
+	    	ast.getUInt64().get().accept(getRealThis());
+	    } 
+	    else if (ast.getInt8().isPresent()) {
+	    	ast.getInt8().get().accept(getRealThis());
+	    } 
+	    else if (ast.getInt16().isPresent()) {
+	    	ast.getInt16().get().accept(getRealThis());
+	    } 
+	    else if (ast.getInt32().isPresent()) {
+	    	ast.getInt32().get().accept(getRealThis());
+	    } 
+	    else if (ast.getInt64().isPresent()) {
+	    	ast.getInt64().get().accept(getRealThis());
+	    } 
+	    else if (ast.getUBits().isPresent()) {
+	    	ast.getUBits().get().accept(getRealThis());
+	    } 
+	    else if (ast.getBits().isPresent()) {
+	    	ast.getBits().get().accept(getRealThis());
+	    } 
+		
+		printIterationEnd(ast.getIteration()); 
+	}
+	
+	@Override
+	public void visit(ASTBinaryNonTerminal ast) 
+	{		
+		addToCodeSection("\n" + indent + ast.getName().toLowerCase());
+	}
+	
+	@Override
+	public void handle(ASTBinaryLengthValue ast) 
+	{		
+		addToCodeSection("\n" + indent + "Hammer.lengthValue( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		if (ast.getUInt8().isPresent()) {
+	    	ast.getUInt8().get().accept(getRealThis());
+	    } 
+	    else if (ast.getUInt16().isPresent()) {
+	    	ast.getUInt16().get().accept(getRealThis());
+	    } 
+	    else if (ast.getUInt32().isPresent()) {
+	    	ast.getUInt32().get().accept(getRealThis());
+	    } 
+	    else if (ast.getUInt64().isPresent()) {
+	    	ast.getUInt64().get().accept(getRealThis());
+	    }
+	    else if (ast.getUBits().isPresent()) {
+	    	ast.getUBits().get().accept(getRealThis());
+	    }
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actUInt\" )");
+		
+		addToCodeSection(",");
+		ast.getRepeat().accept(getRealThis());		
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ") ");
+	}
+	
+	@Override
+	public void handle(ASTBinaryNRepeat ast) 
+	{		
+		addToCodeSection("\n" + indent + "Hammer.repeatN( ");
+		increaseIndent();
+		
+		ast.getRepeat().accept(getRealThis());	
+		addToCodeSection(",");
+		addToCodeSection("\n" + indent + ast.getUIntValue().getValue());
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ") ");
+	}
+	
+	@Override
+	public void visit(ASTUInt8 uint8)
+	{	
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		if( uint8.isRanged() )
+		{
+			if( negated ? !uint8.isNegate() : uint8.isNegate() )
+			{
+				if( uint8.getValueChar().isPresent() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_8, Hammer.intRange( uInt_8, (byte)'" + encodeChar(uint8.getValueChar().get().charAt(0)) + "', (byte)'" + encodeChar(uint8.getValueChar().get().charAt(0)) + "') )");
+				}
+				else if( uint8.getLowerChar().isPresent() && uint8.getUpperChar().isPresent() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_8, Hammer.intRange( uInt_8, (byte)'" + encodeChar(uint8.getLowerChar().get().charAt(0)) + "', (byte)'" + encodeChar(uint8.getUpperChar().get().charAt(0)) + "') )");
+				}
+				else if( uint8.getValueUInt().isPresent() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_8, Hammer.intRange( uInt_8, " + uint8.getValueUInt().get().getValue() + ", " + uint8.getValueUInt().get().getValue() + ") )");
+				}
+				else if( uint8.getLowerUInt().isPresent() && uint8.getUpperUInt().isPresent() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_8, Hammer.intRange( uInt_8, " + uint8.getLowerUInt().get().getValue() + ", " + uint8.getUpperUInt().get().getValue() + ") )");
+				}
+			}
+			else
+			{
+				if( uint8.getValueChar().isPresent() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + encodeChar(uint8.getValueChar().get().charAt(0)) + "', (byte)'" + encodeChar(uint8.getValueChar().get().charAt(0)) + "')");
+				}
+				else if( uint8.getLowerChar().isPresent() && uint8.getUpperChar().isPresent() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + encodeChar(uint8.getLowerChar().get().charAt(0)) + "', (byte)'" + encodeChar(uint8.getUpperChar().get().charAt(0)) + "')");
+				}
+				else if( uint8.getValueUInt().isPresent() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + uint8.getValueUInt().get().getValue() + ", " + uint8.getValueUInt().get().getValue() + ")");
+				}
+				else if( uint8.getLowerUInt().isPresent() && uint8.getUpperUInt().isPresent() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + uint8.getLowerUInt().get().getValue() + ", " + uint8.getUpperUInt().get().getValue() + ")");
+				}
+			}
+		}
+		else
+		{
+			addToCodeSection("\n" + indent + "uInt_8");
+		}
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actUInt8\") ");
@@ -625,7 +919,35 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection("\n" + indent + "Hammer.action( ");
 		increaseIndent();
 		
-		addToCodeSection("\n" + indent + "uInt_16");
+		if( uint16.isValued() )
+		{
+			if( negated ? !uint16.isNegate() : uint16.isNegate() )
+			{
+				if( !uint16.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_16, Hammer.intRange( uInt_16, " + uint16.getValue().get().getValue() + ", " + uint16.getValue().get().getValue() + ") )");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_16, Hammer.intRange( uInt_16, " + uint16.getLower().get().getValue() + ", " + uint16.getUpper().get().getValue() + ") )");
+				}
+			}
+			else
+			{
+				if( !uint16.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, " + uint16.getValue().get().getValue() + ", " + uint16.getValue().get().getValue() + ")");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, " + uint16.getLower().get().getValue() + ", " + uint16.getUpper().get().getValue() + ")");
+				}
+			}
+		}
+		else
+		{
+			addToCodeSection("\n" + indent + "uInt_16");
+		}
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actUInt16\") ");
@@ -637,7 +959,35 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection("\n" + indent + "Hammer.action( ");
 		increaseIndent();
 		
-		addToCodeSection("\n" + indent + "uInt_32");
+		if( uint32.isValued() )
+		{
+			if( negated ? !uint32.isNegate() : uint32.isNegate() )
+			{
+				if( !uint32.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_32, Hammer.intRange( uInt_32, " + uint32.getValue().get().getValue() + ", " + uint32.getValue().get().getValue() + ") )");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_32, Hammer.intRange( uInt_32, " + uint32.getLower().get().getValue() + ", " + uint32.getUpper().get().getValue() + ") )");
+				}
+			}
+			else
+			{
+				if( !uint32.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_32, " + uint32.getValue().get().getValue() + ", " + uint32.getValue().get().getValue() + ")");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_32, " + uint32.getLower().get().getValue() + ", " + uint32.getUpper().get().getValue() + ")");
+				}
+			}	
+		}
+		else
+		{
+			addToCodeSection("\n" + indent + "uInt_32");
+		}
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actUInt32\") ");
@@ -649,7 +999,35 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection("\n" + indent + "Hammer.action( ");
 		increaseIndent();
 		
-		addToCodeSection("\n" + indent + "uInt_64");
+		if( uint64.isValued() )
+		{
+			if( negated ? !uint64.isNegate() : uint64.isNegate() )
+			{
+				if( !uint64.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_64, Hammer.intRange( uInt_64, " + uint64.getValue().get().getValue() + ", " + uint64.getValue().get().getValue() + ") )");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_64, Hammer.intRange( uInt_64, " + uint64.getLower().get().getValue() + ", " + uint64.getUpper().get().getValue() + ") )");
+				}
+			}
+			else
+			{
+				if( !uint64.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_64, " + uint64.getValue().get().getValue() + ", " + uint64.getValue().get().getValue() + ")");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_64, " + uint64.getLower().get().getValue() + ", " + uint64.getUpper().get().getValue() + ")");
+				}
+			}
+		}
+		else
+		{
+			addToCodeSection("\n" + indent + "uInt_64");
+		}
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actUInt64\") ");
@@ -661,7 +1039,35 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection("\n" + indent + "Hammer.action( ");
 		increaseIndent();
 		
-		addToCodeSection("\n" + indent + "int_8");
+		if( int8.isValued() )
+		{
+			if( negated ? !int8.isNegate() : int8.isNegate() )
+			{
+				if( !int8.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( int_8, Hammer.intRange( int_8, " + int8.getValue().get().getValue() + ", " + int8.getValue().get().getValue() + ") )");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( int_8, Hammer.intRange( int_8, " + int8.getLower().get().getValue() + ", " + int8.getUpper().get().getValue() + ") )");
+				}
+			}
+			else
+			{
+				if( !int8.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( int_8, " + int8.getValue().get().getValue() + ", " + int8.getValue().get().getValue() + ")");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( int_8, " + int8.getLower().get().getValue() + ", " + int8.getUpper().get().getValue() + ")");
+				}
+			}	
+		}
+		else
+		{
+			addToCodeSection("\n" + indent + "int_8");
+		}
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actInt8\") ");
@@ -672,8 +1078,36 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{
 		addToCodeSection("\n" + indent + "Hammer.action( ");
 		increaseIndent();
-		
-		addToCodeSection("\n" + indent + "int_16");
+
+		if( int16.isValued() )
+		{
+			if( negated ? !int16.isNegate() : int16.isNegate() )
+			{
+				if( !int16.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( int_16, Hammer.intRange( int_16, " + int16.getValue().get().getValue() + ", " + int16.getValue().get().getValue() + ") )");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( int_16, Hammer.intRange( int_16, " + int16.getLower().get().getValue() + ", " + int16.getUpper().get().getValue() + ") )");
+				}
+			}
+			else
+			{
+				if( !int16.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( int_16, " + int16.getValue().get().getValue() + ", " + int16.getValue().get().getValue() + ")");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( int_16, " + int16.getLower().get().getValue() + ", " + int16.getUpper().get().getValue() + ")");
+				}
+			}
+		}
+		else
+		{
+			addToCodeSection("\n" + indent + "int_16");
+		}
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actInt16\") ");
@@ -685,7 +1119,36 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection("\n" + indent + "Hammer.action( ");
 		increaseIndent();
 		
-		addToCodeSection("\n" + indent + "int_32");
+		if( int32.isValued() )
+		{
+			if( negated ? !int32.isNegate() : int32.isNegate() )
+			{
+				if( !int32.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( int_32, Hammer.intRange( int_32, " + int32.getValue().get().getValue() + ", " + int32.getValue().get().getValue() + ") )");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( int_32, Hammer.intRange( int_32, " + int32.getLower().get().getValue() + ", " + int32.getUpper().get().getValue() + ") )");
+				}
+			}
+			else
+			{
+
+				if( !int32.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( int_32, " + int32.getValue().get().getValue() + ", " + int32.getValue().get().getValue() + ")");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( int_32, " + int32.getLower().get().getValue() + ", " + int32.getUpper().get().getValue() + ")");
+				}
+			}
+		}
+		else
+		{
+			addToCodeSection("\n" + indent + "int_32");
+		}
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actInt32\") ");
@@ -697,10 +1160,96 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection("\n" + indent + "Hammer.action( ");
 		increaseIndent();
 		
-		addToCodeSection("\n" + indent + "int_64");
+		if( int64.isValued() )
+		{
+			if( negated ? !int64.isNegate() : int64.isNegate() )
+			{
+				if( !int64.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( int_32, Hammer.intRange( int_64, " + int64.getValue().get().getValue() + ", " + int64.getValue().get().getValue() + ") )");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.butNot( int_32, Hammer.intRange( int_64, " + int64.getLower().get().getValue() + ", " + int64.getUpper().get().getValue() + ") )");
+				}
+			}
+			else
+			{
+				if( !int64.isRanged() )
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( int_64, " + int64.getValue().get().getValue() + ", " + int64.getValue().get().getValue() + ")");
+				}
+				else
+				{
+					addToCodeSection("\n" + indent + "Hammer.intRange( int_64, " + int64.getLower().get().getValue() + ", " + int64.getUpper().get().getValue() + ")");
+				}
+			}
+		}
+		else
+		{
+			addToCodeSection("\n" + indent + "int_64");
+		}
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actInt64\") ");
+	}
+	
+	@Override
+	public void visit(ASTBits bits)
+	{
+		int numBits = bits.getBits()+1-ASTConstantsGrammar.CONSTANT0;
+		
+		
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		if( bits.isValued() )
+		{
+			if( !bits.isRanged() )
+			{
+				addToCodeSection("\n" + indent + "Hammer.intRange( Hammer.bits(" + numBits + ",true), " + bits.getValue().get().getValue() + ", " + bits.getValue().get().getValue() + ")");
+			}
+			else
+			{
+				addToCodeSection("\n" + indent + "Hammer.intRange( Hammer.bits(" + numBits + ",true), " + bits.getLower().get().getValue() + ", " + bits.getUpper().get().getValue() + ")");
+			}
+		}
+		else
+		{
+			addToCodeSection("\n" + indent + "Hammer.bits(" + numBits + ",true)");
+		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actBits" + numBits + "\") ");
+	}
+	
+	@Override
+	public void visit(ASTUBits ubits)
+	{
+		int numBits = ubits.getBits()+1-ASTConstantsGrammar.CONSTANT0;
+		
+		
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		if( ubits.isValued() )
+		{
+			if( !ubits.isRanged() )
+			{
+				addToCodeSection("\n" + indent + "Hammer.intRange( Hammer.bits(" + numBits + ",false), " + ubits.getValue().get().getValue() + ", " + ubits.getValue().get().getValue() + ")");
+			}
+			else
+			{
+				addToCodeSection("\n" + indent + "Hammer.intRange( Hammer.bits(" + numBits + ",false), " + ubits.getLower().get().getValue() + ", " + ubits.getUpper().get().getValue() + ")");
+			}
+		}
+		else
+		{
+			addToCodeSection("\n" + indent + "Hammer.bits(" + numBits + ",false)");
+		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actUBits" + numBits + "\") ");
 	}
 
 	// ----------------- End of visit methods ---------------------------------------------

@@ -46,6 +46,11 @@ HParsedToken* act_Undefined(const HParseResult *p, void* user_data)
     return callAction(p,"actUndefined");
 }
 
+HParsedToken* act_UInt(const HParseResult *p, void* user_data) 
+{
+	return callAction(p,"actUInt");
+}
+
 <#list genHelper.getParserRuleNames() as ruleName>
 HParsedToken* act_${ruleName}(const HParseResult *p, void* user_data) 
 {
@@ -67,50 +72,40 @@ HParsedToken* act_${lexRuleName}(const HParseResult *p, void* user_data)
     return callAction(p,"act${lexRuleName}");
 }
 </#list>
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+HParsedToken* act_${binRuleName}(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"act${binRuleName}");
+}
+</#list>
+<#list [8,16,32,64] as bits>
+HParsedToken* act_UInt${bits}(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actUInt${bits}");
+}
+</#list>
+<#list [8,16,32,64] as bits>
+HParsedToken* act_Int${bits}(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actInt${bits}");
+}
+</#list>
+<#list 1..64 as bits>
+HParsedToken* act_UBits${bits}(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actUBits${bits}");
+}
+</#list>
+<#list 1..64 as bits>
+HParsedToken* act_Bits${bits}(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actBits${bits}");
+}
+</#list>
 
 HParsedToken* act_EOF(const HParseResult *p, void* user_data) 
 {
     return callAction(p,"actEOF");
-}
-
-HParsedToken* act_UInt8(const HParseResult *p, void* user_data) 
-{
-    return callAction(p,"actUInt8");
-}
-
-HParsedToken* act_UInt16(const HParseResult *p, void* user_data) 
-{
-    return callAction(p,"actUInt16");
-}
-
-HParsedToken* act_UInt32(const HParseResult *p, void* user_data) 
-{
-    return callAction(p,"actUInt32");
-}
-
-HParsedToken* act_UInt64(const HParseResult *p, void* user_data) 
-{
-    return callAction(p,"actUInt64");
-}
-
-HParsedToken* act_Int8(const HParseResult *p, void* user_data) 
-{
-    return callAction(p,"actInt8");
-}
-
-HParsedToken* act_Int16(const HParseResult *p, void* user_data) 
-{
-    return callAction(p,"actInt16");
-}
-
-HParsedToken* act_Int32(const HParseResult *p, void* user_data) 
-{
-    return callAction(p,"actInt32");
-}
-
-HParsedToken* act_Int64(const HParseResult *p, void* user_data) 
-{
-    return callAction(p,"actInt64");
 }
 
 JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_Hammer_action
@@ -126,6 +121,10 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_Hammer_action
     if( strcmp(actionName,"actUndefined") == 0 )
 	{
 		RETURNWRAP( env, h_action(UNWRAP(env, p), act_Undefined, NULL) );
+	}
+	else if( strcmp(actionName,"actUInt") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_UInt, NULL) );
 	}
 <#list genHelper.getParserRuleNames() as ruleName>
 	else if( strcmp(actionName,"act${ruleName}") == 0 )
@@ -147,41 +146,40 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_Hammer_action
 		RETURNWRAP( env, h_action(UNWRAP(env, p), act_${lexRuleName}, NULL) );
 	}
 </#list>
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+	else if( strcmp(actionName,"act${binRuleName}") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_${binRuleName}, NULL) );
+	}
+</#list>
+	
+<#list [8,16,32,64] as bits>
+	else if( strcmp(actionName,"actUInt${bits}") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_UInt${bits}, NULL) );
+	}
+</#list>
+<#list [8,16,32,64] as bits>
+	else if( strcmp(actionName,"actInt${bits}") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_Int${bits}, NULL) );
+	}
+</#list>
+<#list 1..64 as bits>
+	else if( strcmp(actionName,"actUBits${bits}") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_UBits${bits}, NULL) );
+	}
+</#list>
+<#list 1..64 as bits>
+	else if( strcmp(actionName,"actBits${bits}") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_Bits${bits}, NULL) );
+	}
+</#list>
 	else if( strcmp(actionName,"actEOF") == 0 )
 	{
 		RETURNWRAP( env, h_action(UNWRAP(env, p), act_EOF, NULL) );
-	}
-	else if( strcmp(actionName,"actUInt8") == 0 )
-	{
-		RETURNWRAP( env, h_action(UNWRAP(env, p), act_UInt8, NULL) );
-	}
-	else if( strcmp(actionName,"actUInt16") == 0 )
-	{
-		RETURNWRAP( env, h_action(UNWRAP(env, p), act_UInt16, NULL) );
-	}
-	else if( strcmp(actionName,"actUInt32") == 0 )
-	{
-		RETURNWRAP( env, h_action(UNWRAP(env, p), act_UInt32, NULL) );
-	}
-	else if( strcmp(actionName,"actUInt64") == 0 )
-	{
-		RETURNWRAP( env, h_action(UNWRAP(env, p), act_UInt64, NULL) );
-	}
-	else if( strcmp(actionName,"actInt8") == 0 )
-	{
-		RETURNWRAP( env, h_action(UNWRAP(env, p), act_Int8, NULL) );
-	}
-	else if( strcmp(actionName,"actInt16") == 0 )
-	{
-		RETURNWRAP( env, h_action(UNWRAP(env, p), act_Int16, NULL) );
-	}
-	else if( strcmp(actionName,"actInt32") == 0 )
-	{
-		RETURNWRAP( env, h_action(UNWRAP(env, p), act_Int32, NULL) );
-	}
-	else if( strcmp(actionName,"actInt64") == 0 )
-	{
-		RETURNWRAP( env, h_action(UNWRAP(env, p), act_Int64, NULL) );
 	}
 	else return p;
 }

@@ -10,6 +10,7 @@ import ${genHelper.getParseTreePackage()}.*;
 
 import com.upstandinghackers.hammer.ParseResult;
 import com.upstandinghackers.hammer.ParsedToken;
+import com.upstandinghackers.hammer.Hammer;
 
 /**
  * Class that contains all actions the parser might call while parsing
@@ -19,6 +20,13 @@ public class ${grammarName}Actions
 	public static ParsedToken actUndefined(ParseResult p)
 	{		
 		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_Undefined.getValue());
+		
+		return p.getAst();
+	}
+	
+	public static ParsedToken actUInt(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(Hammer.TokenType.UINT.getValue());
 		
 		return p.getAst();
 	}
@@ -45,6 +53,14 @@ public class ${grammarName}Actions
 	public static ParsedToken act${lexRuleName}(ParseResult p)
 	{		
 		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${lexRuleName}.getValue());
+		
+		return p.getAst();
+	}
+</#list>
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+	public static ParsedToken act${binRuleName}(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${binRuleName}.getValue());
 		
 		return p.getAst();
 	}
@@ -112,4 +128,22 @@ public class ${grammarName}Actions
 		
 		return p.getAst();
 	}
+
+<#list 1..64 as bits>
+	public static ParsedToken actUBits${bits}(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_UBits${bits}.getValue());
+		
+		return p.getAst();
+	}
+</#list>
+
+<#list 1..64 as bits>
+	public static ParsedToken actBits${bits}(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_Bits${bits}.getValue());
+		
+		return p.getAst();
+	}
+</#list>
 }

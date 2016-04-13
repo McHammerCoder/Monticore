@@ -93,23 +93,27 @@ public class ${grammarName}TreeHelper
 		UTT_${lexRuleName}(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter=iter+1>
 </#list>	
-		UTT_EOF(Hammer.TokenType.USER.getValue()+${iter}),
-<#assign iter=iter+1>	
-		UTT_UInt8(Hammer.TokenType.USER.getValue()+${iter}),
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+		UTT_${binRuleName}(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter=iter+1>
-		UTT_UInt16(Hammer.TokenType.USER.getValue()+${iter}),
+</#list>	
+<#list [8,16,32,64] as bits>
+		UTT_UInt${bits}(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter=iter+1>
-		UTT_UInt32(Hammer.TokenType.USER.getValue()+${iter}),
+</#list>
+<#list [8,16,32,64] as bits>
+		UTT_Int${bits}(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter=iter+1>
-		UTT_UInt64(Hammer.TokenType.USER.getValue()+${iter}),
+</#list>
+<#list 1..64 as bits>
+		UTT_UBits${bits}(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter=iter+1>
-		UTT_Int8(Hammer.TokenType.USER.getValue()+${iter}),
+</#list>
+<#list 1..64 as bits>
+		UTT_Bits${bits}(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter=iter+1>
-		UTT_Int16(Hammer.TokenType.USER.getValue()+${iter}),
-<#assign iter=iter+1>
-		UTT_Int32(Hammer.TokenType.USER.getValue()+${iter}),
-<#assign iter=iter+1>
-		UTT_Int64(Hammer.TokenType.USER.getValue()+${iter});
+</#list>	
+		UTT_EOF(Hammer.TokenType.USER.getValue()+${iter});
 
 		UserTokenTypes(int numValue)
 		{
@@ -141,15 +145,19 @@ public class ${grammarName}TreeHelper
 <#list genHelper.getLexerRuleNames() as lexRuleName>
 		TT_${lexRuleName},
 </#list>		
-		TT_EOF,
-		TT_UInt8,
-		TT_UInt16,
-		TT_UInt32,
-		TT_UInt64,
-		TT_Int8,
-		TT_Int16,
-		TT_Int32,
-		TT_Int64
+<#list [8,16,32,64] as bits>
+		TT_UInt${bits},
+</#list>
+<#list [8,16,32,64] as bits>
+		TT_Int${bits},
+</#list>
+<#list 1..64 as bits>
+		TT_UBits${bits},
+</#list>
+<#list 1..64 as bits>
+		TT_Bits${bits},
+</#list>
+		TT_EOF
 	}
 	
 	public static String [] TokenTypeNames =
@@ -162,6 +170,18 @@ public class ${grammarName}TreeHelper
 <#list genHelper.getLexerRuleNames() as lexRuleName>
 		"${lexRuleName}",
 </#list>	
+<#list [8,16,32,64] as bits>
+		"TT_UInt${bits}",
+</#list>
+<#list [8,16,32,64] as bits>
+		"TT_Int${bits}",
+</#list>
+<#list 1..64 as bits>
+		"TT_UBits${bits}",
+</#list>
+<#list 1..64 as bits>
+		"TT_Bits${bits}",
+</#list>
 		"TT_END"
 	};
 	
@@ -178,6 +198,9 @@ public class ${grammarName}TreeHelper
 <#list genHelper.getParserRuleNames() as parserRuleName>
 		RT_${parserRuleName},
 </#list>	
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+		RT_${binRuleName},
+</#list>
 		RT_Undefined
 	}
 	
@@ -185,6 +208,9 @@ public class ${grammarName}TreeHelper
 	{
 <#list genHelper.getParserRuleNames() as parserRuleName>
 		"${parserRuleName}",
+</#list>
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+		"${binRuleName}",
 </#list>
 		"Undefined"
 	};

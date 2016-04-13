@@ -74,6 +74,12 @@ public class ${grammarName}Parser
 	</#list>
 </#list>	
 	
+<#list genHelper.getBinaryRulesToGenerate() as binRule>
+	<#list hammerGenerator.createHammerCode(binRule) as binRuleCode>
+		${binRuleCode}
+	</#list>
+</#list>
+	
 <#list genHelper.getParserRulesToGenerate() as parserRule>
 	<#list hammerGenerator.createHammerCode(parserRule) as parserRuleCode>
 		${parserRuleCode}
