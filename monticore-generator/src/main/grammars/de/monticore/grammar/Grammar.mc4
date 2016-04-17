@@ -163,16 +163,16 @@ component grammar Grammar extends de.monticore.literals.Literals {
     (["fragment"] | ["comment"]  )*
     ("binary") Name
     (
-      /*(
+      (
         BinaryOption ("{" initAction:Action "}")? // Statements
       |
         "{" initAction:Action "}"
-      )?*/
+      )?
       "=" alts:(BinaryAlt || "|")+
       
-     /* (":" ("{" endAction:Action  "}")? (variable:Name&
+      (":" ("{" endAction:Action  "}")? (variable:Name&
         ("->" type:( Name& || ".")+ (":" "{" block:Action "}" )? )? )? // Statements
-      )? */
+      )? 
     )
     ";";
  

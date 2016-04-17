@@ -31,38 +31,54 @@ public class ${grammarName}Actions
 		return p.getAst();
 	}
 
-<#list genHelper.getParserRuleNames() as ruleName>
-	public static ParsedToken act${ruleName}(ParseResult p)
+<#list genHelper.getParserRulesToGenerate() as rule>
+	public static ParsedToken act${rule.getName()}(ParseResult p)
 	{		
-		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${ruleName}.getValue());
-		
-		return p.getAst();
+		ParsedToken ast = p.getAst();
+		ast.setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${rule.getName()}.getValue());
+			
+<#list hammerGenerator.getRuleAction(rule) as ruleAction>
+		${ruleAction}
+</#list>
+			
+		return ast;
 	}
 </#list>	
 <#assign iter=1>
 <#list genHelper.getLexStrings() as lexString>
 	public static ParsedToken actTT_${iter}(ParseResult p)
 	{		
-		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${iter}.getValue());
+		ParsedToken ast = p.getAst();
+		ast.setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${iter}.getValue());
 		
-		return p.getAst();
+		return ast;
 	}
 <#assign iter=iter+1>
 </#list>
-<#list genHelper.getLexerRuleNames() as lexRuleName>
-	public static ParsedToken act${lexRuleName}(ParseResult p)
+<#list genHelper.getLexerRulesToGenerate() as lexRule>
+	public static ParsedToken act${lexRule.getName()}(ParseResult p)
 	{		
-		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${lexRuleName}.getValue());
+		ParsedToken ast = p.getAst();
+		ast.setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${lexRule.getName()}.getValue());
 		
-		return p.getAst();
+<#list hammerGenerator.getLexAction(lexRule) as lexAction>
+		${lexAction}
+</#list>
+		
+		return ast;
 	}
 </#list>
-<#list genHelper.getBinaryRuleNames() as binRuleName>
-	public static ParsedToken act${binRuleName}(ParseResult p)
+<#list genHelper.getBinaryRulesToGenerate() as binaryRule>
+	public static ParsedToken act${binaryRule.getName()}(ParseResult p)
 	{		
-		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${binRuleName}.getValue());
+		ParsedToken ast = p.getAst();
+		ast.setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${binaryRule.getName()}.getValue());
 		
-		return p.getAst();
+<#list hammerGenerator.getBinaryAction(binaryRule) as binaryAction>
+		${binaryAction}
+</#list>
+	
+		return ast;
 	}
 </#list>
 

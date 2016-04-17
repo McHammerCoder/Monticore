@@ -74,6 +74,8 @@ import de.monticore.grammar.grammar._ast.ASTInt64;
 import de.monticore.grammar.grammar._ast.GrammarNodeFactory;
 import de.monticore.grammar.grammar_withconcepts._ast.ASTAction;
 import de.monticore.grammar.grammar_withconcepts._visitor.Grammar_WithConceptsVisitor;
+import de.monticore.grammar.prettyprint.Grammar_WithConceptsPrettyPrinter;
+import de.monticore.java.javadsl._ast.ASTBlockStatement;
 import de.monticore.languages.grammar.MCAttributeSymbol;
 import de.monticore.languages.grammar.MCGrammarSymbol;
 import de.monticore.languages.grammar.MCRuleComponentSymbol;
@@ -81,6 +83,7 @@ import de.monticore.languages.grammar.MCRuleSymbol;
 import de.monticore.languages.grammar.MCRuleSymbol.KindSymbolRule;
 import de.monticore.languages.grammar.MCTypeSymbol;
 import de.monticore.languages.grammar.MCTypeSymbol.KindType;
+import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.languages.grammar.PredicatePair;
 import de.monticore.symboltable.Symbol;
 import de.monticore.utils.ASTNodes;
@@ -101,6 +104,8 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	private MCGrammarSymbol grammarEntry;
 	
 	private McHammerParserGeneratorHelper parserGeneratorHelper;
+	
+	private static Grammar_WithConceptsPrettyPrinter prettyPrinter;
 	
 	private MCGrammarInfo grammarInfo;
 	
@@ -505,7 +510,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTLexActionOrPredicate ast) 
 	{
-		addToCodeSection("\n" + indent + "Hammer.nothingP()");
+		addToCodeSection("\n" + indent + "Hammer.epsilonP()");
 	}
 	
 	@Override
@@ -523,7 +528,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTSemanticpredicateOrAction ast) 
 	{
-		addToCodeSection("/*ASTSemanticpredicateOrAction*/");
+		addToCodeSection("\n" + indent + "Hammer.epsilonP()");
 	}
 	
 	@Override
@@ -1294,6 +1299,61 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		endCodeSection();
 		
 		return getHammerCode();
+	}
+	
+	public static Grammar_WithConceptsPrettyPrinter getPrettyPrinter() {
+		if (prettyPrinter == null) {
+    		prettyPrinter = new Grammar_WithConceptsPrettyPrinter(new IndentPrinter());
+    	}
+    	return prettyPrinter;
+	}
+	
+	public List<String> getRuleAction(ASTClassProd classProd)
+	{
+		List<String> actionCode = Lists.newArrayList();
+		
+		if( classProd.getAction().isPresent() )
+		{			
+			StringBuffer buffer = new StringBuffer();
+		    for (ASTBlockStatement action: ((ASTAction) classProd.getAction().get()).getBlockStatements()) {
+		    	buffer.append(getPrettyPrinter().prettyprint(action));
+		    }
+		    actionCode.add( buffer.toString() );
+		}
+		
+		return actionCode;
+	}
+	
+	public List<String> getBinaryAction(ASTBinaryProd binaryProd)
+	{
+		List<String> actionCode = Lists.newArrayList();
+		
+		if( binaryProd.getEndAction().isPresent() )
+		{			
+			StringBuffer buffer = new StringBuffer();
+		    for (ASTBlockStatement action: ((ASTAction) binaryProd.getEndAction().get()).getBlockStatements()) {
+		    	buffer.append(getPrettyPrinter().prettyprint(action));
+		    }
+		    actionCode.add( buffer.toString() );
+		}
+		
+		return actionCode;
+	}
+	
+	public List<String> getLexAction(ASTLexProd lexProd)
+	{
+		List<String> actionCode = Lists.newArrayList();
+		
+		if( lexProd.getEndAction().isPresent() )
+		{			
+			StringBuffer buffer = new StringBuffer();
+		    for (ASTBlockStatement action: ((ASTAction) lexProd.getEndAction().get()).getBlockStatements()) {
+		    	buffer.append(getPrettyPrinter().prettyprint(action));
+		    }
+		    actionCode.add( buffer.toString() );
+		}
+		
+		return actionCode;
 	}
 	
 	// ----------------------------------------------------------
