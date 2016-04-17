@@ -177,7 +177,71 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void handle(ASTConstantGroup ast)
 	{
-		addToCodeSection("/*ASTConstantGroup*/");
+		printIteration(ast.getIteration());
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.choice( ");
+		increaseIndent();
+		
+		List<ASTConstant> constants = ast.getConstants();
+		for( int i = 0; i < constants.size(); i++ )
+		{			
+			ASTConstant constant = constants.get(i);
+			constant.accept(getRealThis());
+			
+			if( i < constants.size()-1 )
+			{
+				addToCodeSection(", ");
+			}
+		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
+		
+		decreaseIndent();
+		printIterationEnd(ast.getIteration());		
+	}
+	
+	@Override
+	public void handle(ASTConstant ast)
+	{
+		String name = decodeString(ast.getName());
+				
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.sequence( ");
+		increaseIndent();
+		
+		for( int i = 0; i < name.length(); i++ )
+		{
+			String c = encodeChar(name.charAt(i));
+			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + c + "', (byte)'" + c + "')");
+			if( i < name.length()-1 )
+			{
+				addToCodeSection(", ");
+			}
+			else
+			{
+				addToCodeSection(" ");
+			}
+		}
+
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
+		
+		int id = 0;
+		List<String> terminals = parserGeneratorHelper.getLexStrings();
+		for( int i = 0; i < terminals.size(); i++ )
+		{
+			if(terminals.get(i).equals(name))
+			{
+				id = i+1;
+			}			
+		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actTT_" + id + "\" )");
 	}
 	
 	/**
