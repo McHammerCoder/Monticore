@@ -293,8 +293,6 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 			increaseIndent();
 			break;
 		case ASTConstantsGrammar.QUESTION:
-			addToCodeSection( "\n" + indent + "Hammer.action( " );
-			increaseIndent();
 			addToCodeSection( "\n" + indent + "Hammer.optional( " );
 			increaseIndent();
 		}
@@ -312,11 +310,15 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		{
 		case ASTConstantsGrammar.PLUS:
 		case ASTConstantsGrammar.STAR:
-		case ASTConstantsGrammar.QUESTION:
 			decreaseIndent();
 			addToCodeSection("\n" + indent + ")");
 			decreaseIndent();
 			addToCodeSection("\n" + indent + ", \"actUndefined\" )");
+			break;
+		case ASTConstantsGrammar.QUESTION:
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")");
+			break;
 		}	
 	}
 	
