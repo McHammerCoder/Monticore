@@ -121,19 +121,6 @@ public class McHammerParserGeneratorHelper
 	}
 	
 	/**
-	 * @return the name of the start rule in lower case letters
-	 */	
-	public String getStartRuleNameLowerCase() 
-	{
-		if (grammarSymbol.getStartRule().isPresent()) 
-		{
-			return grammarSymbol.getStartRule().get().getName().toLowerCase();
-		}
-
-		return "";
-	}
-
-	/**
 	 * @return the qualified name of the top ast, i.e., the ast of the start rule.
 	 */
 	public String getQualifiedStartRuleName()
@@ -185,14 +172,14 @@ public class McHammerParserGeneratorHelper
 	    
 		for(ASTProd parserRule : parserRules)
 		{
-			prods.add(parserRule.getName().toLowerCase());
+			prods.add("_" + parserRule.getName());
 		}
 		
 		List<ASTProd> binaryRules = getBinaryRulesToGenerate() ;
 	    
 		for(ASTProd binaryRule : binaryRules)
 		{
-			prods.add(binaryRule.getName().toLowerCase());
+			prods.add("_" + binaryRule.getName());
 		}
 		
 		
@@ -200,15 +187,15 @@ public class McHammerParserGeneratorHelper
 	    
 		for(ASTLexProd lexerRule : lexerRules)
 		{
-			prods.add(lexerRule.getName().toLowerCase());
+			prods.add("_" + lexerRule.getName());
 		}
 		
 		List<MCRuleSymbol> interfaceRules = getInterfaceRulesToGenerate();
 	    
 		for(MCRuleSymbol interfaceRule : interfaceRules)
 		{
-			prods.add(interfaceRule.getName().toLowerCase());
-			Grammar2Hammer.addInterface(interfaceRule.getName().toLowerCase());
+			prods.add("_" + interfaceRule.getName());
+			Grammar2Hammer.addInterface(interfaceRule.getName());
 		}
 		
 	    return prods;

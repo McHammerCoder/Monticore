@@ -2,7 +2,7 @@ ${tc.signature("hammerGenerator")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign grammarSymbol = genHelper.getGrammarSymbol()>
 <#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
-<#assign startRule = genHelper.getStartRuleNameLowerCase()>
+<#assign startRule = genHelper.getStartRuleName()>
 
 package ${genHelper.getParserPackage()};
 import ${genHelper.getParserPackage()}.${grammarName}Actions;
@@ -92,7 +92,7 @@ public class ${grammarName}Parser
 	</#list>
 </#list>
 
-		parser = ${startRule} ;
+		parser = _${startRule} ;
 	}
 
 	/**

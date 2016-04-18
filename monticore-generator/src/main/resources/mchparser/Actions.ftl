@@ -2,7 +2,6 @@ ${tc.signature("hammerGenerator")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign grammarSymbol = genHelper.getGrammarSymbol()>
 <#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
-<#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
 package ${genHelper.getParserPackage()};
 

@@ -129,7 +129,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	public void handle(ASTClassProd ast)
 	{
 		startCodeSection("ASTClassProd");
-		addToCodeSection(indent + ast.getName().toLowerCase() + ".bindIndirect( ");
+		addToCodeSection(indent + "_" + ast.getName() + ".bindIndirect( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.action( ");
@@ -141,7 +141,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		List<ASTRuleReference> superInterfaces = ast.getSuperInterfaceRule();
 		for( ASTRuleReference i : superInterfaces )
 		{
-			interfaces.get(i.getName().toLowerCase()).add(ast.getName().toLowerCase());
+			interfaces.get(i.getName()).add(ast.getName());
 		}
 		
 		List<ASTAlt> alts = ast.getAlts();
@@ -173,7 +173,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{
 		startCodeSection("ASTEnumProd");
 		
-		addToCodeSection(indent + ast.getName().toLowerCase() + ".bindIndirect( ");
+		addToCodeSection(indent + "_" + ast.getName() + ".bindIndirect( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.choice( ");
@@ -409,7 +409,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{
 		startCodeSection("ASTLexProd");
 		
-		addToCodeSection(indent + ast.getName().toLowerCase() + ".bindIndirect( ");
+		addToCodeSection(indent + "_" + ast.getName() + ".bindIndirect( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.action( ");
@@ -608,7 +608,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTLexNonTerminal ast) 
 	{		
-		addToCodeSection("\n" + indent + ast.getName().toLowerCase());
+		addToCodeSection("\n" + indent + "_" + ast.getName());
 	}
 	
 	@Override
@@ -628,7 +628,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{
 		printIteration(ast.getIteration());
 		
-		addToCodeSection("\n" + indent + ast.getName().toLowerCase());
+		addToCodeSection("\n" + indent + "_" + ast.getName());
 		
 		printIterationEnd(ast.getIteration());
 	}
@@ -723,7 +723,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{
 		startCodeSection("ASTBinaryProd");
 		
-		addToCodeSection(indent + ast.getName().toLowerCase() + ".bindIndirect( ");
+		addToCodeSection(indent + "_" + ast.getName() + ".bindIndirect( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.action( ");
@@ -902,7 +902,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTBinaryNonTerminal ast) 
 	{		
-		addToCodeSection("\n" + indent + ast.getName().toLowerCase());
+		addToCodeSection("\n" + indent + "_" + ast.getName());
 	}
 	
 	@Override
@@ -1364,16 +1364,16 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		startCodeSection("ASTInterfaceProd");
 		
-		addToCodeSection("\n" + indent + ast.getName().toLowerCase() + ".bindIndirect( ");
+		addToCodeSection("\n" + indent + "_" + ast.getName() + ".bindIndirect( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.choice( ");
 		increaseIndent();
 		
-		List<String> alts = interfaces.get(ast.getName().toLowerCase());
+		List<String> alts = interfaces.get(ast.getName());
 		for(int i = 0; i < alts.size(); i++)
 		{
-			addToCodeSection("\n" + indent + alts.get(i));
+			addToCodeSection("\n" + indent + "_" + alts.get(i));
 			
 			if( i < alts.size()-1 )
 			{
@@ -1568,7 +1568,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	
 	public static void addInterface(String interfaceName)
 	{
-		interfaces.put(interfaceName.toLowerCase(), Lists.newArrayList());
+		interfaces.put(interfaceName, Lists.newArrayList());
 	}
 	
 	private String encodeChar(char c)
