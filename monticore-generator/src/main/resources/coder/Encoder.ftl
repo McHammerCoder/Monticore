@@ -16,39 +16,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.lang.Math;
 
-//${genHelper.getTokenTypes()}
 
 public class ${parserName}Encoder{
 
-	private ArrayList<${parserName}Range> ranges = new ArrayList<${parserName}Range>();
-	private ArrayList<String> kws = new ArrayList<String>();
 	private ArrayList<${parserName}Encoding> allEncodings = new ArrayList<${parserName}Encoding>();
 	private Map<String, String> encodingMap = new HashMap<String, String>(); 
 	private Boolean[] hasEncodingArray = new Boolean[(${genHelper.getTokenTypes()}+1)]; //Should be sum of types+1
-
+	private ${parserName}CoderHelper coderHelper = new ${parserName}CoderHelper();
 	public ${parserName}Encoder(){
-		initiateKWAndUS();
 		fillAllEncodings();
 	}
-	public void initiateKWAndUS(){
 	
-	<#list genHelper.getLexerRulesToGenerate() as lexrule>
-		<#list coderGenerator.createUsableSymbolsCode(lexrule) as ranges>
-			${ranges}
-		</#list>
-	</#list>
-	<#list genHelper.getParserRulesToGenerate() as parserRule>
-	<#list coderGenerator.createUsableSymbolsCode(parserRule) as parserRuleCode>
-		${parserRuleCode}
-	</#list>
-	</#list>
-		
-
-	}
-
-	public String[] getFreeSymbols(){
-		return ${parserName}Range.union(ranges);
-	}
 
 	public ${parserName}AntlrLexer lex(String string){
 		ANTLRInputStream input = new ANTLRInputStream(string);
@@ -57,10 +35,7 @@ public class ${parserName}Encoder{
 
 	}
 
-	public String[] getKeywords(){
-		return kws.toArray(new String[kws.size()]);
 
-	}
   
 	  public boolean check(CommonToken receivedtoken){
 	/*
@@ -105,7 +80,7 @@ public class ${parserName}Encoder{
 	
 	
 	public boolean isKeyword(String toCheck){ //This returns if a string matches a keyword.
-		String[] allKW = getKeywords();
+		String[] allKW = coderHelper.getKeywords();
 		String res="";
 		for(int i=0; i<allKW.length; i++){
 			res+= allKW[i];
@@ -128,8 +103,8 @@ public class ${parserName}Encoder{
 
 	public String[] getUsableSymbols(){
 		//Each usable symbol should be lexable. No usable symbol should be a keyword.
-		String[] alphanumeric = getFreeSymbols();
-		String[] keyword = getKeywords();
+		String[] alphanumeric = coderHelper.getFreeSymbols();
+		String[] keyword = coderHelper.getKeywords();
 		String[] usableSymbols = new String[alphanumeric.length];
 		for(int i=0; i< alphanumeric.length; i++){
 			for(int j=0; j<keyword.length; j++){
@@ -225,7 +200,7 @@ public class ${parserName}Encoder{
 	public void fillAllEncodings(){
 		
 		String[] usableSymb = getUsableSymbols();
-		String[] kw = getKeywords();
+		String[] kw = coderHelper.getKeywords();
 		for(int j = (kw.length+1) ; j<=${genHelper.getTokenTypes()}; j++){
 			hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
 			if(!hasEncodingArray[j]) System.out.println("NO ENCODING FOUND FOR TYPE: " + j);

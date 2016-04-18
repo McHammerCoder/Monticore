@@ -14,9 +14,10 @@ Visit functions need to be generated - move them to a seperate part e.g. DecodeV
 public class ${parserName}Decoder{
 
 	private ${parserName}Encoder encoder = new ${parserName}Encoder();
+	private ${parserName}CoderHelper helper = new ${parserName}CoderHelper();
 
 	public void decode(CommonToken toDecode){ //Decodes a token and sets it text to the decoded variant
-			String[] kw = encoder.getKeywords();
+			String[] kw = helper.getKeywords();
 			for(int i=0; i<kw.length; i++)
 				if( toDecode.getType() == encoder.lex(kw[i]).nextToken().getType())
 				{
