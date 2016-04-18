@@ -31,7 +31,7 @@ public class ${grammarName}Actions
 		return p.getAst();
 	}
 
-<#list genHelper.getParserRulesToGenerate() as rule>
+<#list genHelper.getClassRulesToGenerate() as rule>
 	public static ParsedToken act${rule.getName()}(ParseResult p)
 	{		
 		ParsedToken ast = p.getAst();
@@ -41,6 +41,15 @@ public class ${grammarName}Actions
 		${ruleAction}
 </#list>
 			
+		return ast;
+	}
+</#list>	
+<#list genHelper.getEnumRulesToGenerate() as rule>
+	public static ParsedToken act${rule.getName()}(ParseResult p)
+	{		
+		ParsedToken ast = p.getAst();
+		ast.setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${rule.getName()}.getValue());
+
 		return ast;
 	}
 </#list>	

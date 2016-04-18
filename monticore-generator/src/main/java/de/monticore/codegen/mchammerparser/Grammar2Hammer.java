@@ -171,7 +171,33 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void handle(ASTEnumProd ast)
 	{
-		addToCodeSection("/*ASTEnumProd*/");
+		startCodeSection("ASTEnumProd");
+		
+		addToCodeSection(indent + ast.getName().toLowerCase() + ".bindIndirect( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.choice( ");
+		increaseIndent();
+		
+		List<ASTConstant> constants = ast.getConstants();
+		for( int i = 0; i < constants.size(); i++ )
+		{			
+			ASTConstant constant = constants.get(i);
+			constant.accept(getRealThis());
+			
+			if( i < constants.size()-1 )
+			{
+				addToCodeSection(", ");
+			}
+		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ");");
+		
+		endCodeSection();
 	}
 	
 	@Override
@@ -1324,7 +1350,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	// ----------------- End of visit methods ---------------------------------------------
 	
 	public List<String> createHammerCode(ASTProd ast)
-	{
+	{		
 		clearHammerCode();
 		ast.accept(getRealThis());
 		return getHammerCode();
