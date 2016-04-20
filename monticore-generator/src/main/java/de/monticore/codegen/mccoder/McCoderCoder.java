@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Token;
 
@@ -35,8 +34,6 @@ public class McCoderCoder {
 		this.kws = kw;
 		this.freeS = fs;
 		hasEncodingArray = new Boolean[(types+1)];
-		//System.out.println(Arrays.toString(kw));
-		//System.out.println(Arrays.toString(fs));
 		fillAllEncodings();		
 	}
 	public String getHasEncoding(){
@@ -138,11 +135,11 @@ public class McCoderCoder {
 
 					if(j != kw.length && !isKeyword(encoding) && typeCheck(type,encoding)){
 					encodingMap.put(kw[j], encoding);//Save encoding and kw[j] to map
-					addToCodeSection("map.put("  + "\"" + kw[j]  + "\"" + ", " + "\"" + encoding + "\"" + ");");
+					//addToCodeSection("map.put("  + "\"" + kw[j]  + "\"" + ", " + "\"" + encoding + "\"" + ");");
 					//System.out.println(kw[j] + " = " + encoding);
 					}
 					else if(isKeyword(encoding) || !typeCheck(type,encoding)){ //Our created encoding contains a keyword reset and try again
-						encodingMap.clear();
+						//encodingMap.clear();
 						//addToCodeSection("map.clear();");
 						break;
 					}
@@ -150,10 +147,14 @@ public class McCoderCoder {
 						//System.out.println(usableSymbols[i] + " = " + encoding);
 				
 						encodingMap.put(usableSymbols[i], encoding); //Last save the encoding for the start
-						addToCodeSection("map.put("  + "\"" + usableSymbols[i]  + "\"" + ", " + "\"" + encoding + "\"" + ");");
+						//CODE GENERATION
+						addToCodeSection("Map<String, String> map" + type + " = new HashMap<String, String>();");
+						addEncodingMapToCodeSection(encodingMap, type);
+						addToCodeSection("map" + type + ".put("  + "\"" + usableSymbols[i]  + "\"" + ", " + "\"" + encoding + "\"" + ");");
+						//END CODE GENERATION
 						startEncoding = encoding;
 						//System.out.println("THE GENERATED ENCODING WAS FOR TYPE: " + type);
-						addToCodeSection("allEncodings.add(new Encoding(" + type + ", " + "map" + ", " + "\""+startEncoding + "\"" +"));\n");
+						addToCodeSection("allEncodings.add(new Encoding(" + type + ", " + "map" + type + ", " + "\""+startEncoding + "\"" +"));\n");
 						allEncodings.add(new Encoding(type, encodingMap , startEncoding));
 						printEncoding(encodingMap, type);
 						return true;
@@ -191,7 +192,7 @@ public class McCoderCoder {
 		
 		String[] usableSymb = getUsableSymbols();
 		String[] kw = kws;
-		System.out.println(kws.length + "  " + types + "INFO");
+		//System.out.println(kws.length + "  " + types + "INFO");
 		for(int j = 0 ; j<=types; j++){
 			for(;j <= kw.length; j++){
 			  hasEncodingArray[j] = false;
@@ -200,17 +201,15 @@ public class McCoderCoder {
 			if(!hasEncodingArray[j]){
 				System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
 			}
-			else if (hasEncodingArray[j]) {
-				addToCodeSection("map.clear();");
-			}
 		
 		}
-		/*for(Encoding encodingMap : allEncodings){
-			printEncoding(encodingMap.getMap(), encodingMap.getType());
-		}*/
-
+	
 	}
-
+	public void addEncodingMapToCodeSection (Map<String, String> map, int type){
+			for(String key: map.keySet()){
+				addToCodeSection("map" + type + ".put("  + "\"" + key  + "\"" + ", " + "\"" + map.get(key) + "\"" + ");");
+			}
+	}
 	public void printEncoding(Map <String,String> map, int type ){
 		System.out.println("GENERATED (EN/DE)CODING FOR TOKEN TYPE: " + type);
 		if(map.size() != 0){
