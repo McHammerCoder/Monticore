@@ -767,4 +767,16 @@ component grammar Grammar extends de.monticore.literals.Literals {
    
   BinaryOption =
     "options" "{" iD:Name "=" value:Name ";" "}";
+    
+  BinaryLength implements BinaryComponent = 
+    ( UInt8 | UInt16 | UInt32 | UInt64 | UBits ) 
+    ".L{"
+    id:Name
+    "}" ;
+    
+  BinaryData implements BinaryComponent = 
+    ( BinaryNonTerminal | UInt8 | UInt16 | UInt32 | UInt64 | Int8 | Int16 | Int32 | Int64 | UBits | Bits ) 
+    ".D{"
+    id:Name
+    "}" ;
 } 

@@ -11,11 +11,17 @@ import com.upstandinghackers.hammer.ParseResult;
 import com.upstandinghackers.hammer.ParsedToken;
 import com.upstandinghackers.hammer.Hammer;
 
+import com.google.common.collect.Maps;
+import java.util.*;
+
 /**
  * Class that contains all actions the parser might call while parsing
  */
 public class ${grammarName}Actions 
 {
+	private static Map<String,Long> parsedLengths = Maps.newHashMap();
+	private static Map<String,Long> lengthIterators = Maps.newHashMap();
+
 	public static ParsedToken actUndefined(ParseResult p)
 	{		
 		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_Undefined.getValue());
@@ -168,6 +174,51 @@ public class ${grammarName}Actions
 		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_Bits${bits}.getValue());
 		
 		return p.getAst();
+	}
+</#list>
+
+<#list hammerGenerator.getLengthFields() as lengthField>
+	public static boolean length_${lengthField}(ParseResult p)
+	{		
+		parsedLengths.put("${lengthField}",p.getAst().getUIntValue());
+		lengthIterators.put("${lengthField}",(long)0);
+		
+		System.out.println("length_${lengthField}: " + p.getAst().getUIntValue());
+		
+		return true;
+	}
+	
+	public static boolean length_${lengthField}_Reset(ParseResult p)
+	{		
+		lengthIterators.remove("${lengthField}");
+		
+		return true;
+	}
+	
+	public static boolean length_${lengthField}_Data(ParseResult p)
+	{			
+		if(lengthIterators.get("${lengthField}") < parsedLengths.get("${lengthField}"))
+		{
+			System.out.println("length_${lengthField}_Data: False " + lengthIterators.get("${lengthField}") + "/" + parsedLengths.get("${lengthField}"));
+			lengthIterators.put("${lengthField}",(long)0);
+			return false;
+		}
+		else
+		{
+			System.out.println("length_${lengthField}_Data: True " + lengthIterators.get("${lengthField}") + "/" + parsedLengths.get("${lengthField}"));
+			lengthIterators.put("${lengthField}",(long)0);
+			return true;
+		}
+	}
+	
+	public static boolean length_${lengthField}_DataIter(ParseResult p)
+	{		
+		lengthIterators.put("${lengthField}",lengthIterators.get("${lengthField}")+1);
+		
+		if(lengthIterators.get("${lengthField}") > parsedLengths.get("${lengthField}"))
+			return false;
+		else
+			return true;
 	}
 </#list>
 }

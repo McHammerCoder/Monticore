@@ -11,11 +11,16 @@ import static de.monticore.codegen.parser.ParserGeneratorHelper.printIteration;
 
 import java.util.*;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
+import org.codehaus.groovy.tools.shell.IO;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.upstandinghackers.hammer.Hammer;
 
 import de.monticore.ast.ASTNode;
 import de.monticore.codegen.parser.ParserGeneratorHelper;
@@ -29,6 +34,8 @@ import de.monticore.grammar.grammar._ast.ASTAnything;
 import de.monticore.grammar.grammar._ast.ASTBinaryAlt;
 import de.monticore.grammar.grammar._ast.ASTBinaryBlock;
 import de.monticore.grammar.grammar._ast.ASTBinaryComponent;
+import de.monticore.grammar.grammar._ast.ASTBinaryLength;
+import de.monticore.grammar.grammar._ast.ASTBinaryData;
 import de.monticore.grammar.grammar._ast.ASTBinaryLengthValue;
 import de.monticore.grammar.grammar._ast.ASTBinaryNonTerminal;
 import de.monticore.grammar.grammar._ast.ASTBinaryNRepeat;
@@ -116,6 +123,10 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	private String indent = "\t\t";
 	  
 	private static Map<String,List<String>> interfaces = Maps.newHashMap();
+	
+	private static Set<String> lengthFields = Sets.newHashSet();
+	
+	private GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer();
 	
 	public Grammar2Hammer(McHammerParserGeneratorHelper parserGeneratorHelper, MCGrammarInfo grammarInfo) 
 	{
@@ -360,7 +371,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTTerminal ast) 
 	{
-		String name = decodeString(ast.getName());
+		String name = StringEscapeUtils.unescapeJava(ast.getName());
 		
 		printIteration(ast.getIteration());
 		
@@ -372,8 +383,17 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		for( int i = 0; i < name.length(); i++ )
 		{
-			String c = encodeChar(name.charAt(i));
-			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + c + "', (byte)'" + c + "')");
+			Character c = name.charAt(i);
+			String ch = StringEscapeUtils.escapeJava(c.toString());
+			addToCodeSection( "\n" 
+							+ indent 
+							+ "Hammer.intRange( "
+							+ ((c > 0x00FF) ? "uInt_16" : "uInt_8")
+							+ ", (long)'" 
+							+ ch
+							+ "', (long)'" 
+							+ ch
+							+ "')");
 			if( i < name.length()-1 )
 			{
 				addToCodeSection(", ");
@@ -451,36 +471,30 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 				
 		if( ast.isNegate() )
 		{
-			negated = true;
-			
-			addToCodeSection("\n" + indent + "Hammer.action( ");
+			addToCodeSection("\n" + indent + "Hammer.butNot( ");
 			increaseIndent();
 			
-			addToCodeSection("\n" + indent + "Hammer.sequence( ");
+			addToCodeSection("\n" + indent + "Hammer.choice(");
+			increaseIndent();
+			
+			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u0079')," );
+			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, (long)'\\uc280', (long)'\\udfba')" );
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + "),");
+			
+			addToCodeSection("\n" + indent + "Hammer.choice(");
 			increaseIndent();
 			
 			List<ASTLexAlt> alts = ast.getLexAlts();
 			for( int i = 0; i < alts.size(); i++ )
-			{
-				if( i < alts.size()-1 )
-				{
-					addToCodeSection("\n" + indent + "Hammer.and( ");
-					increaseIndent();
-				}
-				
-				addToCodeSection("\n" + indent + "Hammer.action( ");
-				increaseIndent();
-				
+			{			
 				ASTLexAlt alt = alts.get(i);
 				alt.accept(getRealThis());
 				
-				decreaseIndent();
-				addToCodeSection("\n" + indent + ", \"actUndefined\" )");
-				
 				if( i < alts.size()-1 )
 				{
-					decreaseIndent();
-					addToCodeSection("\n" + indent + "),");
+					addToCodeSection(",");
 				}
 			}
 			
@@ -488,9 +502,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 			addToCodeSection("\n" + indent + ")");
 			
 			decreaseIndent();
-			addToCodeSection("\n" + indent + ", \"actUndefined\" )");
-			
-			negated = false;
+			addToCodeSection("\n" + indent + ")");
 		}
 		else
 		{
@@ -526,15 +538,57 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	public void visit(ASTLexCharRange ast) 
 	{
 		String lower = ast.getLowerChar();
+		char lowerChar = StringEscapeUtils.unescapeJava(lower).charAt(0);
 		String upper = ast.getUpperChar();
+		char upperChar = StringEscapeUtils.unescapeJava(upper).charAt(0);
 		
-		if( (negated ? !ast.isNegate() : ast.isNegate()) )
+		if( ast.isNegate() )
 		{
-			addToCodeSection("\n" + indent + "Hammer.butNot( uInt_8, Hammer.intRange( uInt_8, (byte)'" + lower + "', (byte)'" + upper + "') )" );
+			addToCodeSection("\n" + indent + "Hammer.choice(");
+			increaseIndent();
+			
+			if( upperChar <= 0x007F )
+			{
+				addToCodeSection("\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u0079'), Hammer.intRange( uInt_8, (long)'" + lower  + "', (long)'" + upper + "') )," );
+				addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, (long)'\\uc280', (long)'\\udfba')" );
+			}
+			else if( lowerChar > 0xc280 )
+			{
+				addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u0079')," );
+				addToCodeSection("\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_16, (long)'\\uc280', (long)'\\udfba'), Hammer.intRange( uInt_16, (long)'" + lower  + "', (long)'" + upper + "') )" );
+			}
+			else
+			{
+				addToCodeSection("\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_16, (long)'\\uc280', (long)'\\udfba'), Hammer.intRange( uInt_16, (long)'\\uc280', (long)'" + upper + "') )," );
+				addToCodeSection("\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u0079'), Hammer.intRange( uInt_8, (long)'" + lower  + "', (long)'\\u007F') )" );
+			}
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")");
+			
+			
 		}
 		else
 		{
-			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + lower  + "', (byte)'" + upper + "')" );
+			if( upperChar <= 0x007F )
+			{
+				addToCodeSection( "\n" + indent + "Hammer.intRange( uInt_8, (long)'" + lower  + "', (long)'" + upper + "')" );
+			}
+			else if( lowerChar > 0xc280 )
+			{
+				addToCodeSection( "\n" + indent + "Hammer.intRange( uInt_16, (long)'" + lower  + "', (long)'" + upper + "')" );
+			}
+			else
+			{
+				addToCodeSection("\n" + indent + "Hammer.choice(");
+				increaseIndent();
+				
+				addToCodeSection( "\n" + indent + "Hammer.intRange( uInt_16, (long)'\\uc280', (long)'" + upper + "')," );
+				addToCodeSection( "\n" + indent + "Hammer.intRange( uInt_8, (long)'" + lower  + "', (long)'\\u007F')" );
+								
+				decreaseIndent();
+				addToCodeSection("\n" + indent + ")");
+			}
 		}
 		
 		
@@ -544,29 +598,59 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	public void visit(ASTLexChar ast)
 	{
 		String c = ast.getChar();
+		char ch = StringEscapeUtils.unescapeJava(c).charAt(0);
 		
-		if( (negated ? !ast.isNegate() : ast.isNegate()) )
+		if( ast.isNegate() )
 		{
-			addToCodeSection("\n" + indent + "Hammer.butNot( uInt_8, Hammer.intRange( uInt_8, (byte)'" + c + "', (byte)'" + c + "') )" );
+			addToCodeSection("\n" + indent + "Hammer.choice(");
+			increaseIndent();
+			
+			addToCodeSection( "\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_16, (long)'\\uc280', (long)'\\udfba')"
+											+ ", Hammer.intRange( uInt_16, (long)'" + c + "', (long)'" + c + "') )," );
+			
+			addToCodeSection( "\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u0079')"
+											+ ", Hammer.intRange( uInt_8, (long)'" + c + "', (long)'" + c + "') )" );
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")");
 		}
 		else
 		{
-			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + c + "', (byte)'" + c + "')" );
+			addToCodeSection( "\n" 
+							+ indent 
+							+ "Hammer.intRange( "
+							+ ((ch > 0x00FF) ? "uInt_16" : "uInt_8")
+							+ ", (long)'" 
+							+ c 
+							+ "', (long)'" 
+							+ c 
+							+ "')" );
 		}
 	}
 	
 	@Override
 	public void visit(ASTLexString ast) 
 	{
-		String name = decodeString(ast.getString());
+		
+		String name = StringEscapeUtils.unescapeJava(ast.getString());
+		
+		System.out.println(name);
 		
 		addToCodeSection("\n" + indent + "Hammer.sequence( ");
 		increaseIndent();
 		
 		for( int i = 0; i < name.length(); i++ )
 		{
-			String c = encodeChar(name.charAt(i));
-			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + c + "', (byte)'" + c + "')");
+			Character ch = name.charAt(i);
+			String cStr = StringEscapeUtils.escapeJava(ch.toString());
+			addToCodeSection( "\n" 
+							+ indent 
+							+ "Hammer.intRange( " 
+							+ ((ch > 0x00FF) ? "uInt_16" : "uInt_8")
+							+ ", (long)'" 
+							+ cStr 
+							+ "', (long)'" 
+							+ cStr + "')");
 			if( i < name.length()-1 )
 			{
 				addToCodeSection(", ");
@@ -726,6 +810,16 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection(indent + "_" + ast.getName() + ".bindIndirect( ");
 		increaseIndent();
 		
+		List<String> lengthFields = grammarAnalyzer.containsLengthFields(ast);
+		if(!lengthFields.isEmpty())
+		{
+			for(String length : lengthFields)
+			{
+				addToCodeSection("\n" + indent + "Hammer.action( ");
+				increaseIndent();
+			}
+		}
+		
 		addToCodeSection("\n" + indent + "Hammer.action( ");
 		increaseIndent();
 		
@@ -749,6 +843,15 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"act" + ast.getName() + "\" )");
+		
+		if(!lengthFields.isEmpty())
+		{
+			for(String length : lengthFields)
+			{
+				decreaseIndent();
+				addToCodeSection("\n" + indent + ",\"length_" + length + "_Reset\")");
+			}
+		}
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ");");
@@ -1348,6 +1451,100 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actUBits" + numBits + "\") ");
 	}
+	
+	@Override
+	public void handle(ASTBinaryLength ast)
+	{		
+		String id = ast.getId();
+		lengthFields.add(id);
+				
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		if (ast.getUInt8().isPresent()) {
+	    	ast.getUInt8().get().accept(getRealThis());
+	    } 
+	    else if (ast.getUInt16().isPresent()) {
+	    	ast.getUInt16().get().accept(getRealThis());
+	    } 
+	    else if (ast.getUInt32().isPresent()) {
+	    	ast.getUInt32().get().accept(getRealThis());
+	    } 
+	    else if (ast.getUInt64().isPresent()) {
+	    	ast.getUInt64().get().accept(getRealThis());
+	    }
+	    else if (ast.getUBits().isPresent()) {
+	    	ast.getUBits().get().accept(getRealThis());
+	    }
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"length_" + id + "\" )");
+	}
+	
+	@Override
+	public void handle(ASTBinaryData ast)
+	{		
+		String id = ast.getId();
+		lengthFields.add(id);
+				
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.many( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		if (ast.getUInt8().isPresent()) {
+	    	ast.getUInt8().get().accept(getRealThis());
+	    } 
+	    else if (ast.getUInt16().isPresent()) {
+	    	ast.getUInt16().get().accept(getRealThis());
+	    } 
+	    else if (ast.getUInt32().isPresent()) {
+	    	ast.getUInt32().get().accept(getRealThis());
+	    } 
+	    else if (ast.getUInt64().isPresent()) {
+	    	ast.getUInt64().get().accept(getRealThis());
+	    }
+	    else if (ast.getUBits().isPresent()) {
+	    	ast.getUBits().get().accept(getRealThis());
+	    }
+		if (ast.getInt8().isPresent()) {
+	    	ast.getInt8().get().accept(getRealThis());
+	    } 
+	    else if (ast.getInt16().isPresent()) {
+	    	ast.getInt16().get().accept(getRealThis());
+	    } 
+	    else if (ast.getInt32().isPresent()) {
+	    	ast.getInt32().get().accept(getRealThis());
+	    } 
+	    else if (ast.getInt64().isPresent()) {
+	    	ast.getInt64().get().accept(getRealThis());
+	    }
+	    else if (ast.getBits().isPresent()) {
+	    	ast.getBits().get().accept(getRealThis());
+	    }
+	    else if (ast.getBinaryNonTerminal().isPresent()) {
+	    	ast.getBinaryNonTerminal().get().accept(getRealThis());
+	    }
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"length_" + id + "_DataIter\" )");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actUndefined\" )");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"length_" + id + "_Data\" )");
+	}
 
 	// ----------------- End of visit methods ---------------------------------------------
 	
@@ -1597,7 +1794,14 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		str.replace("\\f", "\f");
 		str.replace("\\\'", "\'");
 		str.replace("\\\"", "\"");
-		
+				
 		return str;
+	}
+	
+	public static List<String> getLengthFields()
+	{
+		List<String> list = new ArrayList<String>();
+		list.addAll(lengthFields);
+		return list;
 	}
 }

@@ -40,6 +40,35 @@ HParsedToken* callAction(const HParseResult *p, const char* name)
     return (HParsedToken *)((*env)->GetLongField(env, parsedToken, (*env)->GetFieldID(env, FIND_CLASS_(env, "com/upstandinghackers/hammer/ParsedToken"), "inner", "J")));
 }
 
+bool callValidation(const HParseResult *p, const char* name)
+{
+    JNIEnv *env;
+    jint rs = (*jvm)->GetEnv(jvm, (void**) &env, JNI_VERSION_1_6);
+    assert (rs == JNI_OK);
+    rs = (*jvm)->AttachCurrentThread(jvm, (void**) &env, NULL);
+    assert (rs == JNI_OK);
+
+    jclass actionsClass;
+    FIND_CLASS(actionsClass, env, "htmlred/_mch_parser/HTMLRedActions");
+   
+    jmethodID mid = (*env)->GetStaticMethodID(env, actionsClass, name, "(Lcom/upstandinghackers/hammer/ParseResult;)Z");
+    if (mid == 0)
+    {
+	return NULL;
+    }
+
+    jclass argumentClass;
+    FIND_CLASS(argumentClass, env, "com/upstandinghackers/hammer/ParseResult");
+    assert(argumentClass != NULL);
+    jmethodID constructor = REFCONSTRUCTOR_(env, argumentClass);
+    assert(constructor != NULL);
+    jobject parseResult = (*env)->NewObject(env, argumentClass, constructor, (jlong)p);
+
+    jboolean validation = (*env)->CallStaticBooleanMethod(env, actionsClass, mid, parseResult);
+    
+    return validation;
+}
+
 HParsedToken* act_Undefined(const HParseResult *p, void* user_data) 
 {
     return callAction(p,"actUndefined");
@@ -99,6 +128,28 @@ HParsedToken* act_UBits${bits}(const HParseResult *p, void* user_data)
 HParsedToken* act_Bits${bits}(const HParseResult *p, void* user_data) 
 {
     return callAction(p,"actBits${bits}");
+}
+</#list>
+
+<#list hammerGenerator.getLengthFields() as lengthField>
+bool length_${lengthField}(HParseResult *p, void* user_data) 
+{
+    return callValidation(p,"length_${lengthField}");
+}
+
+bool length_${lengthField}_Reset(HParseResult *p, void* user_data) 
+{
+    return callValidation(p,"length_${lengthField}_Reset");
+}
+
+bool length_${lengthField}_Data(HParseResult *p, void* user_data) 
+{
+    return callValidation(p,"length_${lengthField}_Data");
+}
+
+bool length_${lengthField}_DataIter(HParseResult *p, void* user_data) 
+{
+    return callValidation(p,"length_${lengthField}_DataIter");
 }
 </#list>
 
@@ -180,5 +231,23 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_Hammer_action
 	{
 		RETURNWRAP( env, h_action(UNWRAP(env, p), act_EOF, NULL) );
 	}
+<#list hammerGenerator.getLengthFields() as lengthField>
+	else if( strcmp(actionName,"length_${lengthField}") == 0 )
+	{
+		RETURNWRAP( env, h_attr_bool(UNWRAP(env, p), length_${lengthField}, NULL) );
+	}
+	else if( strcmp(actionName,"length_${lengthField}_Reset") == 0 )
+	{
+		RETURNWRAP( env, h_attr_bool(UNWRAP(env, p), length_${lengthField}_Reset, NULL) );
+	}
+	else if( strcmp(actionName,"length_${lengthField}_Data") == 0 )
+	{
+		RETURNWRAP( env, h_attr_bool(UNWRAP(env, p), length_${lengthField}_Data, NULL) );
+	}
+	else if( strcmp(actionName,"length_${lengthField}_DataIter") == 0 )
+	{
+		RETURNWRAP( env, h_attr_bool(UNWRAP(env, p), length_${lengthField}_DataIter, NULL) );
+	}
+</#list>
 	else return p;
 }
