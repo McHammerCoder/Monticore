@@ -11,6 +11,7 @@ import static de.monticore.codegen.parser.ParserGeneratorHelper.printIteration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -80,7 +81,6 @@ public class UsableSymbolExtractor implements Grammar_WithConceptsVisitor{
 private MCGrammarSymbol grammarEntry;
 	
 	private McCoderGeneratorHelper parserGeneratorHelper;
-	
 	private MCGrammarInfo grammarInfo;
 	
 	private List<String> productionUsableSymbolsCode = Lists.newArrayList();
@@ -88,7 +88,9 @@ private MCGrammarSymbol grammarEntry;
 	private StringBuilder codeSection;
 	
 	private String indent = "\t";
-	  
+	
+	private ArrayList<Range> ranges = new ArrayList<Range>();
+	private Set<String> kws = new HashSet<String>();
 	
 	public UsableSymbolExtractor(McCoderGeneratorHelper parserGeneratorHelper, MCGrammarInfo grammarInfo) 
 	{
@@ -108,25 +110,29 @@ private MCGrammarSymbol grammarEntry;
 	@Override
 	public void visit(ASTLexCharRange ast) 
 	{
-		addToCodeSection(indent + "ranges.add(new " + parserGeneratorHelper.getQualifiedGrammarName() + "Range(" + "'" + ast.getLowerChar() + "'" + " ,"  + "'" + ast.getUpperChar() + "'" + " , " + ast.isNegate() + "));\n" );
+		addToCodeSection(indent + "ranges.add(new " + "Range(" + "'" + ast.getLowerChar() + "'" + " ,"  + "'" + ast.getUpperChar() + "'" + " , " + ast.isNegate() + "));\n" );
+		ranges.add(new Range(ast.getLowerChar().charAt(0), ast.getUpperChar().charAt(0), ast.isNegate() ));
 	}
 
 	@Override
 	public void visit(ASTLexChar ast)
 	{
-		addToCodeSection(indent + "ranges.add(new " + parserGeneratorHelper.getQualifiedGrammarName() + "Range(" + "'" + ast.getChar() + "'" + " ,"  + "'" + ast.getChar() + "'" +  " , "  + ast.isNegate() + "));\n" );
+		addToCodeSection(indent + "ranges.add(new " + "Range(" + "'" + ast.getChar() + "'" + " ,"  + "'" + ast.getChar() + "'" +  " , "  + ast.isNegate() + "));\n" );
+		ranges.add(new Range(ast.getChar().charAt(0), ast.getChar().charAt(0), ast.isNegate() ));
 	}
 	
 	@Override
 	public void visit(ASTTerminal ast) 
 	{
 		addToCodeSection(indent + "kws.add(new String(\"" + ast.getName() +  "\"));\n" );
+		kws.add(new String(ast.getName()));
 	}
 	
 	@Override
 	public void visit(ASTLexString ast) 
 	{
 		addToCodeSection(indent + "kws.add(new String(\"" + ast.getString() +  "\"));\n" );
+		kws.add(new String(ast.getString()));
 	}
 	
 
@@ -258,6 +264,11 @@ private MCGrammarSymbol grammarEntry;
 	{
 		indent = "\t\t";
 	}
+	public String[] getKws(){
+		return kws.toArray(new String[kws.size()]);	}
 	
+	public String[] getRanges(){
+		return Range.union(ranges);
+	}
 
 }

@@ -6,30 +6,25 @@ package ${genHelper.getParserPackage()};
 
 import org.antlr.v4.runtime.*;
 import java.util.Map;
-
+import de.monticore.codegen.mccoder.*;
 /*
 Visit functions need to be generated - move them to a seperate part e.g. DecodeVisitor and EncodeVisitor
 */
 
 public class ${parserName}Decoder{
 
-	private ${parserName}Encoder encoder = new ${parserName}Encoder();
 	private ${parserName}CoderHelper helper = new ${parserName}CoderHelper();
 
 	public void decode(CommonToken toDecode){ //Decodes a token and sets it text to the decoded variant
 			String[] kw = helper.getKeywords();
-			for(int i=0; i<kw.length; i++)
-				if( toDecode.getType() == encoder.lex(kw[i]).nextToken().getType())
-				{
-					return ;
-				}
 			String decodedString = toDecode.getText();
-			if(!encoder.hasEncoding(toDecode.getType()))
+
+			if(!helper.hasEncoding(toDecode.getType()))
 			{
 			 return;
 			}
 			@SuppressWarnings("unchecked")
-			${parserName}Encoding encoding = encoder.getEncoding(toDecode.getType());
+			Encoding encoding = helper.getEncoding(toDecode.getType());
 			Map<String, String> map = (Map<String, String>) encoding.getMap();
 			String startEncoding = encoding.getStartEncoding();
 			int elength = startEncoding.length();
