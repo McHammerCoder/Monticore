@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -111,14 +113,14 @@ private MCGrammarSymbol grammarEntry;
 	public void visit(ASTLexCharRange ast) 
 	{
 		addToCodeSection(indent + "ranges.add(new " + "Range(" + "'" + ast.getLowerChar() + "'" + " ,"  + "'" + ast.getUpperChar() + "'" + " , " + ast.isNegate() + "));\n" );
-		ranges.add(new Range(ast.getLowerChar().charAt(0), ast.getUpperChar().charAt(0), ast.isNegate() ));
+		ranges.add(new Range(StringEscapeUtils.unescapeJava(ast.getLowerChar()).charAt(0), StringEscapeUtils.unescapeJava(ast.getUpperChar()).charAt(0), ast.isNegate() ));
 	}
 
 	@Override
 	public void visit(ASTLexChar ast)
 	{
 		addToCodeSection(indent + "ranges.add(new " + "Range(" + "'" + ast.getChar() + "'" + " ,"  + "'" + ast.getChar() + "'" +  " , "  + ast.isNegate() + "));\n" );
-		ranges.add(new Range(ast.getChar().charAt(0), ast.getChar().charAt(0), ast.isNegate() ));
+		ranges.add(new Range(StringEscapeUtils.unescapeJava(ast.getChar()).charAt(0), StringEscapeUtils.unescapeJava(ast.getChar()).charAt(0), ast.isNegate() ));
 	}
 	
 	@Override
