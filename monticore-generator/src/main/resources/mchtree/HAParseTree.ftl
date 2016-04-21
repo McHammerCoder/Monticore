@@ -23,8 +23,8 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public class HAParseTree implements ParseTree
 {
-	HAParseTree parent = null;
-	List<HAParseTree> childs = new LinkedList<HAParseTree>();
+	ParseTree parent = null;
+	List<ParseTree> childs = new LinkedList<ParseTree>();
 	protected Object payload;
 	
 	public HAParseTree(Object payload)
@@ -32,13 +32,16 @@ public class HAParseTree implements ParseTree
 		this.payload = payload;
 	}
 	
-	public void addChild(HAParseTree child)
+	public void addChild(ParseTree child)
 	{
-		child.setParent(this);
+		if(child instanceof HAParseTree)
+		{
+			((HAParseTree)child).setParent(this);
+		}
 		childs.add(0,child);
 	}
 	
-	private void setParent(HAParseTree parent)
+	private void setParent(ParseTree parent)
 	{
 		this.parent = parent;
 	}
@@ -48,7 +51,6 @@ public class HAParseTree implements ParseTree
 	 */
 	public Interval getSourceInterval() 
 	{
-		// TODO Auto-generated method stub
 		return Interval.INVALID;
 	}
 
@@ -81,9 +83,9 @@ public class HAParseTree implements ParseTree
 		{
 			String res = "[ ";
 			
-			for( HAParseTree child : childs)
+			for( ParseTree child : childs)
 			{
-				res += child.toStringTree();
+				res += ((HAParseTree)child).toStringTree();
 			}
 		
 			return res + " ]";
@@ -128,7 +130,7 @@ public class HAParseTree implements ParseTree
 		{
 			String res = "";
 			
-			for( HAParseTree child : childs)
+			for( ParseTree child : childs)
 			{
 				res += child.getText();
 			}

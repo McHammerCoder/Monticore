@@ -112,6 +112,10 @@ public class ${grammarName}TreeHelper
 		UTT_Bits${bits}(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter=iter+1>
 </#list>	
+<#list genHelper.getOffsetRulesToGenerate() as offsetProd>
+		UTT_${offsetProd.getName()}(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+</#list>
 		UTT_EOF(Hammer.TokenType.USER.getValue()+${iter});
 
 		UserTokenTypes(int numValue)
@@ -156,6 +160,9 @@ public class ${grammarName}TreeHelper
 <#list 1..64 as bits>
 		TT_Bits${bits},
 </#list>
+<#list genHelper.getOffsetRulesToGenerate() as offsetProd>
+		TT_${offsetProd.getName()},
+</#list>
 		TT_EOF
 	}
 	
@@ -180,6 +187,9 @@ public class ${grammarName}TreeHelper
 </#list>
 <#list 1..64 as bits>
 		"TT_Bits${bits}",
+</#list>
+<#list genHelper.getOffsetRulesToGenerate() as offsetProd>
+		"TT_${offsetProd.getName()}",
 </#list>
 		"TT_END"
 	};

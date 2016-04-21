@@ -131,6 +131,13 @@ HParsedToken* act_Bits${bits}(const HParseResult *p, void* user_data)
 }
 </#list>
 
+<#list genHelper.getOffsetRulesToGenerate() as offsetProd>
+HParsedToken* act_${offsetProd.getName()}(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"act${offsetProd.getName()}");
+}
+</#list>
+
 <#list hammerGenerator.getLengthFields() as lengthField>
 bool length_${lengthField}(HParseResult *p, void* user_data) 
 {
@@ -247,6 +254,12 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_Hammer_action
 	else if( strcmp(actionName,"length_${lengthField}_DataIter") == 0 )
 	{
 		RETURNWRAP( env, h_attr_bool(UNWRAP(env, p), length_${lengthField}_DataIter, NULL) );
+	}
+</#list>
+<#list genHelper.getOffsetRulesToGenerate() as offsetProd>
+	else if( strcmp(actionName,"act${offsetProd.getName()}") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_${offsetProd.getName()}, NULL) );
 	}
 </#list>
 	else return p;

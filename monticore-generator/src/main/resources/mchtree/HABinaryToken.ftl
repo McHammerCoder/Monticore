@@ -17,6 +17,7 @@ public class HABinaryToken extends CommonToken {
 	protected long value;
 	protected int bits;
 	protected boolean signed;
+	protected boolean isOffset;
 
 	public HABinaryToken(int type, long value, int bits, boolean signed) {
 		super(type);
@@ -43,6 +44,11 @@ public class HABinaryToken extends CommonToken {
 		
 		res += "int" + this.bits + ")" + this.value;
 		
+		if( isOffset )
+		{
+			res += "[offset: " + HTMLRedTreeHelper.TokenTypeNames[getType()-1] + "]";
+		}
+		
 		return res;
 	}
 	
@@ -65,5 +71,15 @@ public class HABinaryToken extends CommonToken {
 		this.value = value;
 		this.bits = bits;
 		this.signed = signed;
+	}
+	
+	public void setOffset(boolean isOffset)
+	{
+		this.isOffset = isOffset;
+	}
+	
+	public boolean isOffset()
+	{
+		return this.isOffset;
 	}
 }

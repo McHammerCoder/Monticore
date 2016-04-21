@@ -126,7 +126,13 @@ public class ${grammarName}TreeConverter
 				{
 					return buildIntTree(tok, ${grammarName}TreeHelper.TokenType.TT_Bits${bits});
 				}
-</#list>	
+</#list>
+<#list genHelper.getOffsetRulesToGenerate() as offsetProd>
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_${offsetProd.getName()}.getValue())
+				{
+					return buildOffsetTree(tok, ${grammarName}TreeHelper.TokenType.TT_${offsetProd.getName()});
+				}
+</#list>
 				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_EOF.getValue())
 				{
 					return buildStringTree(tok, ${grammarName}TreeHelper.TokenType.TT_EOF.ordinal()+1);
@@ -215,6 +221,28 @@ public class ${grammarName}TreeConverter
 </#list>
 		default:
 			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "INVALID_INT_VALUE") );
+		}
+		   
+		return pt;
+	}
+	
+	private static HAParseTree buildOffsetTree(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType)
+	{
+		CommonTokenFactory fac = new CommonTokenFactory();
+		
+		HAParseTree pt;
+		switch(tokenType)
+		{
+<#list genHelper.getOffsetRulesToGenerate() as offsetProd>
+		case TT_${offsetProd.getName()}:
+			pt = generateParseTree( tok.getSeqValue()[0] );
+			HABinaryToken binTok = ((HABinaryToken)((HATerminalNode)pt).getSymbol());
+			binTok.setOffset(true);
+			binTok.setType(tokenType.ordinal()+1);
+			break;
+</#list>
+		default:
+			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "INVALID_OFFSET_VALUE") );
 		}
 		   
 		return pt;

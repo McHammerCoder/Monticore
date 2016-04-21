@@ -57,6 +57,7 @@ import de.monticore.grammar.grammar._ast.ASTLexProd;
 import de.monticore.grammar.grammar._ast.ASTMCGrammar;
 import de.monticore.grammar.grammar._ast.ASTMCImportStatement;
 import de.monticore.grammar.grammar._ast.ASTNonTerminal;
+import de.monticore.grammar.grammar._ast.ASTOffsetProd;
 import de.monticore.grammar.grammar._ast.ASTProd;
 import de.monticore.grammar.grammar._ast.ASTRuleComponent;
 import de.monticore.grammar.grammar._ast.ASTRuleReference;
@@ -72,6 +73,7 @@ import de.monticore.languages.grammar.MCGrammarSymbol;
 import de.monticore.languages.grammar.MCGrammarSymbolsFactory;
 import de.monticore.languages.grammar.MCInterfaceOrAbstractRuleSymbol;
 import de.monticore.languages.grammar.MCLexRuleSymbol;
+import de.monticore.languages.grammar.MCOffsetRuleSymbol;
 import de.monticore.languages.grammar.MCRuleComponentSymbol;
 import de.monticore.languages.grammar.MCRuleSymbol;
 import de.monticore.languages.grammar.MCTypeSymbol;
@@ -607,6 +609,19 @@ public class MCGrammarSymbolTableCreator extends CommonSymbolTableCreator implem
   }
   
   @Override
+  public void visit(ASTOffsetProd astOffsetProd) {
+    final MCOffsetRuleSymbol ruleSymbol = createOffsetProd(astOffsetProd, currentScope().get());
+    
+    ruleSymbol.setGrammarSymbol(grammarSymbol);
+    addToScopeAndLinkWithNode(ruleSymbol, astOffsetProd);
+  }
+  
+  @Override
+  public void endVisit(ASTOffsetProd astOffsetProd) {
+    removeCurrentScope();
+  }
+  
+  @Override
   public void visit(ASTLexProd astLexProd) {
     final MCLexRuleSymbol ruleSymbol = createLexProd(astLexProd, currentScope().get());
     
@@ -1107,32 +1122,54 @@ public class MCGrammarSymbolTableCreator extends CommonSymbolTableCreator implem
   }
   
   private MCBinaryRuleSymbol createBinaryProd(final ASTBinaryProd astBinaryProd, final MutableScope scope) {
-	    // Create defined type if not already created
-	    final String typeName = astBinaryProd.getName();
-	    
-	    // TODO NN <- PN How is a type for a lexer production defined?
-	    
-	    final MCTypeSymbol definedType = getOrCreateType(typeName, false, astBinaryProd);
-	    
-	    definedType.setKindOfType(MCTypeSymbol.KindType.IDENT);
-	    
-	    //definedType.setConvertFunction(HelperGrammar.createConvertFunction(astBinaryProd, prettyPrinter));
-	    //definedType.setLexType(HelperGrammar.createConvertType(astBinaryProd));
-	    
-	    grammarSymbol.addType(definedType);
-	    
-	    final MCBinaryRuleSymbol ruleProd = MCGrammarSymbolsFactory.createBinaryProdSymbol(astBinaryProd);
-	    
-	    // Set defined type of this rule
-	    ruleProd.setType(definedType);
-	    // Add Grammardoc comment
-	    for (Comment c : astBinaryProd.get_PreComments()) {
-	      if (c.getText().startsWith("/**")) {
-	        ruleProd.getDefinedType().addComment(c);
-	      }
-	    }
-	    
-	    return ruleProd;
-	    
+	  // Create defined type if not already created
+	  final String typeName = astBinaryProd.getName();
+    
+	  // TODO NN <- PN How is a type for a lexer production defined?
+    
+	  final MCTypeSymbol definedType = getOrCreateType(typeName, false, astBinaryProd);
+    
+	  definedType.setKindOfType(MCTypeSymbol.KindType.IDENT);
+    
+	  //definedType.setConvertFunction(HelperGrammar.createConvertFunction(astBinaryProd, prettyPrinter));
+	  //definedType.setLexType(HelperGrammar.createConvertType(astBinaryProd));
+    
+	  grammarSymbol.addType(definedType);
+    
+	  final MCBinaryRuleSymbol ruleProd = MCGrammarSymbolsFactory.createBinaryProdSymbol(astBinaryProd);
+    
+	  // Set defined type of this rule
+	  ruleProd.setType(definedType);
+	  // Add Grammardoc comment
+	  for (Comment c : astBinaryProd.get_PreComments()) {
+		  if (c.getText().startsWith("/**")) {
+			  ruleProd.getDefinedType().addComment(c);
+		  }
 	  }
+    
+	  return ruleProd;
+  }
+  
+  private MCOffsetRuleSymbol createOffsetProd(final ASTOffsetProd astOffsetProd, final MutableScope scope) {
+	  // Create defined type if not already created
+	  final String typeName = astOffsetProd.getName();
+    
+	  // TODO NN <- PN How is a type for a lexer production defined?
+    
+	  final MCTypeSymbol definedType = getOrCreateType(typeName, false, astOffsetProd);
+    
+	  definedType.setKindOfType(MCTypeSymbol.KindType.IDENT);
+    
+	  //definedType.setConvertFunction(HelperGrammar.createConvertFunction(astBinaryProd, prettyPrinter));
+	  //definedType.setLexType(HelperGrammar.createConvertType(astBinaryProd));
+    
+	  grammarSymbol.addType(definedType);
+    
+	  final MCOffsetRuleSymbol ruleProd = MCGrammarSymbolsFactory.createOffsetProdSymbol(astOffsetProd);
+    
+	  // Set defined type of this rule
+	  ruleProd.setType(definedType);
+    
+	  return ruleProd;
+  }
 }

@@ -74,6 +74,8 @@ component grammar Grammar extends de.monticore.literals.Literals {
          |
            BinaryProd
          |
+           OffsetProd
+         |
            ClassProd
          |
            EnumProd   
@@ -174,6 +176,18 @@ component grammar Grammar extends de.monticore.literals.Literals {
         ("->" type:( Name& || ".")+ (":" "{" block:Action "}" )? )? )? // Statements
       )? 
     )
+    ";";
+    
+  /** OffsetProd **/
+  OffsetProd implements Prod =
+    ("offset") Name
+    "="
+    (nonTerminal:NonTerminal | nonBinaryTerminal:BinaryNonTerminal)
+    ":"
+    a:SignedIntLiteral
+    "*x"
+    sign:["+"|"-"]
+    b:IntLiteral
     ";";
  
   /** A LexProd is formed by the keyword ident in the beginning followed by an option
@@ -633,7 +647,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
      binaryAlts:(BinaryAlt || "|")+ ")"
      (iteration:["?"|"*"|"+"])?; 
                 
-  UInt8 implements BinaryComponent =
+  UInt8 implements BinaryComponent, RuleComponent =
     (negate:["~"])? "uint8" 
     ( ranged:["["]
       ( lowerUInt:IntLiteral ".." upperUInt:IntLiteral
@@ -643,7 +657,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     "]")?
     ;
     
-  UInt16 implements BinaryComponent =
+  UInt16 implements BinaryComponent, RuleComponent =
     (negate:["~"])? "uint16"
     ( valued:["["]
       ( lower:IntLiteral ranged:[".."] upper:IntLiteral
@@ -651,7 +665,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     "]")?
     ;
     
-  UInt32 implements BinaryComponent =
+  UInt32 implements BinaryComponent, RuleComponent =
     (negate:["~"])? "uint32"
     ( valued:["["]
       ( lower:IntLiteral ranged:[".."] upper:IntLiteral
@@ -659,7 +673,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     "]")?
     ;
     
-  UInt64 implements BinaryComponent =
+  UInt64 implements BinaryComponent, RuleComponent =
     (negate:["~"])? "uint64"
     ( valued:["["]
       ( lower:IntLiteral ranged:[".."] upper:IntLiteral
@@ -667,7 +681,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     "]")?
     ;
     
-  Int8 implements BinaryComponent =
+  Int8 implements BinaryComponent, RuleComponent =
     (negate:["~"])? "int8"
     ( valued:["["]
       ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
@@ -675,7 +689,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     "]")?
     ;
     
-  Int16 implements BinaryComponent =
+  Int16 implements BinaryComponent, RuleComponent =
     (negate:["~"])? "int16"
     ( valued:["["]
       ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
@@ -683,7 +697,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     "]")?
     ;
     
-  Int32 implements BinaryComponent =
+  Int32 implements BinaryComponent, RuleComponent =
     (negate:["~"])? "int32"
     ( valued:["["]
       ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
@@ -691,7 +705,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     "]")?
     ;
     
-  Int64 implements BinaryComponent =
+  Int64 implements BinaryComponent, RuleComponent =
     (negate:["~"])? "int64"
     ( valued:["["]
       ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
@@ -701,7 +715,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     
   
     
-  UBits implements BinaryComponent =
+  UBits implements BinaryComponent, RuleComponent =
     bits:["ubits1"|"ubits2"|"ubits3"|"ubits4"
     	 |"ubits5"|"ubits6"|"ubits7"|"ubits8"
     	 |"ubits9"|"ubits10"|"ubits11"|"ubits12"
@@ -727,7 +741,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     )?
     ; 
     
-  Bits implements BinaryComponent =
+  Bits implements BinaryComponent, RuleComponent =
     bits:["bits1"|"bits2"|"bits3"|"bits4"
     	 |"bits5"|"bits6"|"bits7"|"bits8"
     	 |"bits9"|"bits10"|"bits11"|"bits12"
@@ -779,4 +793,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     ".D{"
     id:Name
     "}" ;
+    
+  Offset implements RuleComponent =
+    ( UInt8 | UInt16 | UInt32 | UInt64 | UBits ) "#" (variable:Name& "=")? Name;
 } 

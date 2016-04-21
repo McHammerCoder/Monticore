@@ -221,4 +221,13 @@ public class ${grammarName}Actions
 			return true;
 	}
 </#list>
+
+<#list genHelper.getOffsetRulesToGenerate() as offsetProd>
+	public static ParsedToken act${offsetProd.getName()}(ParseResult p)
+	{
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_${offsetProd.getName()}.getValue());
+		
+		return p.getAst();
+	}
+</#list>
 }

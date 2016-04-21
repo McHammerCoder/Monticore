@@ -16,6 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
+import java.lang.Exception;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -49,12 +51,10 @@ public class ${parserName}ParserTool
 			
 			// Parser
 			${parserName}Parser parser = new ${parserName}Parser();
-			ParseResult res = parser.parse(data);
 			
-			if( res != null )
+			try 
 			{
-				// TreeConverter
-				ParseTree pt = ${parserName}TreeConverter.create(res);
+				ParseTree pt = parser.parse(data);
 				
 				System.out.println();
 				System.out.println("ParseResult:");
@@ -62,11 +62,10 @@ public class ${parserName}ParserTool
 				
 				displayParseTree(pt);
 			}
-			else
+			catch ( Exception ex )
 			{
-				System.out.println("FAILED");
+				System.err.println(ex.getMessage());
 			}
-			
 		}
 	}
 	

@@ -33,6 +33,7 @@ import de.monticore.grammar.grammar._ast.ASTLexNonTerminal;
 import de.monticore.grammar.grammar._ast.ASTLexProd;
 import de.monticore.grammar.grammar._ast.ASTMCGrammar;
 import de.monticore.grammar.grammar._ast.ASTNonTerminal;
+import de.monticore.grammar.grammar._ast.ASTOffsetProd;
 import de.monticore.grammar.grammar._ast.ASTProd;
 import de.monticore.grammar.grammar._ast.ASTTerminal;
 import de.monticore.grammar.grammar_withconcepts._ast.ASTAction;
@@ -53,6 +54,7 @@ import de.monticore.languages.grammar.MCRuleSymbol;
 import de.monticore.languages.grammar.MCRuleSymbol.KindSymbolRule;
 import de.monticore.languages.grammar.MCTypeSymbol;
 import de.monticore.languages.grammar.MCTypeSymbol.KindType;
+import de.monticore.languages.grammar.MCOffsetRuleSymbol;
 import de.monticore.languages.grammar.PredicatePair;
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.symboltable.Scope;
@@ -264,6 +266,24 @@ public class McHammerParserGeneratorHelper
 			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.BINARYRULE)) 
 			{
 				Optional<ASTBinaryProd> astProd = ((MCBinaryRuleSymbol) ruleSymbol).getRuleNode();
+				if (astProd.isPresent()) 
+				{
+					prods.add(astProd.get());
+				}
+			}
+		}
+	    return prods;
+	}
+	
+	public List<ASTProd> getOffsetRulesToGenerate() 
+	{
+		// Iterate over all Rules
+		List<ASTProd> prods = Lists.newArrayList();
+		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited().values()) 
+		{
+			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.OFFSETRULE)) 
+			{
+				Optional<ASTOffsetProd> astProd = ((MCOffsetRuleSymbol) ruleSymbol).getRuleNode();
 				if (astProd.isPresent()) 
 				{
 					prods.add(astProd.get());

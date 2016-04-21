@@ -9,7 +9,15 @@ import ${genHelper.getParserPackage()}.${grammarName}Actions;
 
 import com.upstandinghackers.hammer.*;
 
+import ${genHelper.getParseTreePackage()}.*;
+import org.antlr.v4.runtime.tree.*;
+import org.antlr.v4.runtime.*;
+
+import java.lang.Exception;
 import java.io.IOException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ${grammarName}Parser
 {
@@ -95,13 +103,122 @@ public class ${grammarName}Parser
 		parser = _${startRule} ;
 	}
 
+	private class Range
+	{
+		private long start, end;
+		
+		public Range(long start, long end)
+		{
+			this.start = start;
+			this.end = end;
+		}
+		
+		public long getStart()
+		{
+			return this.start;
+		}
+		
+		public long getEnd()
+		{
+			return this.end;
+		}
+	}
+
+	private List<Range> ranges = new ArrayList<Range>();
+
 	/**
 	 * parses a binary input
 	 * @param bytes DNS-message
 	 * @return Antlr-ParseTree
 	 */
-	public ParseResult parse( byte[] bytes )
+	public ParseTree parse( byte[] bytes ) throws Exception
 	{
-		return Hammer.parse(parser, bytes, bytes.length);
+		long offset = 0;
+		ParseResult parseResult = Hammer.parse(parser, bytes, bytes.length);
+		
+		if( parseResult == null )
+		{
+			throw new Exception("Parse Failed !");
+		}
+		
+		HAParseTree parseTree = new HARuleNode(new HARuleContext(${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal()));
+		parseTree.addChild(${grammarName}TreeConverter.create(parseResult));
+		
+		ranges.add(new Range(offset,offset+getSize(parseTree)));
+		
+		printRanges();
+		
+		if( getOffsets(parseTree).size() > 0 )
+		{
+			System.out.println("Offsets Found!");
+		}
+				
+		return parseTree;
+	}
+	
+	private List<HABinaryToken> getOffsets(HAParseTree parseTree)
+	{	
+		List<HABinaryToken> offsets = new ArrayList<HABinaryToken>();
+
+		for( int i = 0; i < parseTree.getChildCount(); i++ )
+		{
+			ParseTree child = parseTree.getChild(i);
+			
+			if( child instanceof HATerminalNode )
+			{
+				Token token = ((HATerminalNode)child).getSymbol();
+				if( token instanceof HABinaryToken )
+				{
+					if( ((HABinaryToken)token).isOffset() )
+					{
+						offsets.add((HABinaryToken)token);
+					}
+				}
+			}
+			else
+			{
+				offsets.addAll(getOffsets((HAParseTree)child));
+			}
+		}
+		
+		return offsets;
+	}
+	
+	private long getSize(HAParseTree parseTree)
+	{
+		long size = 0;
+
+		for( int i = 0; i < parseTree.getChildCount(); i++ )
+		{
+			ParseTree child = parseTree.getChild(i);
+			
+			if( child instanceof HATerminalNode )
+			{
+				Token token = ((HATerminalNode)child).getSymbol();
+				if( token instanceof HABinaryToken )
+				{
+					size += ((HABinaryToken)token).getBits();
+				}
+				else
+				{
+					size += child.getText().getBytes().length*8;
+				}
+			}
+			else
+			{
+				size += getSize((HAParseTree)child);
+			}
+		}
+		
+		return size;
+	}
+	
+	private void printRanges()
+	{
+		System.out.println("RANGES:");
+		for( int i = 0; i < ranges.size(); i++ )
+		{
+			System.out.println("[" + ranges.get(i).getStart() + "," + ranges.get(i).getEnd() + "]");
+		}
 	}
 }

@@ -78,6 +78,7 @@ import de.monticore.grammar.grammar._ast.ASTInt8;
 import de.monticore.grammar.grammar._ast.ASTInt16;
 import de.monticore.grammar.grammar._ast.ASTInt32;
 import de.monticore.grammar.grammar._ast.ASTInt64;
+import de.monticore.grammar.grammar._ast.ASTOffset;
 import de.monticore.grammar.grammar._ast.GrammarNodeFactory;
 import de.monticore.grammar.grammar_withconcepts._ast.ASTAction;
 import de.monticore.grammar.grammar_withconcepts._visitor.Grammar_WithConceptsVisitor;
@@ -1544,6 +1545,43 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"length_" + id + "_Data\" )");
+	}
+	
+	@Override
+	public void handle(ASTOffset ast)
+	{
+		addToCodeSection("\n" + indent + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.sequence( ");
+		increaseIndent();
+		
+		if( ast.getUInt8().isPresent() )
+		{
+			ast.getUInt8().get().accept(getRealThis());
+		}
+		else if( ast.getUInt16().isPresent() )
+		{
+			ast.getUInt16().get().accept(getRealThis());
+		}
+		else if( ast.getUInt32().isPresent() )
+		{
+			ast.getUInt32().get().accept(getRealThis());
+		}
+		else if( ast.getUInt64().isPresent() )
+		{
+			ast.getUInt64().get().accept(getRealThis());
+		}
+		else if( ast.getUBits().isPresent() )
+		{
+			ast.getUBits().get().accept(getRealThis());
+		}		
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"act" + ast.getName() + "\" )");
 	}
 
 	// ----------------- End of visit methods ---------------------------------------------
