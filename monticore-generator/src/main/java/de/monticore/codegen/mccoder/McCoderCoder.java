@@ -59,13 +59,29 @@ public class McCoderCoder {
 	}
 	
 	
-	public boolean isKeyword(String toCheck){ //This returns if a string matches a keyword.
-		String[] allKW = kws;
-		String res="";
+	public boolean isKeyword(String toCheck){ //This returns true if a string matches a keyword.
+		String[] allKW = kws;		
 		for(int i=0; i<allKW.length; i++){
-			res+= allKW[i];
+			if(toCheck.contains(kws[i])){
+				//System.out.println(toCheck + " " + "CASE HAS A KEYWORD" + " " + kws[i]);
+				return true;
 			}
-		return res.contains(toCheck);
+		}
+		for(int i=0; i<toCheck.length(); i++){
+			for(String kw:allKW){
+				if(kw.startsWith(toCheck.substring(i, toCheck.length()))){
+					//System.out.println(toCheck + " " + "CASE HAS A STARTKW" + " " + kw);
+					return true;
+				}
+				if(kw.endsWith(toCheck.substring(0, i+1))){
+					//System.out.println(toCheck + " " + "CASE HAS AN ENDKW "+ kw);
+					return true;
+				}
+			}
+		}
+		
+		
+		return false;
 
 	}
 
@@ -139,7 +155,8 @@ public class McCoderCoder {
 					//System.out.println(kw[j] + " = " + encoding);
 					}
 					else if(isKeyword(encoding) || !typeCheck(type,encoding)){ //Our created encoding contains a keyword reset and try again
-						//encodingMap.clear();
+						encodingMap.clear();
+						encoding = usableSymbols[i];
 						//addToCodeSection("map.clear();");
 						break;
 					}
