@@ -41,6 +41,7 @@ import de.monticore.grammar.grammar._ast.ASTConstantGroup;
 import de.monticore.grammar.grammar._ast.ASTConstantsGrammar;
 import de.monticore.grammar.grammar._ast.ASTEnumProd;
 import de.monticore.grammar.grammar._ast.ASTEof;
+import de.monticore.grammar.grammar._ast.ASTGrammarNode;
 import de.monticore.grammar.grammar._ast.ASTInterfaceProd;
 import de.monticore.grammar.grammar._ast.ASTLexActionOrPredicate;
 import de.monticore.grammar.grammar._ast.ASTLexAlt;
@@ -89,7 +90,9 @@ import de.se_rwth.commons.logging.Log;
 
 public class GrammarAnalyzer implements Grammar_WithConceptsVisitor {
 	
-	private List<String> lengths = Lists.newArrayList();
+	private List<String> lengthFields = Lists.newArrayList();
+	
+	private Map<String,Set<ASTGrammarNode>> dataFields = Maps.newHashMap();
 	
 	public GrammarAnalyzer() 
 	{
@@ -183,20 +186,73 @@ public class GrammarAnalyzer implements Grammar_WithConceptsVisitor {
 	@Override
 	public void visit(ASTBinaryLength ast)
 	{	
-		lengths.add(ast.getId());
+		lengthFields.add(ast.getId());
 	}
 	
 	@Override
 	public void visit(ASTBinaryData ast)
 	{		
+		ASTGrammarNode repeatable = null;
+		
+		if (ast.getUInt8().isPresent()) {
+			repeatable = ast.getUInt8().get();
+	    } 
+	    else if (ast.getUInt16().isPresent()) {
+	    	repeatable = ast.getUInt16().get();
+	    } 
+	    else if (ast.getUInt32().isPresent()) {
+	    	repeatable = ast.getUInt32().get();
+	    } 
+	    else if (ast.getUInt64().isPresent()) {
+	    	repeatable = ast.getUInt64().get();
+	    }
+	    else if (ast.getUBits().isPresent()) {
+	    	repeatable = ast.getUBits().get();
+	    }
+	    else if (ast.getInt8().isPresent()) {
+			repeatable = ast.getInt8().get();
+	    } 
+	    else if (ast.getInt16().isPresent()) {
+	    	repeatable = ast.getInt16().get();
+	    } 
+	    else if (ast.getInt32().isPresent()) {
+	    	repeatable = ast.getInt32().get();
+	    } 
+	    else if (ast.getInt64().isPresent()) {
+	    	repeatable = ast.getInt64().get();
+	    }
+	    else if (ast.getBits().isPresent()) {
+	    	repeatable = ast.getBits().get();
+	    }
+	    else if (ast.getBinaryNonTerminal().isPresent()) {
+	    	repeatable = ast.getBinaryNonTerminal().get();
+	    }
+	    else {
+	    	return ;
+	    }
+		
+		String id = ast.getId();
+		if( !dataFields.containsKey(id) )
+		{
+			dataFields.put(id,Sets.newHashSet());
+		}
+		
+		dataFields.get(ast.getId()).add(repeatable);
 	}
 	
 	// --------------------------------------------------------------
 	
-	public List<String> containsLengthFields(ASTBinaryProd ast)
+	public List<String> containsLengthFields(ASTProd ast)
 	{
-		lengths.clear();
+		lengthFields.clear();
 		ast.accept(getRealThis());
-		return lengths;
+		return lengthFields;
+	}
+	
+	public Map<String,Set<ASTGrammarNode>> containsDataFields(ASTProd ast)
+	{
+		dataFields.clear();
+		ast.accept(getRealThis());
+		return dataFields;
 	}
 }

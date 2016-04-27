@@ -197,7 +197,7 @@ public class ${grammarName}Actions
 	
 	public static boolean length_${lengthField}_Data(ParseResult p)
 	{			
-		if(lengthIterators.get("${lengthField}") < parsedLengths.get("${lengthField}"))
+		if(lengthIterators.get("${lengthField}") < parsedLengths.get("${lengthField}")-1)
 		{
 			System.out.println("length_${lengthField}_Data: False " + lengthIterators.get("${lengthField}") + "/" + parsedLengths.get("${lengthField}"));
 			lengthIterators.put("${lengthField}",(long)0);
@@ -215,7 +215,7 @@ public class ${grammarName}Actions
 	{		
 		lengthIterators.put("${lengthField}",lengthIterators.get("${lengthField}")+1);
 		
-		if(lengthIterators.get("${lengthField}") > parsedLengths.get("${lengthField}"))
+		if(lengthIterators.get("${lengthField}") > parsedLengths.get("${lengthField}")-1)
 			return false;
 		else
 			return true;

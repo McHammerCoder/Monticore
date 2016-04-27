@@ -50,6 +50,7 @@ import de.monticore.grammar.grammar._ast.ASTConstantGroup;
 import de.monticore.grammar.grammar._ast.ASTConstantsGrammar;
 import de.monticore.grammar.grammar._ast.ASTEnumProd;
 import de.monticore.grammar.grammar._ast.ASTEof;
+import de.monticore.grammar.grammar._ast.ASTGrammarNode;
 import de.monticore.grammar.grammar._ast.ASTInterfaceProd;
 import de.monticore.grammar.grammar._ast.ASTLexActionOrPredicate;
 import de.monticore.grammar.grammar._ast.ASTLexAlt;
@@ -127,6 +128,8 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	
 	private static Set<String> lengthFields = Sets.newHashSet();
 	
+	private static Map<String,Set<ASTGrammarNode>> dataFields = Maps.newHashMap();
+		
 	private GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer();
 	
 	public Grammar2Hammer(McHammerParserGeneratorHelper parserGeneratorHelper, MCGrammarInfo grammarInfo) 
@@ -135,6 +138,21 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		this.parserGeneratorHelper = parserGeneratorHelper;
 		this.grammarEntry = parserGeneratorHelper.getGrammarSymbol();
 		this.grammarInfo = grammarInfo;
+		
+		// Find all DataFields in the grammar
+		List<ASTProd> rules = parserGeneratorHelper.getParserRulesToGenerate();
+		rules.addAll( parserGeneratorHelper.getBinaryRulesToGenerate() );
+		
+		for( ASTProd rule : rules )
+		{
+			for( String data : grammarAnalyzer.containsDataFields(rule).keySet() )
+			{
+				System.out.println(data);
+			}
+			
+			dataFields.putAll(grammarAnalyzer.containsDataFields(rule));
+			lengthFields.addAll(grammarAnalyzer.containsLengthFields(rule));
+		}
 	}
 
 	@Override
@@ -1457,7 +1475,6 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	public void handle(ASTBinaryLength ast)
 	{		
 		String id = ast.getId();
-		lengthFields.add(id);
 				
 		addToCodeSection("\n" + indent + "Hammer.action( ");
 		increaseIndent();
@@ -1485,63 +1502,59 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void handle(ASTBinaryData ast)
 	{		
-		String id = ast.getId();
-		lengthFields.add(id);
-				
 		addToCodeSection("\n" + indent + "Hammer.action( ");
 		increaseIndent();
 		
-		addToCodeSection("\n" + indent + "Hammer.action( ");
-		increaseIndent();
-		
-		addToCodeSection("\n" + indent + "Hammer.many( ");
-		increaseIndent();
-		
-		addToCodeSection("\n" + indent + "Hammer.action( ");
-		increaseIndent();
+		ASTGrammarNode astNode = null;
 		
 		if (ast.getUInt8().isPresent()) {
-	    	ast.getUInt8().get().accept(getRealThis());
+			astNode = ast.getUInt8().get();
 	    } 
 	    else if (ast.getUInt16().isPresent()) {
-	    	ast.getUInt16().get().accept(getRealThis());
+	    	astNode = ast.getUInt16().get();
 	    } 
 	    else if (ast.getUInt32().isPresent()) {
-	    	ast.getUInt32().get().accept(getRealThis());
+	    	astNode = ast.getUInt32().get();
 	    } 
 	    else if (ast.getUInt64().isPresent()) {
-	    	ast.getUInt64().get().accept(getRealThis());
+	    	astNode = ast.getUInt64().get();
 	    }
 	    else if (ast.getUBits().isPresent()) {
-	    	ast.getUBits().get().accept(getRealThis());
+	    	astNode = ast.getUBits().get();
 	    }
-		if (ast.getInt8().isPresent()) {
-	    	ast.getInt8().get().accept(getRealThis());
+	    else if (ast.getInt8().isPresent()) {
+	    	astNode = ast.getInt8().get();
 	    } 
 	    else if (ast.getInt16().isPresent()) {
-	    	ast.getInt16().get().accept(getRealThis());
+	    	astNode = ast.getInt16().get();
 	    } 
 	    else if (ast.getInt32().isPresent()) {
-	    	ast.getInt32().get().accept(getRealThis());
+	    	astNode = ast.getInt32().get();
 	    } 
 	    else if (ast.getInt64().isPresent()) {
-	    	ast.getInt64().get().accept(getRealThis());
+	    	astNode = ast.getInt64().get();
 	    }
 	    else if (ast.getBits().isPresent()) {
-	    	ast.getBits().get().accept(getRealThis());
+	    	astNode = ast.getBits().get();
 	    }
 	    else if (ast.getBinaryNonTerminal().isPresent()) {
-	    	ast.getBinaryNonTerminal().get().accept(getRealThis());
+	    	astNode = ast.getBinaryNonTerminal().get();
+	    }
+	    else {
+	    	return ;
 	    }
 		
-		decreaseIndent();
-		addToCodeSection("\n" + indent + ", \"length_" + id + "_DataIter\" )");
-		
-		decreaseIndent();
-		addToCodeSection("\n" + indent + ")");
-		
-		decreaseIndent();
-		addToCodeSection("\n" + indent + ", \"actUndefined\" )");
+		String id = ast.getId();
+		int i = 1;
+		for( ASTGrammarNode node : dataFields.get(id) )
+		{
+			if(node.equals(astNode))
+			{
+				break;
+			}
+			i++;
+		}
+		addToCodeSection("\n" + indent + "dataField_" + id + "_" + i);
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"length_" + id + "_Data\" )");
@@ -1622,6 +1635,65 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ");");
 		
+		
+		endCodeSection();
+		
+		return getHammerCode();
+	}
+	
+	public List<String> createHammerDataFieldCode(String dataField)
+	{
+		clearHammerCode();
+		
+		startCodeSection("DataFields");
+		
+		int i = 1;
+		for(ASTGrammarNode node : dataFields.get(dataField))
+		{			
+			addToCodeSection("\n" + indent + "dataField_" + dataField + "_" + i + ".bindIndirect( ");
+			increaseIndent();
+			
+			addToCodeSection("\n" + indent + "Hammer.action( ");
+			increaseIndent();
+			
+			addToCodeSection("\n" + indent + "Hammer.choice( ");
+			increaseIndent();
+			
+			addToCodeSection("\n" + indent + "Hammer.sequence( ");
+			increaseIndent();
+			
+			addToCodeSection("\n" + indent + "Hammer.action( ");
+			increaseIndent();
+			
+			node.accept(getRealThis());
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ", \"length_" + dataField + "_DataIter\" ),");
+					
+			addToCodeSection("\n" + indent + "dataField_" + dataField + "_" + i);
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + "),");
+			
+			addToCodeSection("\n" + indent + "Hammer.sequence( ");
+			increaseIndent();
+			
+			node.accept(getRealThis());
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")");
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")");
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ", \"actUndefined\" )");
+			
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ");");
+			
+			i++;
+		}
 		
 		endCodeSection();
 		
@@ -1840,6 +1912,29 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{
 		List<String> list = new ArrayList<String>();
 		list.addAll(lengthFields);
+		return list;
+	}
+	
+	public static List<String> getDataFields()
+	{
+		List<String> list = new ArrayList<String>();
+		list.addAll(dataFields.keySet());
+		return list;
+	}
+	
+	public static List<String> getDataFieldIndirects()
+	{
+		List<String> list = new ArrayList<String>();
+		
+		for( String dataField : dataFields.keySet() )
+		{
+			Set<ASTGrammarNode> grammarNodes = dataFields.get(dataField);
+			for(int i = 0; i < grammarNodes.size(); i++)
+			{
+				list.add(dataField + "_" + (i+1) );
+			}
+		}
+		
 		return list;
 	}
 }

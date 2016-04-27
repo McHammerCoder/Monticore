@@ -68,6 +68,9 @@ public class ${grammarName}Parser
 <#list genHelper.getIndirectRulesToGenerate() as indirectRule>
 	private final com.upstandinghackers.hammer.Parser ${indirectRule} = Hammer.indirect();
 </#list>
+<#list hammerGenerator.getDataFieldIndirects() as dataField>
+	private final com.upstandinghackers.hammer.Parser dataField_${dataField} = Hammer.indirect();
+</#list>
 	
 	/** Final Parser **/
 	
@@ -97,6 +100,12 @@ public class ${grammarName}Parser
 <#list genHelper.getInterfaceRulesToGenerate() as interfaceRule>
 	<#list hammerGenerator.createHammerInterfaceCode(interfaceRule) as interfaceRuleCode>
 		${interfaceRuleCode}
+	</#list>
+</#list>
+
+<#list hammerGenerator.getDataFields() as dataField>
+	<#list hammerGenerator.createHammerDataFieldCode(dataField) as dataFieldCode>
+		${dataFieldCode}
 	</#list>
 </#list>
 
