@@ -48,19 +48,12 @@ public class ${parserName}Tool
 			Path path = Paths.get(inputFile);
 			byte[] data = Files.readAllBytes(path);
 			
-			// Parser
-			${parserName}Parser parser = new ${parserName}Parser();
-			ParseResult res = parser.parse(data);
-			
-			if( res != null )
+			try 
 			{
-				// TreeConverter
-				ParseTree pt = ${parserName}TreeConverter.create(res);
-				
-				System.out.println();
-				System.out.println("ParseResult:");
-				System.out.println(pt.getText());
-				
+				// Parser
+				${parserName}Parser parser = new ${parserName}Parser();
+				ParseTree pt = parser.parse(data);
+
 				// Injector
 				${parserName}Injector injector = new ${parserName}Injector(injection);
 				ParseTreeWalker walker = new ParseTreeWalker();
@@ -79,37 +72,29 @@ public class ${parserName}Tool
 				
 				System.out.println(pt.getText());
 				
-				// Reparse
-				res = parser.parse(pt.getText().getBytes());
-				if( res != null )
-				{
-					pt = ${parserName}TreeConverter.create(res);
+				pt = parser.parse(pt.getText().getBytes());
 
-					System.out.println();
-					System.out.println("ReparseResult:");
-					System.out.println(pt.getText());
+				System.out.println();
+				System.out.println("ReparseResult:");
+				System.out.println(pt.getText());
 					
-					// Decode
-					System.out.println();
-					System.out.println("Decode Template:");
-					${parserName}DecoderVisitor decoder = new ${parserName}DecoderVisitor();
-					walker.walk(decoder, pt); 
-					System.out.println();
+				// Decode
+				System.out.println();
+				System.out.println("Decode Template:");
+				${parserName}DecoderVisitor decoder = new ${parserName}DecoderVisitor();
+				walker.walk(decoder, pt); 
+				System.out.println();
 				
-					System.out.println(pt.getText());
+				System.out.println(pt.getText());
 				
-					displayParseTree(pt);
-				}
-				else
-				{
-					System.out.println("REPARSE FAILED");
-				}
-			}
-			else
-			{
-				System.out.println("FAILED");
-			}
+				displayParseTree(pt);
 			
+			}
+			catch ( Exception ex )
+			{
+				System.err.println(ex.getMessage());
+			}
+					
 		}
 	}
 	
