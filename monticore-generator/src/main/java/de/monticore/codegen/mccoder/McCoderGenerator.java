@@ -81,7 +81,7 @@ public class McCoderGenerator
 	public static void generate(Scope symbolTable, File outputDirectory, ASTMCGrammar astGrammar)
 	{
 		 JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-	     compiler.run(null, System.out, System.err, "-sourcepath", "" , outputDirectory.getPath() + "/" + astGrammar.getName().toLowerCase() + "/_parser/" + astGrammar.getName() + "AntlrLexer.java");
+	     compiler.run(null, System.out, System.err, "-sourcepath", "", outputDirectory.getPath() + "/" + astGrammar.getName().toLowerCase() + "/_parser/" + astGrammar.getName() + "AntlrLexer.java");
 	     try{
 	    	 File f = new File(outputDirectory.getPath() + "/");
 	    	 URL[] cp = {f.toURI().toURL()};
@@ -89,7 +89,13 @@ public class McCoderGenerator
 	    	 clazz = urlcl.loadClass(astGrammar.getName().toLowerCase() + "._parser." + astGrammar.getName() + "AntlrLexer");
 	    	
 	     }
-	     catch(Exception e){e.printStackTrace();}
+	     catch (Exception e)
+		{
+			System.out.println("Could not load AntlrLexer!");
+			e.printStackTrace();	
+			
+			return;
+		}
 	    
 	     
 	    

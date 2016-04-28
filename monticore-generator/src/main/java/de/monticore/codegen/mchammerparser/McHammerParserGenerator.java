@@ -133,7 +133,7 @@ public class McHammerParserGenerator
 		generator.generate("mchtree.HABinaryToken", binaryTokenPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 		
 		// Generate com_upstandinghackers_hammer_Hammer.c
-		final Path hammerActionPath = Paths.get(RESOURCES_FOLDER, "com_upstandinghackers_hammer_Hammer.c");
+		final Path hammerActionPath = Paths.get(RESOURCES_FOLDER, "libjhammer_"+astGrammar.getName()+".c");
 		generator.generate("mchparser.com_upstandinghackers_hammer_Hammer", hammerActionPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 	
 		

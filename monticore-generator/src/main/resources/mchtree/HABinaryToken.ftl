@@ -46,7 +46,7 @@ public class HABinaryToken extends CommonToken {
 		
 		if( isOffset )
 		{
-			res += "[offset: " + HTMLRedTreeHelper.TokenTypeNames[getType()-1] + "]";
+			res += "[offset: " + ${grammarName}TreeHelper.TokenTypeNames[getType()-1] + "]";
 		}
 		
 		return res;

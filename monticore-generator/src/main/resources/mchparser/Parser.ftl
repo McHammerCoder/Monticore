@@ -27,7 +27,7 @@ public class ${grammarName}Parser
 		try 
 		{
 			System.loadLibrary("jhammer");
-			System.loadLibrary("jhammer_actions");
+			System.loadLibrary("jhammer_${grammarName}");
 		} 
 		catch (UnsatisfiedLinkError e) 
 		{
@@ -35,7 +35,7 @@ public class ${grammarName}Parser
 			try 
 			{    
 				NativeUtils.loadLibraryFromJar("/resources/libjhammer.so");
-				NativeUtils.loadLibraryFromJar("/resources/libjhammer_actions.so");  
+				NativeUtils.loadLibraryFromJar("/resources/libjhammer_${grammarName}.so");  
 			} 
 			catch (IOException e1)
 			{    

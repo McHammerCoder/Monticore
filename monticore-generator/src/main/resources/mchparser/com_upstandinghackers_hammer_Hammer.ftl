@@ -3,7 +3,7 @@ ${tc.signature("hammerGenerator")}
 <#assign grammarSymbol = genHelper.getGrammarSymbol()>
 <#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
 
-#include "jhammer.h"
+#include "resources/jhammer.h"
 #include "internal.h"
 #include "com_upstandinghackers_hammer_Hammer.h"
 #include <stdlib.h>

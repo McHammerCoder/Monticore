@@ -114,7 +114,7 @@ for (astGrammar in getParsedGrammars()) {
   // generatePP(glex,out,astGrammar)
   
   // M9.5.3 generate McCoderExample
-  generateExample(glex,out,astGrammar)
+  // generateExample(glex,out,astGrammar)
   
   info("Grammar " + astGrammar.getName() + " processed successfully!")
 
