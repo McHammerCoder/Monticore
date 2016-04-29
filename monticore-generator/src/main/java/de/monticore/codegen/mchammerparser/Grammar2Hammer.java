@@ -509,7 +509,9 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 			for( int i = 0; i < alts.size(); i++ )
 			{			
 				ASTLexAlt alt = alts.get(i);
-				alt.accept(getRealThis());
+				List<ASTLexComponent> components = alt.getLexComponents();
+				
+				components.get(0).accept(getRealThis());
 				
 				if( i < alts.size()-1 )
 				{
