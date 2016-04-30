@@ -139,12 +139,13 @@ public class McHammerParserGenerator
 		
 		// Extract Hammer resources
 		final Path resourcesFolder =  Paths.get(outputDirectory.toString(),RESOURCES_FOLDER);
-		List<File> fileList = extractTemporaryResources(outputDirectory,"resources");
-		fileList.addAll( extractTemporaryResources(outputDirectory,"com/upstandinghackers/hammer") );
+		List<File> fileList = extractTemporaryResources(resourcesFolder,"resources/.*");
+		fileList.addAll( extractTemporaryResources(resourcesFolder,"com/upstandinghackers/hammer/.*") );
+		fileList.addAll( extractTemporaryResources(resourcesFolder,"Makefile") );
 				
 		try
 		{
-			Process p = Runtime.getRuntime().exec("make REALLY_USE_OBSOLETE_BUILD_SYSTEM=yes",null,resourcesFolder.toFile());
+			Process p = Runtime.getRuntime().exec("make all CSOURCES=\"libjhammer_" + astGrammar.getName() + ".c\" REALLY_USE_OBSOLETE_BUILD_SYSTEM=yes",null,resourcesFolder.toFile());
 						
 			while( p.isAlive() );
 		}
@@ -156,14 +157,11 @@ public class McHammerParserGenerator
 		//System.console().readLine();
 	}
 		
-	private static List<File> extractTemporaryResources(File outputDirectory,String resourcePath)
+	private static List<File> extractTemporaryResources(Path outputDirectory,String resourcePath)
 	{
 		try
-		{
-			// Extract Hammer resources
-			final Path resourcesFolder =  Paths.get(outputDirectory.toString(),RESOURCES_FOLDER);
-			
-			List<String> resources = (List<String>) ResourceList.getResources(Pattern.compile(resourcePath + "/.*"));
+		{			
+			List<String> resources = (List<String>) ResourceList.getResources(Pattern.compile(resourcePath));
 			
 			// Prepare buffer for data copying
 	        byte[] buffer = new byte[1024];
@@ -178,7 +176,7 @@ public class McHammerParserGenerator
 	        	{
 	        	
 		        	//System.out.println(resource);
-		        	String resourceOutput = resourcesFolder + "/" + (resource.startsWith("resources/") ? resource.substring(resource.indexOf("resources/")+10) : resource);
+		        	String resourceOutput = outputDirectory + "/" + resource;
 		        	File tempPath = new File(resourceOutput.substring(0,resourceOutput.lastIndexOf("/")));
 		        	tempPath.mkdirs();
 		        	File tempFile = new File(resourceOutput);       	
