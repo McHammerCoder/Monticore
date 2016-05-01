@@ -51,11 +51,17 @@ while (grammarIterator.hasNext()) {
       
       startReportingFor(astGrammar, input)
       
+      info("createSymbolsFromAST()")
+      
       // M3: populate symbol table
       astGrammar = createSymbolsFromAST(symbolTable, astGrammar)
       
+      info("runGrammarCoCos()")
+      
       // M4: execute context conditions
       runGrammarCoCos(astGrammar, symbolTable)
+      
+      info("transformAstGrammarToAstCd()")
       
       // M7: transform grammar AST into Class Diagram AST
       astClassDiagram = transformAstGrammarToAstCd(glex, astGrammar, symbolTable, handcodedPath)
@@ -65,9 +71,14 @@ while (grammarIterator.hasNext()) {
       // write Class Diagram AST to the CD-file (*.cd)
       storeInCdFile(astClassDiagram, out)
       
+      info("generateParser()")
+      
       // M5 + M6: generate parser
       generateParser(astGrammar, symbolTable, handcodedPath, out)
       generateParserWrappers(astGrammar, symbolTable, handcodedPath, out)
+      
+      // M6.5 generate MCHammerParser
+  	  generateMcHammerParser(symbolTable,astGrammar,out)
       
       // store result of the first pass
       storeCDForGrammar(astGrammar, astClassDiagram)
@@ -95,14 +106,18 @@ for (astGrammar in getParsedGrammars()) {
   
   // M9: generate AST classes
   generate(glex, symbolTable, astClassDiagram, out, templatePath)
-
-  info("Entering MCHammerCoder!")  
-
-  // M9.5 generate MCHammerCoder
-  generateMCHammerCoder(glex,out,astClassDiagram,astGrammar)
-
-  info("Grammar " + astGrammar.getName() + " processed successfully!")
   
+  // M9.5.1 generate McCoder
+  generateMcCoder(symbolTable,out,astGrammar)
+
+  // M9.5.2 generate McCoderPP
+  // generatePP(glex,out,astGrammar)
+  
+  // M9.5.3 generate McCoderExample
+  generateExample(glex,out,astGrammar)
+  
+  info("Grammar " + astGrammar.getName() + " processed successfully!")
+
   // M10: flush reporting
   flushReporting(astGrammar)
 }

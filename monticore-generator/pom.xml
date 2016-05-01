@@ -24,6 +24,18 @@
     </dependency>
 
     <dependency>
+      <groupId>com.upstandinghackers.hammer</groupId>
+      <artifactId>hammer</artifactId>
+      <version>1.0</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.4</version>
+    </dependency>
+
+    <dependency>
       <groupId>de.se_rwth.commons</groupId>
       <artifactId>se-commons-utilities</artifactId>
     </dependency>

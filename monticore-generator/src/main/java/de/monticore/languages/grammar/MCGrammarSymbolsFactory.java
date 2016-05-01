@@ -20,10 +20,12 @@
 package de.monticore.languages.grammar;
 
 import de.monticore.ast.ASTNode;
+import de.monticore.grammar.grammar._ast.ASTBinaryProd;
 import de.monticore.grammar.grammar._ast.ASTClassProd;
 import de.monticore.grammar.grammar._ast.ASTEnumProd;
 import de.monticore.grammar.grammar._ast.ASTExternalProd;
 import de.monticore.grammar.grammar._ast.ASTLexProd;
+import de.monticore.grammar.grammar._ast.ASTOffsetProd;
 import de.monticore.grammar.grammar._ast.ASTProd;
 import de.monticore.symboltable.Symbol;
 
@@ -120,6 +122,28 @@ public class MCGrammarSymbolsFactory {
       factory = new MCGrammarSymbolsFactory();
     }
     return factory.doCreateMCRuleComponentSymbol(name);
+  }
+  
+  public static MCBinaryRuleSymbol createBinaryProdSymbol(ASTBinaryProd astBinaryProd) {
+    if (factory == null) {
+      factory = new MCGrammarSymbolsFactory();
+    }
+    return factory.doCreateMCBinaryProdSymbol(astBinaryProd);
+  }
+  
+  protected MCBinaryRuleSymbol doCreateMCBinaryProdSymbol(ASTBinaryProd astBinaryProd) {
+    return new MCBinaryRuleSymbol(astBinaryProd);
+  }
+  
+  public static MCOffsetRuleSymbol createOffsetProdSymbol(ASTOffsetProd astOffsetProd) {
+    if (factory == null) {
+      factory = new MCGrammarSymbolsFactory();
+    }
+    return factory.doCreateMCOffsetProdSymbol(astOffsetProd);
+  }
+  
+  protected MCOffsetRuleSymbol doCreateMCOffsetProdSymbol(ASTOffsetProd astOffsetProd) {
+    return new MCOffsetRuleSymbol(astOffsetProd);
   }
 
   protected MCClassRuleSymbol doCreateMCClassProdSymbol(ASTClassProd classProd) {

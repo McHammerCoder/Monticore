@@ -41,7 +41,11 @@ import de.monticore.codegen.cd2java.cocos.CoCoGenerator;
 import de.monticore.codegen.cd2java.od.ODGenerator;
 import de.monticore.codegen.cd2java.visitor.VisitorGenerator;
 import de.monticore.codegen.mc2cd.MC2CDTransformation;
+import de.monticore.codegen.mccoder.McCoderGenerator;
+import de.monticore.codegen.mccoder.McCoderPPGenerator;
 import de.monticore.codegen.mchammer.MCHammerGenerator;
+import de.monticore.codegen.mchammerparser.McHammerParserGenerator;
+import de.monticore.codegen.mchcexamples.McHCExampleGenerator;
 import de.monticore.codegen.parser.ParserGenerator;
 import de.monticore.codegen.symboltable.SymbolTableGenerator;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
@@ -59,6 +63,7 @@ import de.monticore.languages.grammar.MontiCoreGrammarLanguage;
 import de.monticore.languages.grammar.visitors.MCGrammarSymbolTableCreator;
 import de.monticore.symboltable.GlobalScope;
 import de.monticore.symboltable.ResolverConfiguration;
+import de.monticore.symboltable.Scope;
 import de.monticore.umlcd4a.CD4AnalysisLanguage;
 import de.monticore.umlcd4a.cd4analysis._ast.ASTCDCompilationUnit;
 import de.monticore.umlcd4a.symboltable.CD4AnalysisSymbolTableCreator;
@@ -663,11 +668,31 @@ public class MontiCoreScript extends Script implements GroovyRunner {
     
   }
   
-  public void generateMCHammerCoder(GlobalExtensionManagement glex, File outputDirectory, ASTCDCompilationUnit astClassDiagram, ASTMCGrammar ast)
+  public void generateMcHammerParser(Scope symbolTable, ASTMCGrammar astGrammar, File outputDirectory)
   {
-	  System.out.println("Start generating MCHammerCoder!");
+	  System.out.println("Start generating McHammerParser!");
 	  
-	  MCHammerGenerator.generate(glex, outputDirectory, astClassDiagram, ast);
+	  McHammerParserGenerator.generate(symbolTable, astGrammar, outputDirectory);
   }
   
+  public void generateMcCoder(Scope symbolTable, File outputDirectory, ASTMCGrammar astGrammar)
+  {
+	  System.out.println("Start generating McCoder!");
+	  
+	  McCoderGenerator.generate(symbolTable, outputDirectory, astGrammar);
+  }
+  
+  public void generatePP(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)
+  {
+	  System.out.println("Start generating PP!");
+	  
+	  McCoderPPGenerator.generate(glex, outputDirectory, astGrammar);
+  } 
+  
+  public void generateExample(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)
+  {
+	  System.out.println("Start generating Example!");
+	  
+	  McHCExampleGenerator.generate(glex, outputDirectory, astGrammar);
+  } 
 }
