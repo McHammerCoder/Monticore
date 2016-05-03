@@ -182,10 +182,11 @@ public class ${grammarName}Parser
 				if( offsetToken.getType() == OffsetTreeHelper.TokenType.TT_${offsetProd.getName()}.ordinal()+1)
 				{
 					long offset = ${hammerGenerator.createOffsetLinearMethodCode(offsetProd)};
+					long end = findEnd( offset, bytes.length*8 );
 					System.out.println("ParsedOffset for ${offsetProd.getName()}: " + offset);
-					byte [] newBytes = getSubrange(bytes,offset,bytes.length*8);
+					byte [] newBytes = getSubrange(bytes,offset,end);
 					
-					ParseResult parseResult = Hammer.parse( Hammer.sequence( Hammer.ignore(Hammer.bits((int)offset%8,false)), _${offsetProd.getRuleName()} ), newBytes, newBytes.length);
+					ParseResult parseResult = Hammer.parse( Hammer.sequence( Hammer.ignore(Hammer.bits((int)offset%8+(int)end%8,false)), _${offsetProd.getRuleName()} ), newBytes, newBytes.length);
 																				
 					if( parseResult == null )
 					{
@@ -196,9 +197,9 @@ public class ${grammarName}Parser
 					
 					offsetTrees.add(pt);
 					
-					offsetTrees.addAll( parseOffsets(bytes,pt) );
-					
 					ranges.add(new Range(offset,offset+getSize(pt)));
+					
+					offsetTrees.addAll( parseOffsets(bytes,pt) );
 				}
 </#list>
 			}
@@ -225,6 +226,28 @@ public class ${grammarName}Parser
 		}			
 			
 		return res;
+	}
+	
+	private long findEnd( long start, long size ) throws Exception
+	{
+		long end = size;
+		for( Range range : ranges )
+		{
+			long rangeStart = range.getStart();
+			long rangeEnd = range.getEnd();
+			
+			if( start > rangeStart && start < rangeEnd )
+			{
+				throw new Exception("Trying to parse offset at illegal position!");
+			}
+			
+			if( rangeStart > start && rangeStart < end )
+			{
+				end = rangeStart;
+			}
+		}
+		
+		return end;
 	}
 	
 	private List<HABinaryToken> getOffsets(HAParseTree parseTree)
