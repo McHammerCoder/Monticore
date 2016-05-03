@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+import java.util.Arrays;
+
 public class ${grammarName}Parser
 {
 	// Load Hammer Library via JNI
@@ -155,14 +158,60 @@ public class ${grammarName}Parser
 		
 		ranges.add(new Range(offset,offset+getSize(parseTree)));
 		
-		printRanges();
-		
-		if( getOffsets(parseTree).size() > 0 )
+		for( HAParseTree pt : parseOffsets(bytes,parseTree ) )
 		{
-			System.out.println("Offsets Found!");
+			parseTree.addChild(pt);
 		}
+		
+		printRanges();
 				
 		return parseTree;
+	}
+	
+	private List<HAParseTree> parseOffsets( byte[] bytes, HAParseTree parseTree ) throws Exception
+	{
+		List<HABinaryToken> offsets = getOffsets(parseTree);
+		
+		List<HAParseTree> offsetTrees = Lists.newArrayList();
+		if( offsets.size() > 0 )
+		{
+			System.out.println("Offsets Found:");
+			for( HABinaryToken offsetToken : offsets )
+			{
+<#list genHelper.getOffsetRulesToGenerate() as offsetProd>
+				if( offsetToken.getType() == OffsetTreeHelper.TokenType.TT_${offsetProd.getName()}.ordinal()+1)
+				{
+					long offset = offsetToken.getValue()*8;
+					byte [] newBytes = getSubrange(bytes,offset);
+					
+					ParseResult parseResult = Hammer.parse( _${offsetProd.getRuleName()}, newBytes, newBytes.length);
+					
+					if( parseResult == null )
+					{
+						throw new Exception("Parse Failed: Offset - ${offsetProd.getName()}");
+					}
+					
+					HAParseTree pt = (HAParseTree) ${grammarName}TreeConverter.create(parseResult);
+					
+					offsetTrees.add(pt);
+					
+					offsetTrees.addAll( parseOffsets(bytes,pt) );
+					
+					ranges.add(new Range(offset,offset+getSize(pt)));
+				}
+</#list>
+			}
+		}
+		
+		return offsetTrees;
+	}
+	
+	private byte[] getSubrange( byte [] bytes, long start )
+	{
+		int byteOffset = (int)start/8;
+		byte [] res = Arrays.copyOfRange(bytes,byteOffset,bytes.length);
+			
+		return res;
 	}
 	
 	private List<HABinaryToken> getOffsets(HAParseTree parseTree)

@@ -231,12 +231,13 @@ public class ${grammarName}TreeConverter
 		CommonTokenFactory fac = new CommonTokenFactory();
 		
 		HAParseTree pt;
+		HABinaryToken binTok;
 		switch(tokenType)
 		{
 <#list genHelper.getOffsetRulesToGenerate() as offsetProd>
 		case TT_${offsetProd.getName()}:
 			pt = generateParseTree( tok.getSeqValue()[0] );
-			HABinaryToken binTok = ((HABinaryToken)((HATerminalNode)pt).getSymbol());
+			binTok = ((HABinaryToken)((HATerminalNode)pt).getSymbol());
 			binTok.setOffset(true);
 			binTok.setType(tokenType.ordinal()+1);
 			break;

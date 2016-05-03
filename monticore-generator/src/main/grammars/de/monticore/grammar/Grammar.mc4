@@ -182,7 +182,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
   OffsetProd implements Prod =
     ("offset") Name
     "="
-    (nonTerminal:NonTerminal | nonBinaryTerminal:BinaryNonTerminal)
+    ruleName:Name
     ":"
     a:SignedIntLiteral
     "*x"
