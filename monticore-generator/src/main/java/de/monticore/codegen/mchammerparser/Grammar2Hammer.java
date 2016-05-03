@@ -80,6 +80,7 @@ import de.monticore.grammar.grammar._ast.ASTInt16;
 import de.monticore.grammar.grammar._ast.ASTInt32;
 import de.monticore.grammar.grammar._ast.ASTInt64;
 import de.monticore.grammar.grammar._ast.ASTOffset;
+import de.monticore.grammar.grammar._ast.ASTOffsetProd;
 import de.monticore.grammar.grammar._ast.GrammarNodeFactory;
 import de.monticore.grammar.grammar_withconcepts._ast.ASTAction;
 import de.monticore.grammar.grammar_withconcepts._visitor.Grammar_WithConceptsVisitor;
@@ -1641,6 +1642,15 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		endCodeSection();
 		
 		return getHammerCode();
+	}
+	
+	public String createOffsetLinearMethodCode(ASTOffsetProd prod)
+	{
+		return (prod.getA().isNegative() ? "(bytes.length-1)*8-" : "")
+			 + "offsetToken.getValue()*" 
+			 + prod.getA().getValue() * (prod.getA().isNegative() ? (-1) : 1 )
+			 + ((prod.getSign() == ASTConstantsGrammar.PLUS) ? "+" : "-")
+			 + prod.getB().getValue();
 	}
 	
 	public List<String> createHammerDataFieldCode(String dataField)

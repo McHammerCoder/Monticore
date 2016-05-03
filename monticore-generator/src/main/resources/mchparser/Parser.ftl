@@ -181,11 +181,12 @@ public class ${grammarName}Parser
 <#list genHelper.getOffsetRulesToGenerate() as offsetProd>
 				if( offsetToken.getType() == OffsetTreeHelper.TokenType.TT_${offsetProd.getName()}.ordinal()+1)
 				{
-					long offset = offsetToken.getValue()*8;
+					long offset = ${hammerGenerator.createOffsetLinearMethodCode(offsetProd)};
+					System.out.println("ParsedOffset for ${offsetProd.getName()}: " + offset);
 					byte [] newBytes = getSubrange(bytes,offset);
 					
 					ParseResult parseResult = Hammer.parse( _${offsetProd.getRuleName()}, newBytes, newBytes.length);
-					
+										
 					if( parseResult == null )
 					{
 						throw new Exception("Parse Failed: Offset - ${offsetProd.getName()}");
