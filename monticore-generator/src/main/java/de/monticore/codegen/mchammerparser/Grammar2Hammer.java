@@ -1419,7 +1419,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTBits bits)
 	{
-		int numBits = bits.getBits()+1-ASTConstantsGrammar.CONSTANT0;
+		int numBits = bits.getBits()+1-ASTConstantsGrammar.CONSTANT64;
 		
 		
 		addToCodeSection("\n" + indent + "Hammer.action( ");
@@ -1651,6 +1651,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 			 + prod.getA().getValue() * (prod.getA().isNegative() ? (-1) : 1 )
 			 + ((prod.getSign() == ASTConstantsGrammar.PLUS) ? "+" : "-")
 			 + prod.getB().getValue();
+
 	}
 	
 	public List<String> createHammerDataFieldCode(String dataField)

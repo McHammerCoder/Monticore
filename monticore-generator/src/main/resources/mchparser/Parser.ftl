@@ -183,10 +183,10 @@ public class ${grammarName}Parser
 				{
 					long offset = ${hammerGenerator.createOffsetLinearMethodCode(offsetProd)};
 					System.out.println("ParsedOffset for ${offsetProd.getName()}: " + offset);
-					byte [] newBytes = getSubrange(bytes,offset);
+					byte [] newBytes = getSubrange(bytes,offset,bytes.length*8);
 					
-					ParseResult parseResult = Hammer.parse( _${offsetProd.getRuleName()}, newBytes, newBytes.length);
-										
+					ParseResult parseResult = Hammer.parse( Hammer.sequence( Hammer.ignore(Hammer.bits((int)offset%8,false)), _${offsetProd.getRuleName()} ), newBytes, newBytes.length);
+																				
 					if( parseResult == null )
 					{
 						throw new Exception("Parse Failed: Offset - ${offsetProd.getName()}");
@@ -207,10 +207,22 @@ public class ${grammarName}Parser
 		return offsetTrees;
 	}
 	
-	private byte[] getSubrange( byte [] bytes, long start )
+	private byte[] getSubrange( byte [] bytes, long start, long end )
 	{
 		int byteOffset = (int)start/8;
-		byte [] res = Arrays.copyOfRange(bytes,byteOffset,bytes.length);
+		int byteEnd = (int)end/8 + ((end%8 > 0)? 1 : 0);
+		int bitEnd = (int)end%8;
+		
+		byte [] byteArray = Arrays.copyOfRange(bytes,byteOffset,byteEnd);
+		
+		// Shift to the right
+		byte [] res = new byte [ byteArray.length ];
+		for( int i = byteArray.length-1; i >= 0; i-- )
+		{
+			int b = byteArray[i] >> bitEnd;
+			int b2 = ( i > 0 ) ? byteArray[i-1] << (8-bitEnd) : 0;
+			res[i] = (byte)(b | b2);
+		}			
 			
 		return res;
 	}
