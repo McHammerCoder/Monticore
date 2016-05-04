@@ -17,6 +17,9 @@ import java.util.Optional;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
+import de.monticore.grammar.grammar._ast.ASTEncodeTableProd;
+import de.monticore.grammar.grammar._ast.ASTEncodeTableEntry;
+import de.monticore.languages.grammar.MCEncodeTableRuleSymbol;
 import de.monticore.ast.ASTNode;
 import de.monticore.codegen.mccoder.McCoderGenerator;
 import de.monticore.grammar.grammar._ast.ASTBlock;
@@ -277,6 +280,38 @@ public class McCoderGeneratorHelper
 			{
 				prods.add(((MCEnumRuleSymbol) ruleSymbol).getRule());
 	        }
+		}
+	    return prods;
+	}
+	
+	public List<ASTProd> getEncodingTablesToGenerate() 
+	{
+		// Iterate over all Rules
+		List<ASTProd> prods = Lists.newArrayList();
+		for(MCGrammarSymbol mcgrammarsymbol : grammarSymbol.getAllSuperGrammars()){
+			
+			for (MCRuleSymbol ruleSymbol : mcgrammarsymbol.getRulesWithInherited().values()) 
+			{
+				if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.ENCODETABLERULE)) 
+				{
+					Optional<ASTEncodeTableProd> astProd = ((MCEncodeTableRuleSymbol) ruleSymbol).getRuleNode();
+					if (astProd.isPresent()) 
+					{
+						prods.add(astProd.get());
+					}
+				}
+			}
+		}
+		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited().values()) 
+		{
+			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.ENCODETABLERULE)) 
+			{
+				Optional<ASTEncodeTableProd> astProd = ((MCEncodeTableRuleSymbol) ruleSymbol).getRuleNode();
+				if (astProd.isPresent()) 
+				{
+					prods.add(astProd.get());
+				}
+			}
 		}
 	    return prods;
 	}

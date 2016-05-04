@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -22,8 +23,12 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import de.monticore.grammar.grammar._ast.ASTEncodeTableProd;
+import de.monticore.grammar.grammar._ast.ASTEncodeTableEntry;
+import de.monticore.languages.grammar.MCEncodeTableRuleSymbol;
 import de.monticore.ast.ASTNode;
 import de.monticore.codegen.mccoder.McCoderGeneratorHelper;
 import de.monticore.codegen.parser.ParserGeneratorHelper;
@@ -86,7 +91,7 @@ private MCGrammarSymbol grammarEntry;
 	private MCGrammarInfo grammarInfo;
 	
 	private List<String> productionUsableSymbolsCode = Lists.newArrayList();
-	
+	public static Map<String, Map<String, String>> customEncodingMap = Maps.newHashMap();
 	private StringBuilder codeSection;
 	
 	private String indent = "\t";
@@ -135,6 +140,32 @@ private MCGrammarSymbol grammarEntry;
 	{
 		addToCodeSection(indent + "kws.add(new String(\"" + ast.getString() +  "\"));\n" );
 		kws.add(new String(ast.getString()));
+	}
+	
+	@Override
+	public void handle(ASTEncodeTableProd ast)
+	{
+		String left = "";
+		String right = "";
+		String name = ast.getName().substring(0,ast.getName().length()-3);
+		List<ASTEncodeTableEntry> entries = ast.getEncodeTableEntries();
+		Map<String, String> map = Maps.newHashMap();
+		
+		for(ASTEncodeTableEntry entry:entries)
+		{		
+			if(entry.getChar().isPresent())
+			{
+			left = entry.getChar().get();
+			}
+			else if(entry.getString().isPresent())
+			{
+			left = entry.getString().get();	
+			}
+			
+			right = entry.getReplacement();
+			map.put(left, right);
+		}
+		customEncodingMap.put(name, map);
 	}
 	
 
@@ -271,6 +302,20 @@ private MCGrammarSymbol grammarEntry;
 	
 	public String[] getRanges(){
 		return Range.union(ranges);
+	}
+	
+	public void printTable(){
+		for(String c:customEncodingMap.keySet())
+		{
+			System.out.println("Encoding Table " + c);
+			Map<String,String> map = customEncodingMap.get(c);
+			for(String m:map.keySet())
+			{
+				System.out.println(m + " -> " + map.get(m));
+			}
+			
+		}
+		
 	}
 
 }

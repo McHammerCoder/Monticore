@@ -23,6 +23,9 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Token;
 
+import de.monticore.grammar.grammar._ast.ASTEncodeTableProd;
+import de.monticore.grammar.grammar._ast.ASTEncodeTableEntry;
+import de.monticore.languages.grammar.MCEncodeTableRuleSymbol;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import de.monticore.grammar.grammar._ast.ASTBlock;
@@ -166,6 +169,16 @@ public class McCoderGenerator
 		McCoderCoder coder = new McCoderCoder(generatorHelper.getTokenTypes(), ex.getKws() , ex.getRanges());
 		final Path filePathEncodingHelper = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"CoderHelper.java");
 		generator.generate("coder.CoderHelper", filePathEncodingHelper, astGrammar, ex, coder);
+		
+		
+		UsableSymbolExtractor ex2 = new UsableSymbolExtractor(generatorHelper,grammarInfo);
+		List<ASTProd> bananen = generatorHelper.getEncodingTablesToGenerate();
+		for(ASTProd banane:bananen)
+		{
+			//System.out.println("BANANE");
+			ex2.createUsableSymbolsCode(banane);
+		}
+		ex2.printTable();
 	}
 	private McCoderGenerator() {
 	    // noninstantiable

@@ -74,6 +74,8 @@ component grammar Grammar extends de.monticore.literals.Literals {
          |
            BinaryProd
          |
+           EncodeTableProd
+         |
            OffsetProd
          |
            ClassProd
@@ -796,4 +798,39 @@ component grammar Grammar extends de.monticore.literals.Literals {
     
   Offset implements RuleComponent =
     ( UInt8 | UInt16 | UInt32 | UInt64 | UBits ) "#" (variable:Name& "=")? Name;
+    
+   EncodeTableProd implements Prod =
+    "encodeTable" Name
+    "="  
+    "{" 
+    ("options" "{" (encodeTableOptions:EncodeTableOption ";")*  "}")?
+    encodeTableEntries:EncodeTableEntry ("," encodeTableEntries:EncodeTableEntry)* 
+    "}"
+    ";";
+
+  EncodeTableEntry = 
+    (
+      char:Char 
+      |
+      string:String
+    )
+    "->"
+    replacement:String
+    ("options" "{" (encodeTableEntryOptions:EncodeTableEntryOption ";")* "}")?
+  ;
+
+    EncodeTableEntryOption = 
+      ["caseInsensitive"] | ["ignoreWS"]
+    ;
+
+    interface EncodeTableOption;
+
+    EncodeTableOptionPrefix implements EncodeTableOption = 
+      "prefix" "=" prefix:String
+    ;
+
+    EncodeTableOptionSuffix implements EncodeTableOption = 
+      "suffix" "=" suffix:String
+    ;
+    
 } 
