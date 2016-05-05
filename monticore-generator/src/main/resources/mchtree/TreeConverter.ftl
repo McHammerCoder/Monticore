@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.CommonTokenFactory;
 
 import com.upstandinghackers.hammer.*;
+import de.monticore.mchammerparser.*;
 
 public class ${grammarName}TreeConverter 
 {

@@ -7,6 +7,7 @@ package ${genHelper.getParseTreePackage()};
 
 import java.util.LinkedList;
 import com.upstandinghackers.hammer.*;
+import de.monticore.mchammerparser.*;
 
 /**
  * Used by the TreeFactory to create an Antlr-ParseTree from a Hammer.ParseResult

@@ -8,6 +8,7 @@ package ${genHelper.getParserPackage()};
 import ${genHelper.getParserPackage()}.${grammarName}Actions;
 
 import com.upstandinghackers.hammer.*;
+import de.monticore.mchammerparser.*;
 
 import ${genHelper.getParseTreePackage()}.*;
 import org.antlr.v4.runtime.tree.*;
