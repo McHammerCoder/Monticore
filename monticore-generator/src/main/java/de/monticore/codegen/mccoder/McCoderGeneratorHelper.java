@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import de.monticore.grammar.grammar._ast.ASTEncodeTableProd;
 import de.monticore.grammar.grammar._ast.ASTEncodeTableEntry;
@@ -77,6 +78,8 @@ public class McCoderGeneratorHelper
 	private MCGrammarSymbol grammarSymbol;
 	
 	private int tokenTypes;
+	
+	public Map<String, String> resolvedTypes = Maps.newHashMap();;
 	
 	public McCoderGeneratorHelper(ASTMCGrammar ast, Scope symbolTable) 
 	{
@@ -324,6 +327,21 @@ public class McCoderGeneratorHelper
 	public int getTokenTypes()
 	{
 		return tokenTypes;		
+	}
+	public void resolveTokenTypes(List<String> tokens)
+	{
+		for(String token: tokens) {
+			if( !token.startsWith("'") ){
+					String left = token.substring(0 ,token.indexOf('='));
+					String right = token.substring(token.indexOf('=')+1, token.indexOf('=')+2);
+					//System.out.println(left + " LEFT | RIGHT " + right);
+					resolvedTypes.put(left, right);
+			}
+		}
+	}
+	
+	public Map<String, String> getResolvedTypes(){
+		return resolvedTypes;
 	}
 	
 	public void setTokenTypes(List<String> tokens)

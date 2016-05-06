@@ -94,6 +94,8 @@ private MCGrammarSymbol grammarEntry;
 	public static Map<String, Map<String, String>> customEncodingMap = Maps.newHashMap();
 	private StringBuilder codeSection;
 	
+	private List<String> customEncoding = new ArrayList<String>();
+	
 	private String indent = "\t";
 	
 	private ArrayList<Range> ranges = new ArrayList<Range>();
@@ -105,6 +107,9 @@ private MCGrammarSymbol grammarEntry;
 		this.parserGeneratorHelper = parserGeneratorHelper;
 		this.grammarEntry = parserGeneratorHelper.getGrammarSymbol();
 		this.grammarInfo = grammarInfo;
+	}
+	public Map<String, Map<String, String>> getCustomEncodingMap(){
+		return customEncodingMap;
 	}
 	
 	//@Override
@@ -145,12 +150,22 @@ private MCGrammarSymbol grammarEntry;
 	@Override
 	public void handle(ASTEncodeTableProd ast)
 	{
+		
+		Map<String, String> resolved = parserGeneratorHelper.getResolvedTypes();
+		String name = ast.getName().substring(0,ast.getName().length()-3);
+		for(String r: resolved.keySet()){
+			if(r.equals(name)){
+				name = resolved.get(r);
+			}
+		}
+		
+		
 		String left = "";
 		String right = "";
-		String name = ast.getName().substring(0,ast.getName().length()-3);
+		String startEncoding = "";
 		List<ASTEncodeTableEntry> entries = ast.getEncodeTableEntries();
 		Map<String, String> map = Maps.newHashMap();
-		
+	
 		for(ASTEncodeTableEntry entry:entries)
 		{		
 			if(entry.getChar().isPresent())
@@ -164,7 +179,17 @@ private MCGrammarSymbol grammarEntry;
 			
 			right = entry.getReplacement();
 			map.put(left, right);
+			if(right.substring(0, 1).contains(left)){
+				startEncoding = right;
+			}
 		}
+		if(startEncoding.equals("")){
+			System.err.println("NO START ENCODING FOUND FOR " + ast.getName().substring(0,ast.getName().length()-3));
+			return;
+		}
+		addToCustomEncoding("Map<String, String> map" + name + " = new HashMap<String, String>();");
+		addEncodingMapToCodeSection(map, name);
+		addToCustomEncoding("customEncodings.add(new Encoding(" + name + ", " + "map" + name + ", " + "\""+startEncoding + "\"" +"));\n");
 		customEncodingMap.put(name, map);
 	}
 	
@@ -179,7 +204,14 @@ private MCGrammarSymbol grammarEntry;
 		endCodeSection(ast);
 		return getUsableSymbolsCode();
 	}
-	
+	public List<String> createCustomEncodingCode(ASTProd ast)
+	{
+		//clearUsableSymbolsCode();
+		//startCodeSection(ast);
+		ast.accept(getRealThis());
+		//endCodeSection(ast);
+		return getCustomeEncoding();
+	}
 	// ----------------------------------------------------------
 
 	/**
@@ -202,6 +234,14 @@ private MCGrammarSymbol grammarEntry;
 		productionUsableSymbolsCode.add(code);
 	}
 	
+	private void addToCustomEncoding(String code) 
+	{
+		customEncoding.add(code);
+	}
+	
+	public List<String> getCustomeEncoding(){
+		return customEncoding;
+	}
 	/**
 	 * Adds the given code to antlr code
 	 * 
@@ -316,6 +356,11 @@ private MCGrammarSymbol grammarEntry;
 			
 		}
 		
+	}
+	public void addEncodingMapToCodeSection (Map<String, String> map, String type){
+		for(String key: map.keySet()){
+			addToCustomEncoding("map" + type + ".put("  + "\"" + key  + "\"" + ", " + "\"" + map.get(key) + "\"" + ");");
+		}
 	}
 
 }

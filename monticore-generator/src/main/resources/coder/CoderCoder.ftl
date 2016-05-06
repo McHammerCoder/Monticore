@@ -1,17 +1,20 @@
-/*
- * Copyright (c) 2016 RWTH Aachen. All rights reserved.
- *
- * http://www.se-rwth.de/ 
- */
-package de.monticore.codegen.mccoder;
+${tc.signature("coderGenerator")}
+<#assign genHelper = glex.getGlobalValue("genHelper")>
+<#assign grammarSymbol = genHelper.getGrammarSymbol()>
+<#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
+<#assign startRule = genHelper.getStartRuleNameLowerCase()>
+
+package ${genHelper.getParserPackage()};
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.antlr.v4.runtime.Lexer;
-import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.*;
+
+import ${genHelper.getGNameToLower()}._parser.*;
+import de.monticore.codegen.mccoder.*;
 
 /**
  * TODO: Write me!
@@ -21,7 +24,7 @@ import org.antlr.v4.runtime.Token;
  * @since   TODO: add version number
  *
  */
-public class McCoderCoder {
+public class ${parserName}CoderCoder {
 	private ArrayList<Encoding> allEncodings = new ArrayList<Encoding>();
 	private String[] kws;
 	private int types;
@@ -29,7 +32,7 @@ public class McCoderCoder {
 	private Boolean[] hasEncodingArray; //Should be sum of types+1
 	private ArrayList<String> codeSection = new ArrayList<String>();
 	
-	public McCoderCoder(int type, String[] kw, String[] fs){
+	public ${parserName}CoderCoder(int type, String[] kw, String[] fs){
 		this.types = type;
 		this.kws = kw;
 		this.freeS = fs;
@@ -87,7 +90,7 @@ public class McCoderCoder {
 
 
 	public boolean typeCheck(int type, String string){
-		Lexer lexer = McCoderGenerator.lex(string);
+		Lexer lexer = lex(string);
 		Token nextToken =lexer.nextToken();
 
 		if(type == nextToken.getType() && lexer.nextToken().getType() == Token.EOF){
@@ -109,7 +112,7 @@ public class McCoderCoder {
 			}
 		}
 
-			Lexer lexer = McCoderGenerator.lex(alphanumeric[i]);
+			Lexer lexer = lex(alphanumeric[i]);
 			lexer.removeErrorListeners(); //Removes strange error output in the console - we dont need it!
 			if(lexer.nextToken().getType() != Token.EOF){
 				usableSymbols[i] = alphanumeric[i];
@@ -235,5 +238,12 @@ public class McCoderCoder {
 			
 			}
 		}		
+	}
+	
+	private ${parserName}AntlrLexer lex(String in)
+	{
+		ANTLRInputStream input = new ANTLRInputStream(in);
+		${parserName}AntlrLexer lexer = new ${parserName}AntlrLexer(input);
+		return lexer;
 	}
 }
