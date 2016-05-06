@@ -240,6 +240,7 @@ public class ${grammarName}TreeConverter
 			pt = generateParseTree( tok.getSeqValue()[0] );
 			binTok = ((HABinaryToken)((HATerminalNode)pt).getSymbol());
 			binTok.setOffset(true);
+			binTok.setLocal(${offsetProd.isLocal()?c});
 			binTok.setType(tokenType.ordinal()+1);
 			break;
 </#list>

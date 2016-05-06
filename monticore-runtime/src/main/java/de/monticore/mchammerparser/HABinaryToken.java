@@ -12,7 +12,9 @@ public class HABinaryToken extends CommonToken {
 	protected long value;
 	protected int bits;
 	protected boolean signed;
-	protected boolean isOffset;
+	protected boolean offset;
+	protected boolean local;
+	protected long position;
 
 	public HABinaryToken(int type, long value, int bits, boolean signed) {
 		super(type);
@@ -20,6 +22,9 @@ public class HABinaryToken extends CommonToken {
 		this.value = value;
 		this.bits = bits;
 		this.signed = signed;
+		this.offset = false;
+		this.local = false;
+		this.position = 0;
 	}
 
 	public HABinaryToken(HABinaryToken oldToken) {
@@ -39,7 +44,7 @@ public class HABinaryToken extends CommonToken {
 		
 		res += "int" + this.bits + ")" + this.value;
 		
-		if( isOffset )
+		if( offset )
 		{
 			res += "[offset]";
 		}
@@ -68,13 +73,33 @@ public class HABinaryToken extends CommonToken {
 		this.signed = signed;
 	}
 	
-	public void setOffset(boolean isOffset)
+	public void setOffset(boolean offset)
 	{
-		this.isOffset = isOffset;
+		this.offset = offset;
 	}
 	
 	public boolean isOffset()
 	{
-		return this.isOffset;
+		return this.offset;
+	}
+	
+	public void setLocal(boolean local)
+	{
+		this.local = local;
+	}
+	
+	public boolean isLocal()
+	{
+		return this.local;
+	}
+	
+	public void setPosition(long position)
+	{
+		this.position = position;
+	}
+	
+	public long getPosition()
+	{
+		return this.position;
 	}
 }

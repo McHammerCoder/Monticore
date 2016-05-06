@@ -1646,6 +1646,15 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	
 	public String createOffsetLinearMethodCode(ASTOffsetProd prod)
 	{
+		if(prod.isLocal())
+		{
+			return (prod.getA().isNegative() ? "offsetToken.getPosition()-" : "offsetToken.getPosition()+")
+					 + "offsetToken.getValue()*" 
+					 + prod.getA().getValue() * (prod.getA().isNegative() ? (-1) : 1 )
+					 + ((prod.getSign() == ASTConstantsGrammar.PLUS) ? "+" : "-")
+					 + prod.getB().getValue();
+		}
+		
 		return (prod.getA().isNegative() ? "(bytes.length-1)*8-" : "")
 			 + "offsetToken.getValue()*" 
 			 + prod.getA().getValue() * (prod.getA().isNegative() ? (-1) : 1 )

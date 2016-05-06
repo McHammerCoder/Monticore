@@ -182,6 +182,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     
   /** OffsetProd **/
   OffsetProd implements Prod =
+    (["local"])?
     ("offset") Name
     "="
     ruleName:Name

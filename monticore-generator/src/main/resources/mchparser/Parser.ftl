@@ -159,7 +159,7 @@ public class ${grammarName}Parser
 		
 		ranges.add(new Range(offset,offset+getSize(parseTree)));
 		
-		for( HAParseTree pt : parseOffsets(bytes,parseTree ) )
+		for( HAParseTree pt : parseOffsets(bytes,parseTree,offset) )
 		{
 			parseTree.addChild(pt);
 		}
@@ -169,9 +169,9 @@ public class ${grammarName}Parser
 		return parseTree;
 	}
 	
-	private List<HAParseTree> parseOffsets( byte[] bytes, HAParseTree parseTree ) throws Exception
+	private List<HAParseTree> parseOffsets( byte[] bytes, HAParseTree parseTree, long offsetOfParseTree ) throws Exception
 	{
-		List<HABinaryToken> offsets = getOffsets(parseTree);
+		List<HABinaryToken> offsets = getOffsets(parseTree,offsetOfParseTree);
 		
 		List<HAParseTree> offsetTrees = Lists.newArrayList();
 		if( offsets.size() > 0 )
@@ -182,6 +182,7 @@ public class ${grammarName}Parser
 <#list genHelper.getOffsetRulesToGenerate() as offsetProd>
 				if( offsetToken.getType() == OffsetTreeHelper.TokenType.TT_${offsetProd.getName()}.ordinal()+1)
 				{
+					System.out.println("Local Offset: " + offsetToken.getPosition());
 					long offset = ${hammerGenerator.createOffsetLinearMethodCode(offsetProd)};
 					long end = findEnd( offset, bytes.length*8 );
 					System.out.println("ParsedOffset for ${offsetProd.getName()}: " + offset);
@@ -200,7 +201,7 @@ public class ${grammarName}Parser
 					
 					ranges.add(new Range(offset,offset+getSize(pt)));
 					
-					offsetTrees.addAll( parseOffsets(bytes,pt) );
+					offsetTrees.addAll( parseOffsets(bytes,pt,offset) );
 				}
 </#list>
 			}
@@ -251,9 +252,10 @@ public class ${grammarName}Parser
 		return end;
 	}
 	
-	private List<HABinaryToken> getOffsets(HAParseTree parseTree)
+	private List<HABinaryToken> getOffsets(HAParseTree parseTree, long offsetOfParseTree)
 	{	
 		List<HABinaryToken> offsets = new ArrayList<HABinaryToken>();
+		long position = offsetOfParseTree;
 
 		for( int i = 0; i < parseTree.getChildCount(); i++ )
 		{
@@ -262,17 +264,25 @@ public class ${grammarName}Parser
 			if( child instanceof HATerminalNode )
 			{
 				Token token = ((HATerminalNode)child).getSymbol();
+				position += getSize(((HATerminalNode)child));
+				
 				if( token instanceof HABinaryToken )
 				{
 					if( ((HABinaryToken)token).isOffset() )
 					{
+						if( ((HABinaryToken)token).isLocal() )
+						{
+							System.out.println("Local Offset: " + position);
+							((HABinaryToken)token).setPosition(position);
+						}
+					
 						offsets.add((HABinaryToken)token);
 					}
 				}
 			}
 			else
 			{
-				offsets.addAll(getOffsets((HAParseTree)child));
+				offsets.addAll(getOffsets((HAParseTree)child,offsetOfParseTree));
 			}
 		}
 		
@@ -283,25 +293,40 @@ public class ${grammarName}Parser
 	{
 		long size = 0;
 
-		for( int i = 0; i < parseTree.getChildCount(); i++ )
+		if( parseTree instanceof HATerminalNode )
 		{
-			ParseTree child = parseTree.getChild(i);
-			
-			if( child instanceof HATerminalNode )
+			Token token = ((HATerminalNode)parseTree).getSymbol();
+			if( token instanceof HABinaryToken )
 			{
-				Token token = ((HATerminalNode)child).getSymbol();
-				if( token instanceof HABinaryToken )
-				{
-					size += ((HABinaryToken)token).getBits();
-				}
-				else
-				{
-					size += child.getText().getBytes().length*8;
-				}
+				size += ((HABinaryToken)token).getBits();
 			}
 			else
 			{
-				size += getSize((HAParseTree)child);
+				size += parseTree.getText().getBytes().length*8;
+			}
+		}
+		else
+		{
+			for( int i = 0; i < parseTree.getChildCount(); i++ )
+			{
+				ParseTree child = parseTree.getChild(i);
+				
+				if( child instanceof HATerminalNode )
+				{
+					Token token = ((HATerminalNode)child).getSymbol();
+					if( token instanceof HABinaryToken )
+					{
+						size += ((HABinaryToken)token).getBits();
+					}
+					else
+					{
+						size += child.getText().getBytes().length*8;
+					}
+				}
+				else
+				{
+					size += getSize((HAParseTree)child);
+				}
 			}
 		}
 		
