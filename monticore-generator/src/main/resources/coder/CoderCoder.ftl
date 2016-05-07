@@ -219,16 +219,24 @@ public class ${parserName}CoderCoder {
 			for(;j <= kw.length; j++){
 			  hasEncodingArray[j] = false;
 			}
-			for(Encoding e : customEncodings){
-				if(e.getType() == j){
-					System.out.println("FOUND CUSTOM ENCODING FOR TYPE: " + j);
-					hasEncodingArray[j] = true;
+			if(!customEncodings.isEmpty()){
+				for(Encoding e : customEncodings){
+					if(e.getType() == j){
+						System.out.println("FOUND CUSTOM ENCODING FOR TYPE: " + j);
+						hasEncodingArray[j] = true;
+					}
+					else{
+				 	hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
+				 	}
+					if(!hasEncodingArray[j]){
+						System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
+					}
 				}
-				else{
-			 	hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
-			 	}
+			}
+			else{
+				hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
 				if(!hasEncodingArray[j]){
-					System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
+						System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
 				}
 			}
 		}
