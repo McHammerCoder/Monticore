@@ -7,9 +7,13 @@ package ${genHelper.getParserPackage()};
 
 
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.NotNull;
+import org.antlr.v4.runtime.tree.ErrorNode;
+import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.*;
 
 import ${genHelper.getGNameToLower()}._parser.*;
@@ -26,5 +30,12 @@ public class ${parserName}EncoderVisitor extends ${parserName}AntlrBaseListener 
 			encoder.encode(token);
 		}
 	}	
+	
+	@Override public void enterEveryRule(ParserRuleContext ctx) { }
+
+	@Override public void exitEveryRule(ParserRuleContext ctx) { }
+
+	@Override public void visitErrorNode(ErrorNode node) { }
+	
 
 }

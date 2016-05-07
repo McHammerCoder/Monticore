@@ -210,6 +210,8 @@ public class ${parserName}CoderCoder {
 	
 	public void fillAllEncodings(){
 		
+		${parserName}CoderHelper helper = new ${parserName}CoderHelper();
+		ArrayList<Encoding> customEncodings = helper.getCustomEncodings();
 		String[] usableSymb = getUsableSymbols();
 		String[] kw = kws;
 		//System.out.println(kws.length + "  " + types + "INFO");
@@ -217,11 +219,18 @@ public class ${parserName}CoderCoder {
 			for(;j <= kw.length; j++){
 			  hasEncodingArray[j] = false;
 			}
-			hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
-			if(!hasEncodingArray[j]){
-				System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
+			for(Encoding e : customEncodings){
+				if(e.getType() == j){
+					System.out.println("FOUND CUSTOM ENCODING FOR TYPE: " + j);
+					hasEncodingArray[j] = true;
+				}
+				else{
+			 	hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
+			 	}
+				if(!hasEncodingArray[j]){
+					System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
+				}
 			}
-		
 		}
 	
 	}

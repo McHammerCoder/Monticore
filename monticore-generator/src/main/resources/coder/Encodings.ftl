@@ -31,11 +31,20 @@ ${r"<#list encodings as encoding>
 	}
 	
 	public Encoding getEncoding(int type){
+	${parserName}CoderHelper helper = new ${parserName}CoderHelper();
+	ArrayList<Encoding> customEncodings = helper.getCustomEncodings();
+		for(Encoding e:customEncodings){
+			if(e.getMap().size() != 0 && type == e.getType()) {
+				return e;
+			}	
+		}
+		
 		for(Encoding encodingMap : allEncodings){
 			if(encodingMap.getMap().size() != 0 && type == encodingMap.getType()) {
 				return encodingMap;
 			}	
 		}
+		
 		System.out.println("NO SUCH MAP WAS FOUND: " + type + "\n Something went wrong terminating.");
 		System.exit(4);
 		return null;
