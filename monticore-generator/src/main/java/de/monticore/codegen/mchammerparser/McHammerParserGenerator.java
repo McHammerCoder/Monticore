@@ -103,6 +103,11 @@ public class McHammerParserGenerator
 		// Generate Actions.java
 		final Path actionsPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Actions.java");
 		generator.generate("mchparser.Actions", actionsPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		
+		// Generate Checker.java
+		final Path checkerPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Checker.java");
+		generator.generate("mchparser.Checker", checkerPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+				
 		/*
 		// Generate HAParseTree.java
 		final Path parseTreePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HAParseTree.java");
@@ -131,11 +136,7 @@ public class McHammerParserGenerator
 		// Generate TreeHelper.java
 		final Path treeHelperPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), astGrammar.getName()+"TreeHelper.java");
 		generator.generate("mchtree.TreeHelper", treeHelperPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-		
-		// Generate Checker.java
-		final Path checkerPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), astGrammar.getName()+"Checker.java");
-		generator.generate("mchparser.Checker", checkerPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-		
+				
 		// Generate com_upstandinghackers_hammer_Hammer.c
 		final Path hammerActionPath = Paths.get(RESOURCES_FOLDER, "libjhammer_"+astGrammar.getName()+".c");
 		generator.generate("mchparser.com_upstandinghackers_hammer_Hammer", hammerActionPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));

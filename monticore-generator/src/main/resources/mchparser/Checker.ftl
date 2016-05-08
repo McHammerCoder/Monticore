@@ -53,7 +53,7 @@ public class ${grammarName}Checker {
 	{
 		switch(type)
 		{
-<#assign iter=genHelper.getNumLexStrings()>
+<#assign iter=genHelper.getNumLexStrings()+1>
 <#list genHelper.getLexerRuleNames() as lexRuleName>
 		case ${iter}: return parser._${lexRuleName};
 <#assign iter=iter+1>
