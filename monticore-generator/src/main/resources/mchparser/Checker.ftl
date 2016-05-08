@@ -16,35 +16,44 @@ public class ${grammarName}Checker {
 	
 	private static ${grammarName}Parser parser = new ${grammarName}Parser();
 	
-	public static boolean check( String tok, int type )
+	public static boolean check( CommonToken token )
 	{
-		if( type <= ${grammarName}TreeHelper.Literals.length-1 )
+		int type = token.getType();
+		if( token instanceof HABinaryToken )
 		{
-			if(tok.equals(${grammarName}TreeHelper.Literals[type-1].substring(1,${grammarName}TreeHelper.Literals[type-1].length()-1)))
-				return true;
-			else
-				return false;
+			return true;
 		}
 		else
 		{
-			for( int i = 0; i < ${grammarName}TreeHelper.Literals.length-1; i++)
+			String tok = token.getText();
+			if( type <= ${grammarName}TreeHelper.Literals.length-1 )
 			{
-				if(tok.contains(${grammarName}TreeHelper.Literals[i].substring(1,${grammarName}TreeHelper.Literals[i].length()-1)))
-					return false;
-			}
-			
-			try {
-				byte [] bytes = tok.getBytes();
-				
-				ParseTree pt = ${grammarName}TreeConverter.create(Hammer.parse(getParserForType(type),bytes,bytes.length));
-				if( pt instanceof HATerminalNode && ((HAParseTree)pt).getText().equals(tok) )
+				if(tok.equals(${grammarName}TreeHelper.Literals[type-1].substring(1,${grammarName}TreeHelper.Literals[type-1].length()-1)))
 					return true;
 				else
 					return false;
 			}
-			catch(Exception ex)
+			else
 			{
-				return false;
+				for( int i = 0; i < ${grammarName}TreeHelper.Literals.length-1; i++)
+				{
+					if(tok.contains(${grammarName}TreeHelper.Literals[i].substring(1,${grammarName}TreeHelper.Literals[i].length()-1)))
+						return false;
+				}
+				
+				try {
+					byte [] bytes = tok.getBytes();
+					
+					ParseTree pt = ${grammarName}TreeConverter.create(Hammer.parse(getParserForType(type),bytes,bytes.length));
+					if( pt instanceof HATerminalNode && ((HAParseTree)pt).getText().equals(tok) )
+						return true;
+					else
+						return false;
+				}
+				catch(Exception ex)
+				{
+					return false;
+				}
 			}
 		}
 	}

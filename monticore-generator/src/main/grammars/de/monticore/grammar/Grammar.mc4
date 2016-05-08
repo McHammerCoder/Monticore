@@ -121,6 +121,8 @@ component grammar Grammar extends de.monticore.literals.Literals {
       (
         FollowOption
       |
+      	HammerOption
+      |
         AntlrOption
       )*
     "}" ;
@@ -140,6 +142,10 @@ component grammar Grammar extends de.monticore.literals.Literals {
   */ 
   AntlrOption =
     Name  ("=" value:Name |"=" value:String)? ; 
+    
+  /* Options for the MCHammerParser */
+  HammerOption = 
+  	"hammer" Name ";";
     
   StartRule = 
     "start" RuleReference ";";

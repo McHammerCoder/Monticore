@@ -135,6 +135,39 @@ public class ${grammarName}Parser
 		{
 			return this.end;
 		}
+		
+		public long getSize()
+		{
+			return end-start;
+		}
+		
+		public boolean overlaps(Range range)
+		{
+			if( this.start >= range.getStart() && this.start <= range.getEnd() )
+			{
+				return true;
+			}
+			
+			if( this.end >= range.getStart() && this.end <= range.getEnd() )
+			{
+				return true;
+			}
+			
+			return false;
+		}
+		
+		public void combine(Range range)
+		{
+			if( this.start > range.getStart() )
+			{
+				this.start = range.getStart();
+			}
+			
+			if( this.end < range.getEnd() )
+			{
+				this.end = range.getEnd();
+			}
+		}
 	}
 
 	private List<Range> ranges = new ArrayList<Range>();
@@ -165,6 +198,13 @@ public class ${grammarName}Parser
 		}
 		
 		printRanges();
+		
+<#if genHelper.parseEntireFile()>
+		if( !checkFullyParsed(bytes.length*8) )
+		{
+			throw new Exception("File has not been parsed entirely !");
+		}
+</#if>
 				
 		return parseTree;
 	}
@@ -180,11 +220,15 @@ public class ${grammarName}Parser
 			for( HABinaryToken offsetToken : offsets )
 			{
 <#list genHelper.getOffsetRulesToGenerate() as offsetProd>
-				if( offsetToken.getType() == OffsetTreeHelper.TokenType.TT_${offsetProd.getName()}.ordinal()+1)
+				if( offsetToken.getType() == ${grammarName}TreeHelper.TokenType.TT_${offsetProd.getName()}.ordinal()+1)
 				{
 					System.out.println("Local Offset: " + offsetToken.getPosition());
 					long offset = ${hammerGenerator.createOffsetLinearMethodCode(offsetProd)};
+<#if genHelper.parseWithoutOverlapingOffsets()>
 					long end = findEnd( offset, bytes.length*8 );
+<#else>
+					long end = bytes.length*8;
+</#if>
 					System.out.println("ParsedOffset for ${offsetProd.getName()}: " + offset);
 					byte [] newBytes = getSubrange(bytes,offset,end);
 					
@@ -237,12 +281,12 @@ public class ${grammarName}Parser
 		{
 			long rangeStart = range.getStart();
 			long rangeEnd = range.getEnd();
-			
+<#if genHelper.parseWithoutOverlapingOffsets()>
 			if( start > rangeStart && start < rangeEnd )
 			{
 				throw new Exception("Trying to parse offset at illegal position!");
 			}
-			
+</#if>
 			if( rangeStart > start && rangeStart < end )
 			{
 				end = rangeStart;
@@ -331,6 +375,44 @@ public class ${grammarName}Parser
 		}
 		
 		return size;
+	}
+	
+	private boolean checkFullyParsed(long treeSize)
+	{
+		combineRanges();
+	
+		int size = 0;
+		for( Range range : ranges )
+		{
+			size += range.getSize();
+			
+			for( Range range2 : ranges )
+			{
+				if( range != range2 && range.overlaps(range2) )
+					return false;
+			}
+		}
+		
+		if( size == treeSize )
+			return true;
+		else
+			return false;
+	}
+	
+	private void combineRanges()
+	{
+		for( int i = 0; i < ranges.size(); i++ )
+		{
+			for( int j = 0; j < ranges.size(); j++ )
+			{
+				if( ranges.get(i) != ranges.get(j) && ranges.get(i).overlaps(ranges.get(j)) )
+				{
+					ranges.get(i).combine(ranges.get(j));
+					ranges.remove(j);
+					j=0;
+				}
+			}
+		}
 	}
 	
 	private void printRanges()
