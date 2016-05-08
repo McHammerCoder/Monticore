@@ -407,6 +407,11 @@ public class McHammerParserGeneratorHelper
 	    return lexStrings;
 	}
 	
+	public int getNumLexStrings()
+	{	    
+	    return lexStrings.size();
+	}
+	
 	public void setAntlrTokens(List<String> tokens)
 	{
 		for( String token : tokens )

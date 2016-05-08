@@ -70,10 +70,10 @@ public class ${grammarName}Parser
 	
 	/** Indirect Parsers **/
 <#list genHelper.getIndirectRulesToGenerate() as indirectRule>
-	private final com.upstandinghackers.hammer.Parser ${indirectRule} = Hammer.indirect();
+	protected final com.upstandinghackers.hammer.Parser ${indirectRule} = Hammer.indirect();
 </#list>
 <#list hammerGenerator.getDataFieldIndirects() as dataField>
-	private final com.upstandinghackers.hammer.Parser dataField_${dataField} = Hammer.indirect();
+	protected final com.upstandinghackers.hammer.Parser dataField_${dataField} = Hammer.indirect();
 </#list>
 	
 	/** Final Parser **/
