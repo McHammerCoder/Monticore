@@ -31,7 +31,8 @@ public class ${parserName}EncodingGenerator {
         Configuration cfg = new Configuration();
         try {
             //Load template from source folder
-            Template template = cfg.getTemplate("${outputFolder}/${parserName}Encodings.ftl");
+            cfg.setDirectoryForTemplateLoading(new File("${outputFolder}"));
+            Template template = cfg.getTemplate("${parserName}Encodings.ftl");
              
             // Build the data-model
             Map<String, Object> data = new HashMap<String, Object>();
