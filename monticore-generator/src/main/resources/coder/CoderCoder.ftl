@@ -37,6 +37,7 @@ public class ${parserName}CoderCoder {
 		this.kws = kw;
 		this.freeS = fs;
 		hasEncodingArray = new Boolean[(types+1)];
+		Arrays.fill(hasEncodingArray, false);
 		fillAllEncodings();		
 	}
 	public String getHasEncoding(){
@@ -215,17 +216,27 @@ public class ${parserName}CoderCoder {
 		String[] usableSymb = getUsableSymbols();
 		String[] kw = kws;
 		//System.out.println(kws.length + "  " + types + "INFO");
-		for(int j = 0 ; j<=types; j++){
-			for(;j <= kw.length; j++){
-			  hasEncodingArray[j] = false;
-			}
-			if(!customEncodings.isEmpty()){
+		if(!customEncodings.isEmpty()){
+			for(int j = kw.length+1 ; j<=types; j++){
 				for(Encoding e : customEncodings){
 					if(e.getType() == j){
 						System.out.println("FOUND CUSTOM ENCODING FOR TYPE: " + j);
 						hasEncodingArray[j] = true;
+						Map<String, String> map = e.getMap();
+						int numOfKws = 0;
+						for(String s : map.keySet()){					
+						   for(int i = 0; i< kw.length; i++){
+						     if(kw[i].equals(s)){
+						     	numOfKws++;
+						     }
+						   }
+						}
+						if(numOfKws != kw.length){
+							System.err.println("NOT ALL KEYWORDS HAVE BEEN ENCODED");
+						}
 					}
-					else{
+				}
+				if(hasEncodingArray[j] != true){
 				 	hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
 				 	}
 					if(!hasEncodingArray[j]){
@@ -233,14 +244,15 @@ public class ${parserName}CoderCoder {
 					}
 				}
 			}
-			else{
+
+		else{
+			for(int j = kw.length+1 ; j<=types; j++){
 				hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
 				if(!hasEncodingArray[j]){
-						System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
+					System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
 				}
 			}
 		}
-	
 	}
 	public void addEncodingMapToCodeSection (Map<String, String> map, int type){
 			for(String key: map.keySet()){

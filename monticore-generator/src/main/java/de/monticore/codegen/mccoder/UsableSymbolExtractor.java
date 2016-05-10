@@ -147,18 +147,15 @@ private MCGrammarSymbol grammarEntry;
 		kws.add(new String(ast.getString()));
 	}
 	
+	
 	@Override
 	public void handle(ASTEncodeTableProd ast)
 	{
 		
-		Map<String, String> resolved = parserGeneratorHelper.getResolvedTypes();
-		String name = ast.getName().substring(0,ast.getName().length()-3);
-		for(String r: resolved.keySet()){
-			if(r.equals(name)){
-				name = resolved.get(r);
-			}
-		}
 		
+		String name = ast.getName().substring(0,ast.getName().length()-3);
+		
+		name = resolveName(name);
 		
 		String left = "";
 		String right = "";
@@ -185,7 +182,7 @@ private MCGrammarSymbol grammarEntry;
 		}
 		if(startEncoding.equals("")){
 			System.err.println("NO START ENCODING FOUND FOR " + ast.getName().substring(0,ast.getName().length()-3));
-			return;
+			System.exit(2);
 		}
 		addToCustomEncoding("Map<String, String> map" + name + " = new HashMap<String, String>();");
 		addEncodingMapToCodeSection(map, name);
@@ -206,7 +203,7 @@ private MCGrammarSymbol grammarEntry;
 	}
 	public List<String> createCustomEncodingCode(ASTProd ast)
 	{
-		//clearUsableSymbolsCode();
+		customEncoding.clear();
 		//startCodeSection(ast);
 		ast.accept(getRealThis());
 		//endCodeSection(ast);
@@ -361,6 +358,17 @@ private MCGrammarSymbol grammarEntry;
 		for(String key: map.keySet()){
 			addToCustomEncoding("map" + type + ".put("  + "\"" + key  + "\"" + ", " + "\"" + map.get(key) + "\"" + ");");
 		}
+	}
+	
+	private String resolveName(String name){
+		Map<String, String> resolved = parserGeneratorHelper.getResolvedTypes();
+		for(String r: resolved.keySet()){
+			if(r.equals(name)){
+				return resolved.get(r);
+			}
+		}
+		System.err.println("TOKEN NAME "+ name + " CANNOT BE RESOLVED");
+		return null;
 	}
 
 }

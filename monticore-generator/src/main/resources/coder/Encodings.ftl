@@ -57,7 +57,15 @@ ${r"<#list encodings as encoding>
 	}
 
 	public ArrayList<Encoding> getAllEncodings(){
-
-		return allEncodings;
+		${parserName}CoderHelper helper = new ${parserName}CoderHelper();
+		ArrayList<Encoding> customEncodings = helper.getCustomEncodings();
+		ArrayList<Encoding> res = new ArrayList<Encoding>();
+		for(Encoding e:customEncodings){
+		  res.add(e);
+		}
+		for(Encoding e: allEncodings){
+			res.add(e);
+		}
+		return res;
 	}
 }
