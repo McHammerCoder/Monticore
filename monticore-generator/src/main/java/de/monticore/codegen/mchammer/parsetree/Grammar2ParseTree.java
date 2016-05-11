@@ -1,10 +1,19 @@
-package de.monticore.codegen.mchammerparser;
+/*
+ * Copyright (c) 2016 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/ 
+ */
+package de.monticore.codegen.mchammer.parsetree;
 
 import static de.monticore.codegen.parser.ParserGeneratorHelper.getMCRuleForThisComponent;
 import static de.monticore.codegen.parser.ParserGeneratorHelper.getTmpVarNameForAntlrCode;
 import static de.monticore.codegen.parser.ParserGeneratorHelper.printIteration;
 
 import java.util.*;
+
+import org.apache.commons.lang3.StringEscapeUtils;
+
+import org.codehaus.groovy.tools.shell.IO;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -14,6 +23,8 @@ import com.google.common.collect.Sets;
 import com.upstandinghackers.hammer.Hammer;
 
 import de.monticore.ast.ASTNode;
+import de.monticore.codegen.mchammerparser.GrammarAnalyzer;
+import de.monticore.codegen.mchammerparser.McHammerParserGeneratorHelper;
 import de.monticore.codegen.parser.ParserGeneratorHelper;
 import de.monticore.codegen.parser.antlr.ASTConstructionActions;
 import de.monticore.codegen.parser.antlr.AttributeCardinalityConstraint;
@@ -70,6 +81,8 @@ import de.monticore.grammar.grammar._ast.ASTInt8;
 import de.monticore.grammar.grammar._ast.ASTInt16;
 import de.monticore.grammar.grammar._ast.ASTInt32;
 import de.monticore.grammar.grammar._ast.ASTInt64;
+import de.monticore.grammar.grammar._ast.ASTOffset;
+import de.monticore.grammar.grammar._ast.ASTOffsetProd;
 import de.monticore.grammar.grammar._ast.GrammarNodeFactory;
 import de.monticore.grammar.grammar_withconcepts._ast.ASTAction;
 import de.monticore.grammar.grammar_withconcepts._visitor.Grammar_WithConceptsVisitor;
@@ -88,192 +101,213 @@ import de.monticore.symboltable.Symbol;
 import de.monticore.utils.ASTNodes;
 import de.se_rwth.commons.logging.Log;
 
-public class GrammarAnalyzer implements Grammar_WithConceptsVisitor {
+/**
+ * TODO: Write me!
+ *
+ * @author  (last commit) $Author$
+ * @version $Revision$, $Date$
+ * @since   TODO: add version number
+ *
+ */
+public class Grammar2ParseTree implements Grammar_WithConceptsVisitor
+{
+	private MCGrammarSymbol grammarEntry;
 	
-	private List<String> lengthFields = Lists.newArrayList();
+	private McHammerParserGeneratorHelper parserGeneratorHelper;
 	
-	private Map<String,Set<ASTGrammarNode>> dataFields = Maps.newHashMap();
+	private static Grammar_WithConceptsPrettyPrinter prettyPrinter;
+	
+	private MCGrammarInfo grammarInfo;
+	
+	private List<String> productionHammerCode = Lists.newArrayList();
+	
+	private StringBuilder codeSection;
+	
+	private String indent = "\t";
+	
+	private GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer();
 	
 	private List<String> lexStrings = Lists.newArrayList();
 	
-	public GrammarAnalyzer() 
+	public Grammar2ParseTree(McHammerParserGeneratorHelper parserGeneratorHelper, MCGrammarInfo grammarInfo) 
 	{
-	}
-	
-	@Override
-	public void visit(ASTTerminal ast)
-	{
-		lexStrings.add(ast.getName());
-	}
-	
-	@Override
-	public void visit(ASTLexString ast)
-	{
-		lexStrings.add(ast.getString());
-	}
-	
-	@Override
-	public void visit(ASTBinaryProd ast) 
-	{
-	}
-	
-	@Override
-	public void visit(ASTBinaryAlt alt)
-	{
-	}
-	
-	@Override
-	public void visit(ASTBinaryBlock ast)
-	{
-	}
-	
-	@Override
-	public void visit(ASTBinarySimpleIteration ast)
-	{
-	}
-	
-	@Override
-	public void visit(ASTBinaryNonTerminal ast) 
-	{		
-	}
-	
-	@Override
-	public void visit(ASTBinaryLengthValue ast) 
-	{	
-	}
-	
-	@Override
-	public void visit(ASTBinaryNRepeat ast) 
-	{	
-	}
-	
-	@Override
-	public void visit(ASTUInt8 uint8)
-	{	
-	}
-	
-	@Override
-	public void visit(ASTUInt16 uint16)
-	{
-	}
-	
-	@Override
-	public void visit(ASTUInt32 uint32)
-	{
-	}
-	
-	@Override
-	public void visit(ASTUInt64 uint64)
-	{
-	}
-	
-	@Override
-	public void visit(ASTInt8 int8)
-	{
-	}
-	
-	@Override
-	public void visit(ASTInt16 int16)
-	{
-	}
-	
-	@Override
-	public void visit(ASTInt32 int32)
-	{
-	}
-	
-	@Override
-	public void visit(ASTInt64 int64)
-	{
-	}
-	
-	@Override
-	public void visit(ASTBits bits)
-	{
-	}
-	
-	@Override
-	public void visit(ASTUBits ubits)
-	{
-	}
-	
-	@Override
-	public void visit(ASTBinaryLength ast)
-	{	
-		lengthFields.add(ast.getId());
-	}
-	
-	@Override
-	public void visit(ASTBinaryData ast)
-	{		
-		ASTGrammarNode repeatable = null;
+		Preconditions.checkArgument(parserGeneratorHelper.getGrammarSymbol() != null);
+		this.parserGeneratorHelper = parserGeneratorHelper;
+		this.grammarEntry = parserGeneratorHelper.getGrammarSymbol();
+		this.grammarInfo = grammarInfo;
 		
-		if (ast.getUInt8().isPresent()) {
-			repeatable = ast.getUInt8().get();
-	    } 
-	    else if (ast.getUInt16().isPresent()) {
-	    	repeatable = ast.getUInt16().get();
-	    } 
-	    else if (ast.getUInt32().isPresent()) {
-	    	repeatable = ast.getUInt32().get();
-	    } 
-	    else if (ast.getUInt64().isPresent()) {
-	    	repeatable = ast.getUInt64().get();
-	    }
-	    else if (ast.getUBits().isPresent()) {
-	    	repeatable = ast.getUBits().get();
-	    }
-	    else if (ast.getInt8().isPresent()) {
-			repeatable = ast.getInt8().get();
-	    } 
-	    else if (ast.getInt16().isPresent()) {
-	    	repeatable = ast.getInt16().get();
-	    } 
-	    else if (ast.getInt32().isPresent()) {
-	    	repeatable = ast.getInt32().get();
-	    } 
-	    else if (ast.getInt64().isPresent()) {
-	    	repeatable = ast.getInt64().get();
-	    }
-	    else if (ast.getBits().isPresent()) {
-	    	repeatable = ast.getBits().get();
-	    }
-	    else if (ast.getBinaryNonTerminal().isPresent()) {
-	    	repeatable = ast.getBinaryNonTerminal().get();
-	    }
-	    else {
-	    	return ;
-	    }
+		// Find all DataFields in the grammar
+		List<ASTProd> rules = parserGeneratorHelper.getParserRulesToGenerate();
+		rules.addAll( parserGeneratorHelper.getBinaryRulesToGenerate() );
 		
-		String id = ast.getId();
-		if( !dataFields.containsKey(id) )
+		for( ASTProd rule : rules )
+		{			
+			lexStrings.addAll(grammarAnalyzer.containsLexStrings(rule));
+		}
+	}
+	
+	// ----------------- End of constructor ---------------------------------------------
+
+	
+	// ----------------- End of visit methods ---------------------------------------------
+	
+	public List<String> getInterfaces(ASTProd ast)
+	{
+		List<String> res = Lists.newArrayList();
+		
+		if(ast instanceof ASTClassProd)
 		{
-			dataFields.put(id,Sets.newHashSet());
+			List<ASTRuleReference> interfaces = ((ASTClassProd)ast).getSuperInterfaceRule();
+			for(int i = 0; i < interfaces.size(); i++)
+			{
+				res.add("PT" + interfaces.get(i).getName() + ((i < interfaces.size()-1) ? "," : "" ));
+			}
 		}
 		
-		dataFields.get(ast.getId()).add(repeatable);
+		return res;
 	}
 	
-	// --------------------------------------------------------------
-	
-	public List<String> containsLengthFields(ASTProd ast)
+	public boolean hasInterfaces(ASTProd ast)
 	{
-		lengthFields.clear();
-		ast.accept(getRealThis());
-		return lengthFields;
+		return !getInterfaces(ast).isEmpty();
 	}
 	
-	public Map<String,Set<ASTGrammarNode>> containsDataFields(ASTProd ast)
+	public List<String> getSuperClass(ASTProd ast)
 	{
-		dataFields.clear();
-		ast.accept(getRealThis());
-		return dataFields;
+		List<String> res = Lists.newArrayList();
+		
+		if(ast instanceof ASTClassProd)
+		{
+			List<ASTRuleReference> interfaces = ((ASTClassProd)ast).getSuperRule();
+			for(int i = 0; i < interfaces.size(); i++)
+			{
+				res.add("PT" + interfaces.get(i).getName() + ((i < interfaces.size()-1) ? "," : "" ));
+			}
+		}
+		
+		return res;
 	}
 	
-	public List<String> containsLexStrings(ASTProd ast)
+	public boolean hasSuperClass(ASTProd ast)
 	{
-		lexStrings.clear();
-		ast.accept(getRealThis());
-		return lexStrings;
+		return !getSuperClass(ast).isEmpty();
+	}
+	
+	// ----------------- End of codegen methods ---------------------------------------------
+	
+	/**
+	 * Gets the antlr code (for printing)
+	 * 
+	 * @return
+	 */
+	private List<String> getHammerCode()
+	{
+		return ImmutableList.copyOf(productionHammerCode);
+	}
+	
+	/**
+	 * Adds the given code to antlr code
+	 * 
+	 *@param code
+	 */
+	private void addToHammerCode(String code) 
+	{
+		productionHammerCode.add(code);
+	}
+	
+	/**
+	 * Adds the given code to antlr code
+	 * 
+	 * @param code
+	 */
+	private void addToHammerCode(StringBuilder code) 
+	{
+	    addToHammerCode(code.toString());
+	}
+	
+	/**
+	 * Clears antlr code
+	 */
+	private void clearHammerCode() 
+	{
+		resetIndent();
+		productionHammerCode.clear();
+	}
+	
+	/**
+	 * Starts codeSection of the parser code
+	 */
+	private void startCodeSection() 
+	{
+		codeSection = new StringBuilder();
+	}
+	  
+	/**
+	 * Adds the current code codeSection to antlr
+	 */
+	private void endCodeSection() 
+	{
+		addToHammerCode(codeSection);
+		codeSection = new StringBuilder();
+	}
+	  
+	/**
+	 * Starts antlr code for the given production
+	 * 
+	 * @param ast
+	 */
+	private void startCodeSection(ASTNode ast) 
+	{
+		startCodeSection(ast.getClass().getSimpleName());
+	}
+	  
+	/**
+	 * Starts antlr code for the production with the given name
+	 */
+	private void startCodeSection(String text) 
+	{
+		codeSection = new StringBuilder("\n // Start of '" + text + "'\n");
+	}
+	  
+	/**
+	 * Ends antlr code for the given production
+	 *	 
+	 * @param ast
+	 */
+	private void endCodeSection(ASTNode ast) 
+	{
+		codeSection.append("// End of '" + ast.getClass().getSimpleName() + "'\n");
+		endCodeSection();
+	}
+	  
+	/**
+	 * Adds the given code to the current codeSection
+	 */
+	private void addToCodeSection(String... code) 
+	{
+		Arrays.asList(code).forEach(s -> codeSection.append(s));
+	}
+	  
+	/**
+	 * @return codeSection
+	 */
+	public StringBuilder getCodeSection() 
+	{
+		return this.codeSection;
+	}
+	
+	private void increaseIndent()
+	{
+		indent += "  ";
+	}
+	
+	private void decreaseIndent()
+	{
+		indent = indent.substring(0,indent.length()-2);
+	}
+	
+	private void resetIndent()
+	{
+		indent = "\t";
 	}
 }

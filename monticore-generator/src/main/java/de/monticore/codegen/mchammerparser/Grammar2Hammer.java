@@ -289,16 +289,16 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		int id = 0;
 		List<String> terminals = parserGeneratorHelper.getLexStrings();
-		for( int i = 0; i < terminals.size(); i++ )
+		for( ; id < terminals.size(); id++ )
 		{
-			if(terminals.get(i).equals(name))
+			if(terminals.get(id).equals(name))
 			{
-				id = i+1;
-			}			
+				break;
+			}	
 		}
 		
 		decreaseIndent();
-		addToCodeSection("\n" + indent + ", \"actTT_" + id + "\" )");
+		addToCodeSection("\n" + indent + ", \"actTT_" + (id+1) + "\" )");
 	}
 	
 	/**
@@ -429,17 +429,17 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		int id = 0;
 		List<String> terminals = parserGeneratorHelper.getLexStrings();
-		for( int i = 0; i < terminals.size(); i++ )
+		for( ; id < terminals.size(); id++ )
 		{
-			if(terminals.get(i).equals(name))
+			if(terminals.get(id).equals(name))
 			{
-				id = i+1;
-			}			
+				break;
+			}	
 		}
 		
 		
 		decreaseIndent();
-		addToCodeSection("\n" + indent + ", \"actTT_" + id + "\" )");
+		addToCodeSection("\n" + indent + ", \"actTT_" + (id+1) + "\" )");
 		
 		printIterationEnd(ast.getIteration());
 	}

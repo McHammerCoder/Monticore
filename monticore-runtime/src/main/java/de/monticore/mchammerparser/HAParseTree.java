@@ -27,6 +27,12 @@ public class HAParseTree implements ParseTree
 		this.payload = payload;
 	}
 	
+	public HAParseTree(Object payload, List<HAParseTree> childs)
+	{
+		this.payload = payload;
+		this.childs.addAll(childs);
+	}
+	
 	public void addChild(ParseTree child)
 	{
 		if(child instanceof HAParseTree)
@@ -36,7 +42,7 @@ public class HAParseTree implements ParseTree
 		childs.add(0,child);
 	}
 	
-	private void setParent(ParseTree parent)
+	public void setParent(ParseTree parent)
 	{
 		this.parent = parent;
 	}
@@ -78,9 +84,9 @@ public class HAParseTree implements ParseTree
 		{
 			String res = "[ ";
 			
-			for( ParseTree child : childs)
+			for( int i = 0; i < this.getChildCount(); i++)
 			{
-				res += ((HAParseTree)child).toStringTree();
+				res += ((HAParseTree)this.getChild(i)).toStringTree();
 			}
 		
 			return res + " ]";
@@ -125,9 +131,9 @@ public class HAParseTree implements ParseTree
 		{
 			String res = "";
 			
-			for( ParseTree child : childs)
+			for( int i = 0; i < this.getChildCount(); i++)
 			{
-				res += child.getText();
+				res += this.getChild(i).getText();
 			}
 		
 			return res;

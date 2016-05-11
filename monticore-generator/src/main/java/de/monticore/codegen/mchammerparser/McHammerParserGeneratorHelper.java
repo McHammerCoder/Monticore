@@ -308,7 +308,6 @@ public class McHammerParserGeneratorHelper
 		{
 			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.INTERFACEORABSTRACTRULE)) 
 			{
-    
 				List<PredicatePair> subRules = grammarSymbol.getSubRulesForParsing(ruleSymbol.getName());
     
 				if (subRules != null && !subRules.isEmpty()) 

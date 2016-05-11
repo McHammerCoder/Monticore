@@ -1,5 +1,7 @@
 package de.monticore.mchammerparser;
 
+import java.util.List;
+
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.RuleNode;
 
@@ -13,6 +15,11 @@ public class HARuleNode extends HAParseTree implements RuleNode
 	public HARuleNode(Object payload)
 	{
 		super(payload);
+	}
+	
+	public HARuleNode(Object payload, List<HAParseTree> childs)
+	{
+		super(payload,childs);
 	}
 
 	public int getIndex()

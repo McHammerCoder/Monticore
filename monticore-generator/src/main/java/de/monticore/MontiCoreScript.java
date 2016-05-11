@@ -45,6 +45,7 @@ import de.monticore.codegen.mccoder.McCoderGenerator;
 import de.monticore.codegen.mccoder.McCoderPPGenerator;
 import de.monticore.codegen.mchammer.MCHammerGenerator;
 import de.monticore.codegen.mchammerparser.McHammerParserGenerator;
+import de.monticore.codegen.mchammer.parsetree.McHammerParseTreeGenerator;
 import de.monticore.codegen.mchcexamples.McHCExampleGenerator;
 import de.monticore.codegen.parser.ParserGenerator;
 import de.monticore.codegen.symboltable.SymbolTableGenerator;
@@ -673,6 +674,13 @@ public class MontiCoreScript extends Script implements GroovyRunner {
 	  System.out.println("Start generating McHammerParser!");
 	  
 	  McHammerParserGenerator.generate(symbolTable, astGrammar, outputDirectory);
+  }
+  
+  public void generateMcHammerParseTree(Scope symbolTable, ASTMCGrammar astGrammar, File outputDirectory)
+  {
+	  System.out.println("Start generating McHammerParser!");
+	  
+	  McHammerParseTreeGenerator.generate(symbolTable, astGrammar, outputDirectory);
   }
   
   public void generateMcCoder(Scope symbolTable, File outputDirectory, ASTMCGrammar astGrammar)

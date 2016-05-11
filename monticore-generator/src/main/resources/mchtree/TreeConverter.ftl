@@ -11,6 +11,9 @@ import org.antlr.v4.runtime.CommonTokenFactory;
 import com.upstandinghackers.hammer.*;
 import de.monticore.mchammerparser.*;
 
+import java.util.*;
+import com.google.common.collect.Lists;
+
 public class ${grammarName}TreeConverter 
 {
 	public static ParseTree create(ParseResult parseResult)
@@ -81,7 +84,8 @@ public class ${grammarName}TreeConverter
 <#list genHelper.getParserRuleNames() as ruleName>
 				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_${ruleName}.getValue())
 				{
-					return buildRuleTree(tok, ${grammarName}TreeHelper.RuleType.RT_${ruleName}.ordinal());
+					return buildRuleTreePlus(tok, ${grammarName}TreeHelper.RuleType.RT_${ruleName});
+					//return buildRuleTree(tok, ${grammarName}TreeHelper.RuleType.RT_${ruleName}.ordinal());
 				}
 </#list>
 <#list genHelper.getBinaryRuleNames() as ruleName>
@@ -101,7 +105,8 @@ public class ${grammarName}TreeConverter
 <#list genHelper.getLexerRuleNames() as lexRuleName>
 				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_${lexRuleName}.getValue())
 				{
-					return buildStringTree(tok, ${grammarName}TreeHelper.TokenType.TT_${lexRuleName}.ordinal()+1);
+					return buildStringTreePlus(tok, ${grammarName}TreeHelper.TokenType.TT_${lexRuleName});
+					//return buildStringTree(tok, ${grammarName}TreeHelper.TokenType.TT_${lexRuleName}.ordinal()+1);
 				}
 </#list>
 <#list [8,16,32,64] as bits>
@@ -148,6 +153,39 @@ public class ${grammarName}TreeConverter
 		return new HATerminalNode(fac.create(0, ""));    	
 	}
 	
+	private static HAParseTree buildRuleTreePlus(ParsedToken tok, ${grammarName}TreeHelper.RuleType ruleType)
+	{
+		ParsedToken[] seq = tok.getSeqValue();
+		List<HAParseTree> childs = Lists.newArrayList();
+	
+		for( int i = 0; i < seq.length; i++ )
+		{
+			HAParseTree child = generateParseTree(seq[i]);
+			
+			if( child.getPayload() instanceof HARuleContext && 
+			   ((HARuleContext)child.getPayload()).getRuleIndex() == ${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal() )
+			{
+				for( int j = 0; j < child.getChildCount(); j++ )
+				{
+					childs.add((HAParseTree)child.getChild(j));
+				}
+			}
+			else
+			{
+			    childs.add(child);
+		    }
+	    }
+	
+		switch(ruleType)
+		{
+<#list genHelper.getParserRuleNames() as ruleName>
+		case RT_${ruleName}:
+			return PT${ruleName}.getBuilder().addChilds(childs).build();
+</#list>
+		default: return null;
+		}
+	}
+	
 	private static HAParseTree buildRuleTree(ParsedToken tok, int tokenType)
 	{
 		ParsedToken[] seq = tok.getSeqValue();
@@ -172,6 +210,28 @@ public class ${grammarName}TreeConverter
 	    }
 		   
 	    return pt;
+	}
+	
+	private static HAParseTree buildStringTreePlus(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType)
+	{
+		ParsedToken[] seq = tok.getSeqValue();
+		    
+		String text = new String();
+		for( int i = 0; i < seq.length; i++ )
+		{
+			HAParseTree child = generateParseTree(seq[i]);
+			
+			text += child.getText();
+		}
+		
+		switch(tokenType)
+		{
+<#list genHelper.getLexerRuleNames() as lexRuleName>
+		case TT_${lexRuleName}:
+			return PT${lexRuleName}.getBuilder().text(text).tokenType(tokenType.ordinal()+1).build();
+</#list>
+		default: return null;
+		}
 	}
 	
 	private static HAParseTree buildStringTree(ParsedToken tok, int tokenType)
