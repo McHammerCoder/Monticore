@@ -678,8 +678,8 @@ public class MontiCoreScript extends Script implements GroovyRunner {
   
   public void generateMcHammerParseTree(Scope symbolTable, ASTMCGrammar astGrammar, File outputDirectory)
   {
-	  System.out.println("Start generating McHammerParser!");
-	  
+	  System.out.println("Start generating McHammerParseTree!");
+	  //Stop hammer time
 	  McHammerParseTreeGenerator.generate(symbolTable, astGrammar, outputDirectory);
   }
   

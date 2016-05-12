@@ -13,7 +13,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.*;
 
-public class ${parserName}DecoderVisitor extends ${parserName}AntlrBaseListener {
+public class ${parserName}DecoderVisitor implements ParseTreeListener {
 
 	private ${parserName}Decoder decoder = new ${parserName}Decoder();
 

@@ -5,9 +5,13 @@ package ${genHelper.getParserPackage()};
 
 
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.NotNull;
+import org.antlr.v4.runtime.tree.ErrorNode;
+import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.*;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,7 +22,7 @@ import ${genHelper.getGNameToLower()}._parser.*;
 //Create testing case on HTML and start testing! (Sensible class division should be done at this point)
 
 
-public class ${parserName}Injector extends ${parserName}AntlrBaseListener {
+public class ${parserName}Injector  implements ParseTreeListener  {
 
 	private String injection = new String();
 
@@ -34,4 +38,9 @@ public class ${parserName}Injector extends ${parserName}AntlrBaseListener {
 		}	
 
 	}
+	@Override public void enterEveryRule(ParserRuleContext ctx) { }
+
+	@Override public void exitEveryRule(ParserRuleContext ctx) { }
+
+	@Override public void visitErrorNode(ErrorNode node) { }
 }

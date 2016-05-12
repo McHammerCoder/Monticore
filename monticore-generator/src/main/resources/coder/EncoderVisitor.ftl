@@ -18,7 +18,7 @@ import org.antlr.v4.runtime.*;
 
 import ${genHelper.getGNameToLower()}._parser.*;
 
-public class ${parserName}EncoderVisitor extends ${parserName}AntlrBaseListener {
+public class ${parserName}EncoderVisitor implements ParseTreeListener {
 
 	private ${parserName}Encoder encoder = new ${parserName}Encoder();
 

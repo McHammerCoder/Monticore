@@ -114,7 +114,7 @@ for (astGrammar in getParsedGrammars()) {
   generateMcCoder(symbolTable,out,astGrammar)
 
   // M9.5.2 generate McCoderPP
-  // generatePP(glex,out,astGrammar)
+   generatePP(glex,out,astGrammar)
   
   // M9.5.3 generate McCoderExample
   generateExample(glex,out,astGrammar)
