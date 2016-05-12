@@ -33,7 +33,7 @@ public class PT${prod.getName()}
 	
 	protected PT${prod.getName()}( List<HAParseTree> childs )
 	{
-		super( new HARuleContext( HTMLRedTreeHelper.RuleType.RT_${prod.getName()}.ordinal() ), childs );
+		super( new HARuleContext( ${grammarName}TreeHelper.RuleType.RT_${prod.getName()}.ordinal() ), childs );
 	}
 
 	public static Builder getBuilder()

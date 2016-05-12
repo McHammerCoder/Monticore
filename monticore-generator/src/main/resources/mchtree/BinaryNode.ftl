@@ -16,25 +16,18 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 public class PT${prod.getName()} 
 	extends 
-<#if !codeGenerator.hasSuperClass(prod)>
-		HARuleNode
-<#else>
-	<#list codeGenerator.getSuperClass(prod) as superClass>
-		${superClass}
-	</#list>
-</#if>
-<#if codeGenerator.hasInterfaces(prod)>
-	implements
-	<#list codeGenerator.getInterfaces(prod) as interface>
-		${interface}
-	</#list>
-</#if>
+		HATerminalNode
 {
-	
-	protected PT${prod.getName()}( List<HAParseTree> childs )
+	List<HABinaryEntry> binaries = Lists.newArrayList();
+
+	protected PT${prod.getName()}( List<HABinaryEntry> binaries )
 	{
-		super( new HARuleContext( HTMLRedTreeHelper.RuleType.RT_${prod.getName()}.ordinal() ), childs );
+		super( new HARuleContext( ${grammarName}TreeHelper.RuleType.RT_${prod.getName()}.ordinal() ) );
+		
+		this.binaries.addAll(binaries);
 	}
+	
+	
 
 	public static Builder getBuilder()
 	{
@@ -43,22 +36,22 @@ public class PT${prod.getName()}
 
 	public static class Builder  
 	{
-		List<HAParseTree> childs = Lists.newArrayList();
+		List<HABinaryEntry> binaries;
 
 		public PT${prod.getName()} build() 
 		{
-			return new PT${prod.getName()}(this.childs);
+			return new PT${prod.getName()}(this.binaries);
 		}
 
-		public Builder addChild(HAParseTree child) 
+		public Builder binary(HABinaryEntry child) 
 		{
-			this.childs.add(child);
+			this.binaries.add(binary);
 			return this;
 		}  
 		
-		public Builder addChilds(List<HAParseTree> childs) 
+		public Builder binaries(List<HABinaryEntry> binaries) 
 		{
-			this.childs.addAll(childs);
+			this.binaries.addAll(binaries);
 			return this;
 		}  
 	}
