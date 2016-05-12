@@ -15,8 +15,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 public interface PT${prod.getName()} 
-	extends 
 <#if codeGenerator.hasSuperClass(prod)>
+	extends
 	<#list codeGenerator.getSuperClass(prod) as superClass>
 		${superClass}
 	</#list>
