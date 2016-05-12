@@ -21,6 +21,7 @@ public class ${parserName}Encoder{
 
 	
 	private ${parserName}CoderHelper coderHelper = new ${parserName}CoderHelper();
+	private ${parserName}Encodings encodings = new ${parserName}Encodings();
 	
 	public ${parserName}AntlrLexer lex(String string){
 		ANTLRInputStream input = new ANTLRInputStream(string);
@@ -39,7 +40,7 @@ public class ${parserName}Encoder{
 	*/
 		 String originaltext = receivedtoken.getText();
 		Token nextToken = lex(originaltext).nextToken();
-		ArrayList<Encoding> allEncodings = coderHelper.getAllEncodings();
+		ArrayList<Encoding> allEncodings = encodings.getAllEncodings();
 		for(Encoding encoding : allEncodings){
 			//System.out.println("HERE I AM");
 			if(encoding.getMap().size() != 0 && receivedtoken.getType() == encoding.getType()) {
@@ -58,7 +59,7 @@ public class ${parserName}Encoder{
 		if((originaltext.equals(nextToken.getText()) && receivedtoken.getType() == nextToken.getType())){
 			return true;
 			}
-		if(!coderHelper.hasEncoding(receivedtoken.getType())){
+		if(!encodings.hasEncoding(receivedtoken.getType())){
 			System.out.println("Problem with token: " + originaltext + " terminating.");
 			System.exit(2);		
 			return false;
@@ -80,7 +81,7 @@ public class ${parserName}Encoder{
 
 			String encodedString = toEncode.getText(); //CAREFUL can cause problems use decode method
 			@SuppressWarnings("unchecked")
-			Encoding encoding = coderHelper.getEncoding(toEncode.getType());
+			Encoding encoding = encodings.getEncoding(toEncode.getType());
 			Map<String, String> map = (Map<String, String>) encoding.getMap();
 			String startEncoding = encoding.getStartEncoding();
 			for(String key: map.keySet()){

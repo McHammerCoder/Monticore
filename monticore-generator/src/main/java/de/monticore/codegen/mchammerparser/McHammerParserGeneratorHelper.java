@@ -22,6 +22,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import de.monticore.MontiCoreScript;
 import de.monticore.ast.ASTNode;
 import de.monticore.grammar.grammar._ast.ASTBlock;
 import de.monticore.grammar.grammar._ast.ASTBinaryProd;
@@ -36,6 +37,8 @@ import de.monticore.grammar.grammar._ast.ASTNonTerminal;
 import de.monticore.grammar.grammar._ast.ASTOffsetProd;
 import de.monticore.grammar.grammar._ast.ASTProd;
 import de.monticore.grammar.grammar._ast.ASTTerminal;
+import de.monticore.grammar.grammar._ast.ASTGrammarOption;
+import de.monticore.grammar.grammar._ast.ASTHammerOption;
 import de.monticore.grammar.grammar_withconcepts._ast.ASTAction;
 import de.monticore.grammar.grammar_withconcepts._ast.ASTExpressionPredicate;
 import de.monticore.grammar.grammar_withconcepts._ast.ASTJavaCode;
@@ -81,6 +84,9 @@ public class McHammerParserGeneratorHelper
 	private String qualifiedGrammarName;
 	
 	private MCGrammarSymbol grammarSymbol;
+	
+	/* The logger name for logging from within a Groovy script. */
+	static final String LOG_ID = "MCH Parser Generator";
 	
 	public McHammerParserGeneratorHelper(ASTMCGrammar ast, Scope symbolTable) 
 	{
@@ -302,7 +308,6 @@ public class McHammerParserGeneratorHelper
 		{
 			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.INTERFACEORABSTRACTRULE)) 
 			{
-    
 				List<PredicatePair> subRules = grammarSymbol.getSubRulesForParsing(ruleSymbol.getName());
     
 				if (subRules != null && !subRules.isEmpty()) 
@@ -407,6 +412,11 @@ public class McHammerParserGeneratorHelper
 	    return lexStrings;
 	}
 	
+	public int getNumLexStrings()
+	{	    
+	    return lexStrings.size();
+	}
+	
 	public void setAntlrTokens(List<String> tokens)
 	{
 		for( String token : tokens )
@@ -416,6 +426,46 @@ public class McHammerParserGeneratorHelper
 				lexStrings.add(token.substring(1, token.lastIndexOf("'=")));
 			}
 		}
+	}
+	
+	public boolean parseEntireFile()
+	{
+		Optional<ASTGrammarOption> options = astGrammar.getGrammarOptions();
+		if( options.isPresent() )
+		{
+			List<ASTHammerOption> hammerOptions = options.get().getHammerOptions();
+			
+			for( ASTHammerOption hammerOption : hammerOptions )
+			{
+				if( hammerOption.getName().equals("ParseEntireFile") )
+				{
+					Log.info("option ParseEntireFile found!", LOG_ID);
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean parseWithoutOverlapingOffsets()
+	{
+		Optional<ASTGrammarOption> options = astGrammar.getGrammarOptions();
+		if( options.isPresent() )
+		{
+			List<ASTHammerOption> hammerOptions = options.get().getHammerOptions();
+			
+			for( ASTHammerOption hammerOption : hammerOptions )
+			{
+				if( hammerOption.getName().equals("ParseWithOverlappingOffsets") )
+				{
+					Log.info("option ParseWithoutOverlapingOffsets found!", LOG_ID);
+					return false;
+				}
+			}
+		}
+		
+		return true;
 	}
 }
 

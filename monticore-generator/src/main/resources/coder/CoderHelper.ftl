@@ -1,4 +1,4 @@
-${tc.signature("coderGenerator", "coder")}
+${tc.signature("coderGenerator")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign grammarSymbol = genHelper.getGrammarSymbol()>
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
@@ -18,16 +18,13 @@ public class ${parserName}CoderHelper{
 
 	private ArrayList<Range> ranges = new ArrayList<Range>();
 	private Set<String> kws = new HashSet<String>();
-	private ArrayList<Encoding> allEncodings = new ArrayList<Encoding>();
-	private Boolean[] hasEncodingArray = ${coder.getHasEncoding()};
-	private Map<String, String> map = new HashMap<String, String>();
-
+	private int types = ${genHelper.getTokenTypes()};
+	private ArrayList<Encoding> customEncodings = new ArrayList<Encoding>();
 
 	public ${parserName}CoderHelper(){
 		initiateKWAndUS();
-		initiateEncoding();
+		initiateCustomEncodings();
 	}
-
 	
 	
 	private void initiateKWAndUS(){
@@ -43,24 +40,12 @@ public class ${parserName}CoderHelper{
 		</#list>
 	}
 
-	private void initiateEncoding(){
-	<#list coder.getCodeSection() as code>
-		${code}
-
-	</#list>
-	
-	}
-
-
-	public Encoding getEncoding(int type){
-		for(Encoding encodingMap : allEncodings){
-			if(encodingMap.getMap().size() != 0 && type == encodingMap.getType()) {
-				return encodingMap;
-			}	
-		}
-		System.out.println("NO SUCH MAP WAS FOUND: " + type + "\n Something went wrong terminating.");
-		System.exit(4);
-		return null;
+	private void initiateCustomEncodings(){
+	<#list genHelper.getEncodingTablesToGenerate() as encoding>
+		<#list coderGenerator.createCustomEncodingCode(encoding) as custom>
+			${custom}
+		</#list>
+		</#list>
 	}
 
 	public String[] getKeywords(){
@@ -72,17 +57,12 @@ public class ${parserName}CoderHelper{
 		return Range.union(ranges);
 	}
 	
-	public boolean hasEncoding(int type){
-		
-		return hasEncodingArray[type];
-
+	public ArrayList<Encoding> getCustomEncodings(){
+		return customEncodings;
 	}
-
-	public ArrayList<Encoding> getAllEncodings(){
-
-		return allEncodings;
+	
+	public int getTypes()
+	{
+		return types;
 	}
-
-
-
 }

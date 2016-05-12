@@ -244,7 +244,8 @@ public abstract class MCRuleSymbol extends CommonScopeSpanningSymbol {
     ENUMRULE("ENUMRULE"),
     REFERENCERULE("REFERENCERULE"),
     BINARYRULE("BINARYRULE"),
-    OFFSETRULE("OFFSETRULE");
+    OFFSETRULE("OFFSETRULE"),
+	ENCODETABLERULE("ENCODETABLERULE");
     
     private String kind;
     

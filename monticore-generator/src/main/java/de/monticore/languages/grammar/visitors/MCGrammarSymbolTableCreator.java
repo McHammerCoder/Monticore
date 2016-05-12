@@ -42,6 +42,8 @@ import de.monticore.grammar.grammar._ast.ASTAbstractProd;
 import de.monticore.grammar.grammar._ast.ASTAttributeInAST;
 import de.monticore.grammar.grammar._ast.ASTBinaryProd;
 import de.monticore.grammar.grammar._ast.ASTClassProd;
+import de.monticore.grammar.grammar._ast.ASTEncodeTableProd;
+import de.monticore.languages.grammar.MCEncodeTableRuleSymbol;
 import de.monticore.grammar.grammar._ast.ASTConstant;
 import de.monticore.grammar.grammar._ast.ASTConstantGroup;
 import de.monticore.grammar.grammar._ast.ASTConstantsGrammar;
@@ -1172,4 +1174,42 @@ public class MCGrammarSymbolTableCreator extends CommonSymbolTableCreator implem
     
 	  return ruleProd;
   }
+  
+  @Override
+	public void visit(ASTEncodeTableProd astEncodeTableProd) {
+		final MCEncodeTableRuleSymbol ruleSymbol = createEncodeTableProd(astEncodeTableProd, currentScope().get());
+  
+		ruleSymbol.setGrammarSymbol(grammarSymbol);
+		addToScopeAndLinkWithNode(ruleSymbol, astEncodeTableProd);
+	}
+
+	@Override
+	public void endVisit(ASTEncodeTableProd astEncodeTable) {
+		removeCurrentScope();
+	}
+	
+	private MCEncodeTableRuleSymbol createEncodeTableProd(final ASTEncodeTableProd astEncodeTable, final MutableScope scope) {
+		
+		// Create defined type if not already created
+		final String typeName = astEncodeTable.getName();
+  
+		final MCTypeSymbol definedType = getOrCreateType(typeName, false, astEncodeTable);
+  
+		definedType.setKindOfType(MCTypeSymbol.KindType.IDENT);
+  
+		grammarSymbol.addType(definedType);
+  
+		final MCEncodeTableRuleSymbol ruleProd = MCGrammarSymbolsFactory.createEncodeTableProdSymbol(astEncodeTable);
+  
+		// Set defined type of this rule
+		ruleProd.setType(definedType);
+		// Add Grammardoc comment
+		for (Comment c : astEncodeTable.get_PreComments()) {
+			if (c.getText().startsWith("/**")) {
+				ruleProd.getDefinedType().addComment(c);
+			}
+		}
+  
+		return ruleProd;
+	}
 }

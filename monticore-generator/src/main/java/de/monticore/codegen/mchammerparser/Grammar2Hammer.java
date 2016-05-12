@@ -80,6 +80,7 @@ import de.monticore.grammar.grammar._ast.ASTInt16;
 import de.monticore.grammar.grammar._ast.ASTInt32;
 import de.monticore.grammar.grammar._ast.ASTInt64;
 import de.monticore.grammar.grammar._ast.ASTOffset;
+import de.monticore.grammar.grammar._ast.ASTOffsetProd;
 import de.monticore.grammar.grammar._ast.GrammarNodeFactory;
 import de.monticore.grammar.grammar_withconcepts._ast.ASTAction;
 import de.monticore.grammar.grammar_withconcepts._visitor.Grammar_WithConceptsVisitor;
@@ -162,7 +163,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection(indent + "_" + ast.getName() + ".bindIndirect( ");
 		increaseIndent();
 		
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.choice( ");
@@ -263,7 +264,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{
 		String name = decodeString(ast.getName());
 				
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.sequence( ");
@@ -288,16 +289,16 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		int id = 0;
 		List<String> terminals = parserGeneratorHelper.getLexStrings();
-		for( int i = 0; i < terminals.size(); i++ )
+		for( ; id < terminals.size(); id++ )
 		{
-			if(terminals.get(i).equals(name))
+			if(terminals.get(id).equals(name))
 			{
-				id = i+1;
-			}			
+				break;
+			}	
 		}
 		
 		decreaseIndent();
-		addToCodeSection("\n" + indent + ", \"actTT_" + id + "\" )");
+		addToCodeSection("\n" + indent + ", \"actTT_" + (id+1) + "\" )");
 	}
 	
 	/**
@@ -311,13 +312,13 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		switch (i) 
 		{
 		case ASTConstantsGrammar.PLUS:
-			addToCodeSection( "\n" + indent + "Hammer.action( " );
+			addToCodeSection( "\n" + indent + grammarEntry.getName() + "Hammer.action( " );
 			increaseIndent();
 			addToCodeSection( "\n" + indent + "Hammer.many1( " );
 			increaseIndent();
 			break;
 		case ASTConstantsGrammar.STAR:
-			addToCodeSection( "\n" + indent + "Hammer.action( " );
+			addToCodeSection( "\n" + indent + grammarEntry.getName() + "Hammer.action( " );
 			increaseIndent();
 			addToCodeSection( "\n" + indent + "Hammer.many( " );
 			increaseIndent();
@@ -366,7 +367,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		List<ASTAlt> alts = ast.getAlts();
 		for( int i = 0; i < alts.size(); i++ )
 		{
-			addToCodeSection("\n" + indent + "Hammer.action( ");
+			addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 			increaseIndent();
 			
 			ASTAlt alt = alts.get(i);
@@ -394,7 +395,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		printIteration(ast.getIteration());
 		
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.sequence( ");
@@ -428,17 +429,17 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		int id = 0;
 		List<String> terminals = parserGeneratorHelper.getLexStrings();
-		for( int i = 0; i < terminals.size(); i++ )
+		for( ; id < terminals.size(); id++ )
 		{
-			if(terminals.get(i).equals(name))
+			if(terminals.get(id).equals(name))
 			{
-				id = i+1;
-			}			
+				break;
+			}	
 		}
 		
 		
 		decreaseIndent();
-		addToCodeSection("\n" + indent + ", \"actTT_" + id + "\" )");
+		addToCodeSection("\n" + indent + ", \"actTT_" + (id+1) + "\" )");
 		
 		printIterationEnd(ast.getIteration());
 	}
@@ -451,7 +452,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection(indent + "_" + ast.getName() + ".bindIndirect( ");
 		increaseIndent();
 		
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.choice( ");
@@ -533,7 +534,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 			List<ASTLexAlt> alts = ast.getLexAlts();
 			for( int i = 0; i < alts.size(); i++ )
 			{
-				addToCodeSection("\n" + indent + "Hammer.action( ");
+				addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 				increaseIndent();
 				
 				ASTLexAlt alt = alts.get(i);
@@ -741,7 +742,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTEof ast)
 	{
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.sequence( ");
@@ -836,12 +837,12 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		{
 			for(String length : lengthFields)
 			{
-				addToCodeSection("\n" + indent + "Hammer.action( ");
+				addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 				increaseIndent();
 			}
 		}
 		
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.choice( ");
@@ -911,7 +912,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		{
 			negated = true;
 			
-			addToCodeSection("\n" + indent + "Hammer.action( ");
+			addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 			increaseIndent();
 			
 			addToCodeSection("\n" + indent + "Hammer.sequence( ");
@@ -926,7 +927,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 					increaseIndent();
 				}
 				
-				addToCodeSection("\n" + indent + "Hammer.action( ");
+				addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 				increaseIndent();
 				
 				ASTBinaryAlt alt = alts.get(i);
@@ -959,7 +960,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 			List<ASTBinaryAlt> alts = ast.getBinaryAlts();
 			for( int i = 0; i < alts.size(); i++ )
 			{
-				addToCodeSection("\n" + indent + "Hammer.action( ");
+				addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 				increaseIndent();
 				
 				ASTBinaryAlt alt = alts.get(i);
@@ -1035,7 +1036,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection("\n" + indent + "Hammer.lengthValue( ");
 		increaseIndent();
 		
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		if (ast.getUInt8().isPresent()) {
@@ -1081,7 +1082,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTUInt8 uint8)
 	{	
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		if( uint8.isRanged() )
@@ -1137,7 +1138,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTUInt16 uint16)
 	{
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		if( uint16.isValued() )
@@ -1177,7 +1178,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTUInt32 uint32)
 	{
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		if( uint32.isValued() )
@@ -1217,7 +1218,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTUInt64 uint64)
 	{
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		if( uint64.isValued() )
@@ -1257,7 +1258,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTInt8 int8)
 	{
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		if( int8.isValued() )
@@ -1297,7 +1298,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTInt16 int16)
 	{
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 
 		if( int16.isValued() )
@@ -1337,7 +1338,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTInt32 int32)
 	{
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		if( int32.isValued() )
@@ -1378,7 +1379,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTInt64 int64)
 	{
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		if( int64.isValued() )
@@ -1418,10 +1419,10 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTBits bits)
 	{
-		int numBits = bits.getBits()+1-ASTConstantsGrammar.CONSTANT0;
+		int numBits = bits.getBits()+1-ASTConstantsGrammar.CONSTANT64;
 		
 		
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		if( bits.isValued() )
@@ -1450,7 +1451,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		int numBits = ubits.getBits()+1-ASTConstantsGrammar.CONSTANT0;
 		
 		
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		if( ubits.isValued() )
@@ -1478,7 +1479,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{		
 		String id = ast.getId();
 				
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		if (ast.getUInt8().isPresent()) {
@@ -1504,7 +1505,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void handle(ASTBinaryData ast)
 	{		
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		ASTGrammarNode astNode = null;
@@ -1565,7 +1566,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void handle(ASTOffset ast)
 	{
-		addToCodeSection("\n" + indent + "Hammer.action( ");
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
 		addToCodeSection("\n" + indent + "Hammer.sequence( ");
@@ -1643,6 +1644,25 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		return getHammerCode();
 	}
 	
+	public String createOffsetLinearMethodCode(ASTOffsetProd prod)
+	{
+		if(prod.isLocal())
+		{
+			return (prod.getA().isNegative() ? "offsetToken.getPosition()-" : "offsetToken.getPosition()+")
+					 + "offsetToken.getValue()*" 
+					 + prod.getA().getValue() * (prod.getA().isNegative() ? (-1) : 1 )
+					 + ((prod.getSign() == ASTConstantsGrammar.PLUS) ? "+" : "-")
+					 + prod.getB().getValue();
+		}
+		
+		return (prod.getA().isNegative() ? "(bytes.length-1)*8-" : "")
+			 + "offsetToken.getValue()*" 
+			 + prod.getA().getValue() * (prod.getA().isNegative() ? (-1) : 1 )
+			 + ((prod.getSign() == ASTConstantsGrammar.PLUS) ? "+" : "-")
+			 + prod.getB().getValue();
+
+	}
+	
 	public List<String> createHammerDataFieldCode(String dataField)
 	{
 		clearHammerCode();
@@ -1655,7 +1675,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 			addToCodeSection("\n" + indent + "dataField_" + dataField + "_" + i + ".bindIndirect( ");
 			increaseIndent();
 			
-			addToCodeSection("\n" + indent + "Hammer.action( ");
+			addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 			increaseIndent();
 			
 			addToCodeSection("\n" + indent + "Hammer.choice( ");
@@ -1664,7 +1684,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 			addToCodeSection("\n" + indent + "Hammer.sequence( ");
 			increaseIndent();
 			
-			addToCodeSection("\n" + indent + "Hammer.action( ");
+			addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 			increaseIndent();
 			
 			node.accept(getRealThis());

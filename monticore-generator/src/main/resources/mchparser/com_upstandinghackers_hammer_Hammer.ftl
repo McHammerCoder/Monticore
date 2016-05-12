@@ -2,10 +2,11 @@ ${tc.signature("hammerGenerator")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign grammarSymbol = genHelper.getGrammarSymbol()>
 <#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
+<#assign grammarNameLowerCase = genHelper.getQualifiedGrammarName()?lower_case>
 
 #include "resources/jhammer.h"
 #include "internal.h"
-#include "com_upstandinghackers_hammer_Hammer.h"
+#include "com_upstandinghackers_hammer_${grammarName}Hammer.h"
 #include <stdlib.h>
 
 static JavaVM* jvm;
@@ -165,7 +166,7 @@ HParsedToken* act_EOF(const HParseResult *p, void* user_data)
     return callAction(p,"actEOF");
 }
 
-JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_Hammer_action
+JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_${grammarName}Hammer_action
   (JNIEnv *env, jclass class, jobject p, jstring a)
 {
 	//RETURNWRAP(env, h_middle(UNWRAP(env, p), UNWRAP(env, x), UNWRAP(env, q)));

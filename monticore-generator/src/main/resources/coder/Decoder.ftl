@@ -14,17 +14,18 @@ Visit functions need to be generated - move them to a seperate part e.g. DecodeV
 public class ${parserName}Decoder{
 
 	private ${parserName}CoderHelper helper = new ${parserName}CoderHelper();
-
+	private ${parserName}Encodings encodings = new ${parserName}Encodings();
+	
 	public void decode(CommonToken toDecode){ //Decodes a token and sets it text to the decoded variant
 			String[] kw = helper.getKeywords();
 			String decodedString = toDecode.getText();
 
-			if(!helper.hasEncoding(toDecode.getType()))
+			if(!encodings.hasEncoding(toDecode.getType()))
 			{
 			 return;
 			}
 			@SuppressWarnings("unchecked")
-			Encoding encoding = helper.getEncoding(toDecode.getType());
+			Encoding encoding = encodings.getEncoding(toDecode.getType());
 			Map<String, String> map = (Map<String, String>) encoding.getMap();
 			String startEncoding = encoding.getStartEncoding();
 			int elength = startEncoding.length();

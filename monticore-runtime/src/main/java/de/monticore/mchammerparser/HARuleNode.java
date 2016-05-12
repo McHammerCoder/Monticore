@@ -1,9 +1,6 @@
-${tc.signature("hammerGenerator")}
-<#assign genHelper = glex.getGlobalValue("genHelper")>
-<#assign grammarSymbol = genHelper.getGrammarSymbol()>
-<#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
+package de.monticore.mchammerparser;
 
-package ${genHelper.getParseTreePackage()};
+import java.util.List;
 
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.RuleNode;
@@ -19,10 +16,15 @@ public class HARuleNode extends HAParseTree implements RuleNode
 	{
 		super(payload);
 	}
+	
+	public HARuleNode(Object payload, List<HAParseTree> childs)
+	{
+		super(payload,childs);
+	}
 
 	public int getIndex()
 	{
-		return ${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal();
+		return 0;
 	}
 
 	public RuleContext getRuleContext()

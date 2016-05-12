@@ -7,73 +7,13 @@ package ${genHelper.getParseTreePackage()};
 
 import java.util.LinkedList;
 import com.upstandinghackers.hammer.*;
+import de.monticore.mchammerparser.*;
 
 /**
  * Used by the TreeFactory to create an Antlr-ParseTree from a Hammer.ParseResult
  */
 public class ${grammarName}TreeHelper 
 {
-	private static LinkedList<Context> postfixTree = new LinkedList<Context>();
-	
-	public static void push(Context context)
-	{
-		postfixTree.push(context);
-	}
-	
-	public static Context pop()
-	{
-		return postfixTree.pop();
-	}
-	
-	public static Context get()
-	{
-		return postfixTree.getLast();
-	}
-	
-	public static int size()
-	{
-		return postfixTree.size();
-	}
-	
-	public static interface Context
-	{
-		
-	}
-	
-	public static class RuleContext implements Context
-	{
-		private RuleType type;
-		/**
-		 * @return the type
-		 */
-		public RuleType getType() 
-		{
-			return type;
-		}
-		
-		public RuleContext(RuleType type)
-		{
-			this.type = type;
-		}
-	}
-	
-	public static class TokenContext implements Context
-	{
-		private TokenType type;
-		/**
-		 * @return the type
-		 */
-		public TokenType getType() 
-		{
-			return type;
-		}
-		
-		public TokenContext(TokenType type)
-		{
-			this.type = type;
-		}
-	}
-	
 	public enum UserTokenTypes
 	{
 		UTT_Undefined(Hammer.TokenType.USER.getValue()),
@@ -132,12 +72,6 @@ public class ${grammarName}TreeHelper
 		
 	};
 	
-	public enum Type
-	{
-		C_Token,
-		C_Rule
-	};
-	
 	public enum TokenType
 	{
 <#assign iter=1>
@@ -148,6 +82,9 @@ public class ${grammarName}TreeHelper
 <#list genHelper.getLexerRuleNames() as lexRuleName>
 		TT_${lexRuleName},
 </#list>		
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+		TT_${binRuleName},
+</#list>
 <#list [8,16,32,64] as bits>
 		TT_UInt${bits},
 </#list>
@@ -176,6 +113,9 @@ public class ${grammarName}TreeHelper
 <#list genHelper.getLexerRuleNames() as lexRuleName>
 		"${lexRuleName}",
 </#list>	
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+		"TT_${binRuleName}",
+</#list>
 <#list [8,16,32,64] as bits>
 		"TT_UInt${bits}",
 </#list>
@@ -206,9 +146,6 @@ public class ${grammarName}TreeHelper
 	{
 <#list genHelper.getParserRuleNames() as parserRuleName>
 		RT_${parserRuleName},
-</#list>	
-<#list genHelper.getBinaryRuleNames() as binRuleName>
-		RT_${binRuleName},
 </#list>
 		RT_Undefined
 	}
@@ -217,9 +154,6 @@ public class ${grammarName}TreeHelper
 	{
 <#list genHelper.getParserRuleNames() as parserRuleName>
 		"${parserRuleName}",
-</#list>
-<#list genHelper.getBinaryRuleNames() as binRuleName>
-		"${binRuleName}",
 </#list>
 		"Undefined"
 	};

@@ -1,17 +1,20 @@
-/*
- * Copyright (c) 2016 RWTH Aachen. All rights reserved.
- *
- * http://www.se-rwth.de/ 
- */
-package de.monticore.codegen.mccoder;
+${tc.signature("coderGenerator")}
+<#assign genHelper = glex.getGlobalValue("genHelper")>
+<#assign grammarSymbol = genHelper.getGrammarSymbol()>
+<#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
+<#assign startRule = genHelper.getStartRuleNameLowerCase()>
+
+package ${genHelper.getParserPackage()};
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.antlr.v4.runtime.Lexer;
-import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.*;
+
+import ${genHelper.getGNameToLower()}._parser.*;
+import de.monticore.codegen.mccoder.*;
 
 /**
  * TODO: Write me!
@@ -21,7 +24,7 @@ import org.antlr.v4.runtime.Token;
  * @since   TODO: add version number
  *
  */
-public class McCoderCoder {
+public class ${parserName}CoderCoder {
 	private ArrayList<Encoding> allEncodings = new ArrayList<Encoding>();
 	private String[] kws;
 	private int types;
@@ -29,11 +32,12 @@ public class McCoderCoder {
 	private Boolean[] hasEncodingArray; //Should be sum of types+1
 	private ArrayList<String> codeSection = new ArrayList<String>();
 	
-	public McCoderCoder(int type, String[] kw, String[] fs){
+	public ${parserName}CoderCoder(int type, String[] kw, String[] fs){
 		this.types = type;
 		this.kws = kw;
 		this.freeS = fs;
 		hasEncodingArray = new Boolean[(types+1)];
+		Arrays.fill(hasEncodingArray, false);
 		fillAllEncodings();		
 	}
 	public String getHasEncoding(){
@@ -87,7 +91,7 @@ public class McCoderCoder {
 
 
 	public boolean typeCheck(int type, String string){
-		Lexer lexer = McCoderGenerator.lex(string);
+		Lexer lexer = lex(string);
 		Token nextToken =lexer.nextToken();
 
 		if(type == nextToken.getType() && lexer.nextToken().getType() == Token.EOF){
@@ -109,7 +113,7 @@ public class McCoderCoder {
 			}
 		}
 
-			Lexer lexer = McCoderGenerator.lex(alphanumeric[i]);
+			Lexer lexer = lex(alphanumeric[i]);
 			lexer.removeErrorListeners(); //Removes strange error output in the console - we dont need it!
 			if(lexer.nextToken().getType() != Token.EOF){
 				usableSymbols[i] = alphanumeric[i];
@@ -207,20 +211,52 @@ public class McCoderCoder {
 	
 	public void fillAllEncodings(){
 		
+		${parserName}CoderHelper helper = new ${parserName}CoderHelper();
+		ArrayList<Encoding> customEncodings = helper.getCustomEncodings();
 		String[] usableSymb = getUsableSymbols();
 		String[] kw = kws;
-		//System.out.println(kws.length + "  " + types + "INFO");
-		for(int j = 0 ; j<=types; j++){
-			for(;j <= kw.length; j++){
-			  hasEncodingArray[j] = false;
-			}
-			hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
-			if(!hasEncodingArray[j]){
-				System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
-			}
-		
+		if(kw.length == 0){
+			System.out.println("NO KEYWORDS FOUND - NO ENCODING WILL BE GENERATED");
+			return ;
 		}
-	
+		//System.out.println(kws.length + "  " + types + "INFO");
+		if(!customEncodings.isEmpty()){
+			for(int j = kw.length+1 ; j<=types; j++){
+				for(Encoding e : customEncodings){
+					if(e.getType() == j){
+						System.out.println("FOUND CUSTOM ENCODING FOR TYPE: " + j);
+						hasEncodingArray[j] = true;
+						Map<String, String> map = e.getMap();
+						int numOfKws = 0;
+						for(String s : map.keySet()){					
+						   for(int i = 0; i< kw.length; i++){
+						     if(kw[i].equals(s)){
+						     	numOfKws++;
+						     }
+						   }
+						}
+						if(numOfKws != kw.length){
+							System.err.println("NOT ALL KEYWORDS HAVE BEEN ENCODED");
+						}
+					}
+				}
+				if(hasEncodingArray[j] != true){
+				 	hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
+				 	}
+					if(!hasEncodingArray[j]){
+						System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
+					}
+				}
+			}
+
+		else{
+			for(int j = kw.length+1 ; j<=types; j++){
+				hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
+				if(!hasEncodingArray[j]){
+					System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
+				}
+			}
+		}
 	}
 	public void addEncodingMapToCodeSection (Map<String, String> map, int type){
 			for(String key: map.keySet()){
@@ -235,5 +271,12 @@ public class McCoderCoder {
 			
 			}
 		}		
+	}
+	
+	private ${parserName}AntlrLexer lex(String in)
+	{
+		ANTLRInputStream input = new ANTLRInputStream(in);
+		${parserName}AntlrLexer lexer = new ${parserName}AntlrLexer(input);
+		return lexer;
 	}
 }

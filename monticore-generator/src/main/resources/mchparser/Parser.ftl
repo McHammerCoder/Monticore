@@ -8,6 +8,7 @@ package ${genHelper.getParserPackage()};
 import ${genHelper.getParserPackage()}.${grammarName}Actions;
 
 import com.upstandinghackers.hammer.*;
+import de.monticore.mchammerparser.*;
 
 import ${genHelper.getParseTreePackage()}.*;
 import org.antlr.v4.runtime.tree.*;
@@ -18,6 +19,9 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.common.collect.Lists;
+import java.util.Arrays;
 
 public class ${grammarName}Parser
 {
@@ -66,10 +70,10 @@ public class ${grammarName}Parser
 	
 	/** Indirect Parsers **/
 <#list genHelper.getIndirectRulesToGenerate() as indirectRule>
-	private final com.upstandinghackers.hammer.Parser ${indirectRule} = Hammer.indirect();
+	protected final com.upstandinghackers.hammer.Parser ${indirectRule} = Hammer.indirect();
 </#list>
 <#list hammerGenerator.getDataFieldIndirects() as dataField>
-	private final com.upstandinghackers.hammer.Parser dataField_${dataField} = Hammer.indirect();
+	protected final com.upstandinghackers.hammer.Parser dataField_${dataField} = Hammer.indirect();
 </#list>
 	
 	/** Final Parser **/
@@ -131,6 +135,39 @@ public class ${grammarName}Parser
 		{
 			return this.end;
 		}
+		
+		public long getSize()
+		{
+			return end-start;
+		}
+		
+		public boolean overlaps(Range range)
+		{
+			if( this.start >= range.getStart() && this.start <= range.getEnd() )
+			{
+				return true;
+			}
+			
+			if( this.end >= range.getStart() && this.end <= range.getEnd() )
+			{
+				return true;
+			}
+			
+			return false;
+		}
+		
+		public void combine(Range range)
+		{
+			if( this.start > range.getStart() )
+			{
+				this.start = range.getStart();
+			}
+			
+			if( this.end < range.getEnd() )
+			{
+				this.end = range.getEnd();
+			}
+		}
 	}
 
 	private List<Range> ranges = new ArrayList<Range>();
@@ -155,19 +192,114 @@ public class ${grammarName}Parser
 		
 		ranges.add(new Range(offset,offset+getSize(parseTree)));
 		
+		for( HAParseTree pt : parseOffsets(bytes,parseTree,offset) )
+		{
+			parseTree.addChild(pt);
+		}
+		
 		printRanges();
 		
-		if( getOffsets(parseTree).size() > 0 )
+<#if genHelper.parseEntireFile()>
+		if( !checkFullyParsed(bytes.length*8) )
 		{
-			System.out.println("Offsets Found!");
+			throw new Exception("File has not been parsed entirely !");
 		}
+</#if>
 				
 		return parseTree;
 	}
 	
-	private List<HABinaryToken> getOffsets(HAParseTree parseTree)
+	private List<HAParseTree> parseOffsets( byte[] bytes, HAParseTree parseTree, long offsetOfParseTree ) throws Exception
+	{
+		List<HABinaryToken> offsets = getOffsets(parseTree,offsetOfParseTree);
+		
+		List<HAParseTree> offsetTrees = Lists.newArrayList();
+		if( offsets.size() > 0 )
+		{
+			System.out.println("Offsets Found:");
+			for( HABinaryToken offsetToken : offsets )
+			{
+<#list genHelper.getOffsetRulesToGenerate() as offsetProd>
+				if( offsetToken.getType() == ${grammarName}TreeHelper.TokenType.TT_${offsetProd.getName()}.ordinal()+1)
+				{
+					System.out.println("Local Offset: " + offsetToken.getPosition());
+					long offset = ${hammerGenerator.createOffsetLinearMethodCode(offsetProd)};
+<#if genHelper.parseWithoutOverlapingOffsets()>
+					long end = findEnd( offset, bytes.length*8 );
+<#else>
+					long end = bytes.length*8;
+</#if>
+					System.out.println("ParsedOffset for ${offsetProd.getName()}: " + offset);
+					byte [] newBytes = getSubrange(bytes,offset,end);
+					
+					ParseResult parseResult = Hammer.parse( Hammer.sequence( Hammer.ignore(Hammer.bits((int)offset%8+(int)end%8,false)), _${offsetProd.getRuleName()} ), newBytes, newBytes.length);
+																				
+					if( parseResult == null )
+					{
+						throw new Exception("Parse Failed: Offset - ${offsetProd.getName()}");
+					}
+					
+					HAParseTree pt = (HAParseTree) ${grammarName}TreeConverter.create(parseResult);
+					
+					offsetTrees.add(pt);
+					
+					ranges.add(new Range(offset,offset+getSize(pt)));
+					
+					offsetTrees.addAll( parseOffsets(bytes,pt,offset) );
+				}
+</#list>
+			}
+		}
+		
+		return offsetTrees;
+	}
+	
+	private byte[] getSubrange( byte [] bytes, long start, long end )
+	{
+		int byteOffset = (int)start/8;
+		int byteEnd = (int)end/8 + ((end%8 > 0)? 1 : 0);
+		int bitEnd = (int)end%8;
+		
+		byte [] byteArray = Arrays.copyOfRange(bytes,byteOffset,byteEnd);
+		
+		// Shift to the right
+		byte [] res = new byte [ byteArray.length ];
+		for( int i = byteArray.length-1; i >= 0; i-- )
+		{
+			int b = byteArray[i] >> bitEnd;
+			int b2 = ( i > 0 ) ? byteArray[i-1] << (8-bitEnd) : 0;
+			res[i] = (byte)(b | b2);
+		}			
+			
+		return res;
+	}
+	
+	private long findEnd( long start, long size ) throws Exception
+	{
+		long end = size;
+		for( Range range : ranges )
+		{
+			long rangeStart = range.getStart();
+			long rangeEnd = range.getEnd();
+<#if genHelper.parseWithoutOverlapingOffsets()>
+			if( start > rangeStart && start < rangeEnd )
+			{
+				throw new Exception("Trying to parse offset at illegal position!");
+			}
+</#if>
+			if( rangeStart > start && rangeStart < end )
+			{
+				end = rangeStart;
+			}
+		}
+		
+		return end;
+	}
+	
+	private List<HABinaryToken> getOffsets(HAParseTree parseTree, long offsetOfParseTree)
 	{	
 		List<HABinaryToken> offsets = new ArrayList<HABinaryToken>();
+		long position = offsetOfParseTree;
 
 		for( int i = 0; i < parseTree.getChildCount(); i++ )
 		{
@@ -176,17 +308,25 @@ public class ${grammarName}Parser
 			if( child instanceof HATerminalNode )
 			{
 				Token token = ((HATerminalNode)child).getSymbol();
+				position += getSize(((HATerminalNode)child));
+				
 				if( token instanceof HABinaryToken )
 				{
 					if( ((HABinaryToken)token).isOffset() )
 					{
+						if( ((HABinaryToken)token).isLocal() )
+						{
+							System.out.println("Local Offset: " + position);
+							((HABinaryToken)token).setPosition(position);
+						}
+					
 						offsets.add((HABinaryToken)token);
 					}
 				}
 			}
 			else
 			{
-				offsets.addAll(getOffsets((HAParseTree)child));
+				offsets.addAll(getOffsets((HAParseTree)child,offsetOfParseTree));
 			}
 		}
 		
@@ -197,29 +337,82 @@ public class ${grammarName}Parser
 	{
 		long size = 0;
 
-		for( int i = 0; i < parseTree.getChildCount(); i++ )
+		if( parseTree instanceof HATerminalNode )
 		{
-			ParseTree child = parseTree.getChild(i);
-			
-			if( child instanceof HATerminalNode )
+			Token token = ((HATerminalNode)parseTree).getSymbol();
+			if( token instanceof HABinaryToken )
 			{
-				Token token = ((HATerminalNode)child).getSymbol();
-				if( token instanceof HABinaryToken )
-				{
-					size += ((HABinaryToken)token).getBits();
-				}
-				else
-				{
-					size += child.getText().getBytes().length*8;
-				}
+				size += ((HABinaryToken)token).getBits();
 			}
 			else
 			{
-				size += getSize((HAParseTree)child);
+				size += parseTree.getText().getBytes().length*8;
+			}
+		}
+		else
+		{
+			for( int i = 0; i < parseTree.getChildCount(); i++ )
+			{
+				ParseTree child = parseTree.getChild(i);
+				
+				if( child instanceof HATerminalNode )
+				{
+					Token token = ((HATerminalNode)child).getSymbol();
+					if( token instanceof HABinaryToken )
+					{
+						size += ((HABinaryToken)token).getBits();
+					}
+					else
+					{
+						size += child.getText().getBytes().length*8;
+					}
+				}
+				else
+				{
+					size += getSize((HAParseTree)child);
+				}
 			}
 		}
 		
 		return size;
+	}
+	
+	private boolean checkFullyParsed(long treeSize)
+	{
+		combineRanges();
+	
+		int size = 0;
+		for( Range range : ranges )
+		{
+			size += range.getSize();
+			
+			for( Range range2 : ranges )
+			{
+				if( range != range2 && range.overlaps(range2) )
+					return false;
+			}
+		}
+		
+		if( size == treeSize )
+			return true;
+		else
+			return false;
+	}
+	
+	private void combineRanges()
+	{
+		for( int i = 0; i < ranges.size(); i++ )
+		{
+			for( int j = 0; j < ranges.size(); j++ )
+			{
+				if( ranges.get(i) != ranges.get(j) && ranges.get(i).overlaps(ranges.get(j)) )
+				{
+					ranges.get(i).combine(ranges.get(j));
+					ranges.remove(j);
+					j=0;
+				}
+			}
+		}
 	}
 	
 	private void printRanges()

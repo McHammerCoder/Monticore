@@ -7,9 +7,8 @@ package ${genHelper.getParserPackage()};
 
 import ${genHelper.getParseTreePackage()}.*;
 
-import com.upstandinghackers.hammer.ParseResult;
-import com.upstandinghackers.hammer.ParsedToken;
-import com.upstandinghackers.hammer.Hammer;
+import com.upstandinghackers.hammer.*;
+import de.monticore.mchammerparser.*;
 
 import com.google.common.collect.Maps;
 import java.util.*;

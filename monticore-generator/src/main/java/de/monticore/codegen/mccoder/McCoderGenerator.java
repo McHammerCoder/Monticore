@@ -23,6 +23,9 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Token;
 
+import de.monticore.grammar.grammar._ast.ASTEncodeTableProd;
+import de.monticore.grammar.grammar._ast.ASTEncodeTableEntry;
+import de.monticore.languages.grammar.MCEncodeTableRuleSymbol;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import de.monticore.grammar.grammar._ast.ASTBlock;
@@ -65,7 +68,7 @@ public class McCoderGenerator
 	public static final String PARSER_PACKAGE = "_coder";
 	private static Class clazz;
 	
-	public static Lexer lex(String in){
+	/*public static Lexer lex(String in){
 		try{
 		 ANTLRInputStream input =  new ANTLRInputStream(in);
 	    	Constructor con = clazz.getConstructor(new Class[] {CharStream.class});
@@ -76,11 +79,11 @@ public class McCoderGenerator
 		e.printStackTrace();
 		return null;
 		}
-	}
+	}*/
 	
 	public static void generate(Scope symbolTable, File outputDirectory, ASTMCGrammar astGrammar)
 	{
-		 JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		/* JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 	     compiler.run(null, System.out, System.err, "-sourcepath", "", outputDirectory.getPath() + "/" + astGrammar.getName().toLowerCase() + "/_parser/" + astGrammar.getName() + "AntlrLexer.java");
 	     try{
 	    	 File f = new File(outputDirectory.getPath() + "/");
@@ -95,7 +98,7 @@ public class McCoderGenerator
 			e.printStackTrace();	
 			
 			return;
-		}
+		} */
 	    
 	     
 	    
@@ -127,7 +130,7 @@ public class McCoderGenerator
 		}
 		
 		generatorHelper.setTokenTypes(tokens);
-		
+		generatorHelper.resolveTokenTypes(tokens);
 		
 		// Generate Decoder.java
 		final Path filePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Decoder.java");
@@ -155,17 +158,30 @@ public class McCoderGenerator
 		
 		// Generate CoderHelper.java
 		UsableSymbolExtractor ex = new UsableSymbolExtractor(generatorHelper,grammarInfo);
-		List<ASTProd> pRules = generatorHelper.getParserRulesToGenerate();
-		for(ASTProd rule: pRules){
-		ex.createUsableSymbolsCode(rule);
-		}
-		List<ASTLexProd> lRules = generatorHelper.getLexerRulesToGenerate();
-		for(ASTLexProd rule: lRules){
-			ex.createUsableSymbolsCode(rule);
-			}
-		McCoderCoder coder = new McCoderCoder(generatorHelper.getTokenTypes(), ex.getKws() , ex.getRanges());
+		
 		final Path filePathEncodingHelper = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"CoderHelper.java");
-		generator.generate("coder.CoderHelper", filePathEncodingHelper, astGrammar, ex, coder);
+		generator.generate("coder.CoderHelper", filePathEncodingHelper, astGrammar, ex);
+		
+		String outputdir = outputDirectory.getPath() + "/" + astGrammar.getName().toLowerCase() + "/"+ PARSER_PACKAGE;
+		
+		final Path filePathEncodingGenerator = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"EncodingGenerator.java");
+		generator.generate("coder.EncodingGenerator", filePathEncodingGenerator, astGrammar, ex, outputdir);
+		
+		final Path filePathEncodings = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Encodings.ftl");
+		generator.generate("coder.Encodings", filePathEncodings, astGrammar, ex);
+		
+		final Path filePathCoderCoder = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"CoderCoder.java");
+		generator.generate("coder.CoderCoder", filePathCoderCoder, astGrammar, ex);
+		
+		
+		UsableSymbolExtractor ex2 = new UsableSymbolExtractor(generatorHelper,grammarInfo);
+		List<ASTProd> bananen = generatorHelper.getEncodingTablesToGenerate();
+		for(ASTProd banane:bananen)
+		{
+			//System.out.println("BANANE");
+			ex2.createUsableSymbolsCode(banane);
+		}
+		ex2.printTable();
 	}
 	private McCoderGenerator() {
 	    // noninstantiable

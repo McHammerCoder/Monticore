@@ -104,6 +104,11 @@ public class McHammerParserGenerator
 		final Path actionsPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Actions.java");
 		generator.generate("mchparser.Actions", actionsPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 		
+		// Generate Checker.java
+		final Path checkerPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Checker.java");
+		generator.generate("mchparser.Checker", checkerPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+				
+		/*
 		// Generate HAParseTree.java
 		final Path parseTreePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HAParseTree.java");
 		generator.generate("mchtree.HAParseTree", parseTreePath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
@@ -120,6 +125,10 @@ public class McHammerParserGenerator
 		final Path terminalNodePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HATerminalNode.java");
 		generator.generate("mchtree.HATerminalNode", terminalNodePath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 		
+		// Generate HABinaryToken.java
+		final Path binaryTokenPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HABinaryToken.java");
+		generator.generate("mchtree.HABinaryToken", binaryTokenPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		*/
 		// Generate TreeConverter.java
 		final Path treeConverterPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), astGrammar.getName()+"TreeConverter.java");
 		generator.generate("mchtree.TreeConverter", treeConverterPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
@@ -127,15 +136,18 @@ public class McHammerParserGenerator
 		// Generate TreeHelper.java
 		final Path treeHelperPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), astGrammar.getName()+"TreeHelper.java");
 		generator.generate("mchtree.TreeHelper", treeHelperPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-		
-		// Generate HABinaryToken.java
-		final Path binaryTokenPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HABinaryToken.java");
-		generator.generate("mchtree.HABinaryToken", binaryTokenPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-		
+				
 		// Generate com_upstandinghackers_hammer_Hammer.c
 		final Path hammerActionPath = Paths.get(RESOURCES_FOLDER, "libjhammer_"+astGrammar.getName()+".c");
 		generator.generate("mchparser.com_upstandinghackers_hammer_Hammer", hammerActionPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 	
+		// Generate HammerExtension.java in out/resources directory
+		final Path hammerExtensionPath = Paths.get(RESOURCES_FOLDER,Names.getPathFromPackage("com.upstandinghackers.hammer"), astGrammar.getName()+"Hammer.java");
+		generator.generate("mchparser.HammerExtension", hammerExtensionPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+	
+		// Generate HammerExtension.java in out directory
+		//final Path hammerExtensionOutPath = Paths.get(Names.getPathFromPackage("com.upstandinghackers.hammer"), astGrammar.getName()+"Hammer.java");
+		//generator.generate("mchparser.HammerExtension", hammerExtensionOutPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 		
 		// Extract Hammer resources
 		final Path resourcesFolder =  Paths.get(outputDirectory.toString(),RESOURCES_FOLDER);

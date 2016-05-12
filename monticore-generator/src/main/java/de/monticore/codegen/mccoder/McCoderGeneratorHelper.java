@@ -16,7 +16,11 @@ import java.util.Optional;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
+import de.monticore.grammar.grammar._ast.ASTEncodeTableProd;
+import de.monticore.grammar.grammar._ast.ASTEncodeTableEntry;
+import de.monticore.languages.grammar.MCEncodeTableRuleSymbol;
 import de.monticore.ast.ASTNode;
 import de.monticore.codegen.mccoder.McCoderGenerator;
 import de.monticore.grammar.grammar._ast.ASTBlock;
@@ -74,6 +78,8 @@ public class McCoderGeneratorHelper
 	private MCGrammarSymbol grammarSymbol;
 	
 	private int tokenTypes;
+	
+	public Map<String, String> resolvedTypes = Maps.newHashMap();;
 	
 	public McCoderGeneratorHelper(ASTMCGrammar ast, Scope symbolTable) 
 	{
@@ -281,6 +287,38 @@ public class McCoderGeneratorHelper
 	    return prods;
 	}
 	
+	public List<ASTProd> getEncodingTablesToGenerate() 
+	{
+		// Iterate over all Rules
+		List<ASTProd> prods = Lists.newArrayList();
+		for(MCGrammarSymbol mcgrammarsymbol : grammarSymbol.getAllSuperGrammars()){
+			
+			for (MCRuleSymbol ruleSymbol : mcgrammarsymbol.getRulesWithInherited().values()) 
+			{
+				if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.ENCODETABLERULE)) 
+				{
+					Optional<ASTEncodeTableProd> astProd = ((MCEncodeTableRuleSymbol) ruleSymbol).getRuleNode();
+					if (astProd.isPresent()) 
+					{
+						prods.add(astProd.get());
+					}
+				}
+			}
+		}
+		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited().values()) 
+		{
+			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.ENCODETABLERULE)) 
+			{
+				Optional<ASTEncodeTableProd> astProd = ((MCEncodeTableRuleSymbol) ruleSymbol).getRuleNode();
+				if (astProd.isPresent()) 
+				{
+					prods.add(astProd.get());
+				}
+			}
+		}
+	    return prods;
+	}
+	
 	public static String getASTClassName(MCRuleSymbol rule) 
 	{
 		return rule.getType().getQualifiedName();
@@ -289,6 +327,21 @@ public class McCoderGeneratorHelper
 	public int getTokenTypes()
 	{
 		return tokenTypes;		
+	}
+	public void resolveTokenTypes(List<String> tokens)
+	{
+		for(String token: tokens) {
+			if( !token.startsWith("'") ){
+					String left = token.substring(0 ,token.indexOf('='));
+					String right = token.substring(token.indexOf('=')+1, token.indexOf('=')+2);
+					//System.out.println(left + " LEFT | RIGHT " + right);
+					resolvedTypes.put(left, right);
+			}
+		}
+	}
+	
+	public Map<String, String> getResolvedTypes(){
+		return resolvedTypes;
 	}
 	
 	public void setTokenTypes(List<String> tokens)

@@ -1,9 +1,4 @@
-${tc.signature("hammerGenerator")}
-<#assign genHelper = glex.getGlobalValue("genHelper")>
-<#assign grammarSymbol = genHelper.getGrammarSymbol()>
-<#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
-
-package ${genHelper.getParseTreePackage()};
+package de.monticore.mchammerparser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 

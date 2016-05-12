@@ -1,5 +1,5 @@
-JSOUJSOURCES := Hammer.java
-JSOURCES_NATIVE := Hammer
+JSOUJSOURCES := default
+JSOURCES_NATIVE := default
 CSOURCES := default
 
 TOPLEVEL := ./resources
@@ -8,8 +8,6 @@ JC=javac
 JH=javah
 CP=com/upstandinghackers/hammer
 PACKAGE=com.upstandinghackers.hammer
-
-include ./resources/common.mk
 
 
 CFLAGS += -fPIC -L $(TOPLEVEL) -ljhammer -I. -I $(TOPLEVEL)/include -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux
@@ -27,12 +25,12 @@ $(CSOURCES): prepare
 
 compile: prepare $(CSOURCES)
 
-prepare: javacc $(JSOURCES_NATIVE)
+prepare: javacc $(subst libjhammer_,,$(subst .c,,$(CSOURCES)))Hammer.java
 
-$(JSOURCES_NATIVE): javacc
+$(subst libjhammer_,,$(subst .c,,$(CSOURCES)))Hammer: javacc
 	$(JH) $(PACKAGE).$@
 
-javacc: $(JSOURCES)
+javacc: $(subst libjhammer_,,$(subst .c,,$(CSOURCES)))Hammer
 
 allfiles:
 	for dir in $(wildcard *.c); do \
