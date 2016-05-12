@@ -5,6 +5,7 @@ ${tc.signature("hammerGenerator")}
 
 package ${genHelper.getParseTreePackage()};
 
+import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.CommonTokenFactory;
 
@@ -91,7 +92,8 @@ public class ${grammarName}TreeConverter
 <#list genHelper.getBinaryRuleNames() as ruleName>
 				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_${ruleName}.getValue())
 				{
-					return buildRuleTree(tok, ${grammarName}TreeHelper.RuleType.RT_${ruleName}.ordinal());
+					return buildBinaryTree(tok, ${grammarName}TreeHelper.TokenType.TT_${ruleName});
+					//return buildRuleTree(tok, ${grammarName}TreeHelper.RuleType.RT_${ruleName}.ordinal());
 				}
 </#list>
 <#assign iter=1>
@@ -253,38 +255,69 @@ public class ${grammarName}TreeConverter
 		return pt;
 	}
 	
+	private static HAParseTree buildBinaryTree(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType)
+	{		
+		List<HABinaryEntry> values = Lists.newArrayList();
+	
+		ParsedToken[] seq = tok.getSeqValue();
+		    
+		String text = new String();
+		for( int i = 0; i < seq.length; i++ )
+		{
+			HAParseTree child = generateParseTree(seq[i]);
+			
+			if( child instanceof HATerminalNode )
+			{
+				Token symbol = ((HATerminalNode)child).getSymbol();
+				
+				if( symbol instanceof HABinarySequenceToken )
+				{
+					List<HABinaryEntry> binValues = ((HABinarySequenceToken)symbol).getValues();
+					values.addAll(binValues);
+				}
+			}
+		}
+	
+		switch(tokenType)
+		{
+<#list genHelper.getBinaryRuleNames() as ruleName>
+			case TT_${ruleName}: return PT${ruleName}.getBuilder().values(values).build();
+</#list>
+		default:
+			CommonTokenFactory fac = new CommonTokenFactory();
+			return new HATerminalNode( fac.create(tokenType.ordinal()+1, "INVALID_BINARY_TOKEN") );
+		}
+	}
+	
 	private static HAParseTree buildIntTree(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType)
-	{
-		CommonTokenFactory fac = new CommonTokenFactory();
-		
-		HAParseTree pt;
+	{		
+		HABinarySequenceToken token = new HABinarySequenceToken(tokenType.ordinal()+1);
 		switch(tokenType)
 		{
 <#list [8,16,32,64] as bits>
 			case TT_UInt${bits}:
-				pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getUIntValue(), ${bits}, true)  );
-				break;
+				token.addValue(new HABinaryEntry( tok.getUIntValue() ,${bits}, true ));
+				return new HATerminalNode( token  );
 </#list>
 <#list [8,16,32,64] as bits>
 			case TT_Int${bits}:
-				pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getSIntValue(), ${bits}, false)  );
-				break;
+				token.addValue(new HABinaryEntry( tok.getSIntValue(), ${bits}, false ));
+				return new HATerminalNode( token  );
 </#list>
 <#list 1..64 as bits>
 			case TT_UBits${bits}:
-				pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getUIntValue(), ${bits}, true)  );
-				break;
+				token.addValue(new HABinaryEntry( tok.getUIntValue(), ${bits}, true ));
+				return new HATerminalNode( token  );
 </#list>
 <#list 1..64 as bits>
 			case TT_Bits${bits}:
-				pt = new HATerminalNode( new HABinaryToken(tokenType.ordinal()+1, tok.getSIntValue(), ${bits}, false)  );
-				break;
+				token.addValue(new HABinaryEntry( tok.getSIntValue(), ${bits}, false ));
+				return new HATerminalNode( token  );
 </#list>
 		default:
-			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "INVALID_INT_VALUE") );
+			CommonTokenFactory fac = new CommonTokenFactory();
+			return new HATerminalNode( fac.create(tokenType.ordinal()+1, "INVALID_INT_VALUE") );
 		}
-		   
-		return pt;
 	}
 	
 	private static HAParseTree buildOffsetTree(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType)
