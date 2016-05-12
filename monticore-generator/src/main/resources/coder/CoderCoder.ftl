@@ -215,6 +215,10 @@ public class ${parserName}CoderCoder {
 		ArrayList<Encoding> customEncodings = helper.getCustomEncodings();
 		String[] usableSymb = getUsableSymbols();
 		String[] kw = kws;
+		if(kw.length == 0){
+			System.out.println("NO KEYWORDS FOUND - NO ENCODING WILL BE GENERATED");
+			return ;
+		}
 		//System.out.println(kws.length + "  " + types + "INFO");
 		if(!customEncodings.isEmpty()){
 			for(int j = kw.length+1 ; j<=types; j++){
