@@ -6,11 +6,7 @@ ${tc.signature("coderGenerator","outputFolder")}
 
 package ${genHelper.getParserPackage()};
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,9 +47,8 @@ public class ${parserName}EncodingGenerator {
 		if( args.length != 0){
          siso = args[0];
          }	
-         //Test ", / , 
         //Freemarker configuration object
-        @SuppressWarnings( "deprecation" )
+      /*  @SuppressWarnings( "deprecation" )
         Configuration cfg = new Configuration();
         try {
             //Load template from source folder
@@ -63,7 +58,9 @@ public class ${parserName}EncodingGenerator {
             // Build the data-model
             Map<String, Object> data = new HashMap<String, Object>();
             //data.put("message", "Hello World!");
-            //List parsing
+            //List parsing */
+            
+            
             if(siso.equals("siso")){
             System.out.println("LET THE MADNESS BEGIN");
             Set<String> set = new HashSet<>();
@@ -72,33 +69,66 @@ public class ${parserName}EncodingGenerator {
             String[] keywords = set.toArray(new String[0]);
             System.out.println(Arrays.toString(keywords));
          	 ${parserName}CoderCoder coder = new ${parserName}CoderCoder(helper.getTypes(), keywords , helper.getFreeSymbols());
-         	  data.put("hasEncoding", coder.getHasEncoding());
-            data.put("encodings", coder.getCodeSection());
+         	 
+         	 ${parserName}Encodings en = new  ${parserName}Encodings();
+         	 en.setHasEncodingArray(coder.hasEncodingArray);
+         	 en.setAllEncodings(coder.allEncodings);
+         	 try
+		      {
+		         FileOutputStream fileOut =
+		         new FileOutputStream("${outputFolder}/${parserName}Encodings.ser");
+		         ObjectOutputStream out = new ObjectOutputStream(fileOut);
+		         out.writeObject(en);
+		         out.close();
+		         fileOut.close();
+		         System.out.printf("Serialized data is saved");
+		      }catch(IOException i)
+		      {
+		          i.printStackTrace();
+		      }
+         	/*  data.put("hasEncoding", coder.getHasEncoding());
+            // data.put("encodings", coder.getCodeSection());
               // File output
             Writer file = new FileWriter (new File("${outputFolder}/${parserName}Encodings.java"));
             template.process(data, file);
             file.flush();
-            file.close();
+            file.close(); */
             }
             else{
             ${parserName}CoderCoder coder = new ${parserName}CoderCoder(helper.getTypes(),helper.getKeywords(), helper.getFreeSymbols());
-             data.put("hasEncoding", coder.getHasEncoding());
+           /*  data.put("hasEncoding", coder.getHasEncoding());
             data.put("encodings", coder.getCodeSection());
               // File output
             Writer file = new FileWriter (new File("${outputFolder}/${parserName}Encodings.java"));
             template.process(data, file);
             file.flush();
-            file.close();
+            file.close(); */
+            ${parserName}Encodings en = new  ${parserName}Encodings();
+         	 en.setHasEncodingArray(coder.hasEncodingArray);
+         	 en.setAllEncodings(coder.allEncodings);
+         	 try
+		      {
+		         FileOutputStream fileOut =
+		         new FileOutputStream("${outputFolder}/${parserName}Encodings.ser");
+		         ObjectOutputStream out = new ObjectOutputStream(fileOut);
+		         out.writeObject(en);
+		         out.close();
+		         fileOut.close();
+		         System.out.printf("Serialized data is saved");
+		      }catch(IOException i)
+		      {
+		          i.printStackTrace();
+		      }
             }
            
    
           
              
-        } catch (IOException e) {
+      /*  } catch (IOException e) {
             e.printStackTrace();
         } catch (TemplateException e) {
             e.printStackTrace();
-        }
+        } */
     }
 
 }

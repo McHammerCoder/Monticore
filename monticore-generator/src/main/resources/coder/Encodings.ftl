@@ -14,21 +14,30 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ${parserName}Encodings {
+public class ${parserName}Encodings implements java.io.Serializable{
 
 	private ArrayList<Encoding> allEncodings = new ArrayList<Encoding>();
-	private Boolean[] hasEncodingArray =${r"${hasEncoding}"};
+	private Boolean[] hasEncodingArray; //=${r"${hasEncoding}"};
 	
-	public ${parserName}Encodings(){
-		initiateEncodings();
+	public void setAllEncodings(ArrayList<Encoding> ens){
+			this.allEncodings = ens;
 	}
 	
-	private void initiateEncodings()
+	public void setHasEncodingArray(Boolean[] hea){
+		this.hasEncodingArray = hea;
+	}
+	
+	
+	/* public ${parserName}Encodings(){
+		initiateEncodings();
+	} */
+	
+	/* private void initiateEncodings()
 	{
 ${r"<#list encodings as encoding>
 		${encoding}
 </#list>"}
-	}
+	} */
 	
 	public Encoding getEncoding(int type){
 	${parserName}CoderHelper helper = new ${parserName}CoderHelper();

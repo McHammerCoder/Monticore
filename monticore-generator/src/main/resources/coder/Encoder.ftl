@@ -1,4 +1,4 @@
-${tc.signature("coderGenerator")}
+${tc.signature("coderGenerator","outputFolder")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign grammarSymbol = genHelper.getGrammarSymbol()>
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
@@ -9,7 +9,7 @@ package ${genHelper.getParserPackage()};
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.*;
 import ${genHelper.getGNameToLower()}._parser.${parserName}AntlrLexer;
-
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,14 +22,33 @@ public class ${parserName}Encoder{
 	
 	private ${parserName}CoderHelper coderHelper = new ${parserName}CoderHelper();
 	private ${parserName}Encodings encodings = new ${parserName}Encodings();
-	
+	 
 	public ${parserName}AntlrLexer lex(String string){
 		ANTLRInputStream input = new ANTLRInputStream(string);
 		${parserName}AntlrLexer lexer = new ${parserName}AntlrLexer(input);
 		return lexer;
 
 	}
-
+	
+	public ${parserName}Encoder(){
+	      try
+	      {
+	         FileInputStream fileIn = new FileInputStream("${outputFolder}/${parserName}Encodings.ser");
+	         ObjectInputStream in = new ObjectInputStream(fileIn);
+	         encodings = (${parserName}Encodings) in.readObject();
+	         in.close();
+	         fileIn.close();
+	      }catch(IOException i)
+	      {
+	         i.printStackTrace();
+	         return;
+	      }catch(ClassNotFoundException c)
+	      {
+	         System.out.println("Encodings class not found");
+	         c.printStackTrace();
+	         return;
+	      }
+	}
 
 	  public boolean check(CommonToken receivedtoken){
 	/*

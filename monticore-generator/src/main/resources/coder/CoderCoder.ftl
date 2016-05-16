@@ -25,11 +25,11 @@ import de.monticore.codegen.mccoder.*;
  *
  */
 public class ${parserName}CoderCoder {
-	private ArrayList<Encoding> allEncodings = new ArrayList<Encoding>();
+	public ArrayList<Encoding> allEncodings = new ArrayList<Encoding>();
 	private String[] kws;
 	private int types;
 	private String[] freeS;
-	private Boolean[] hasEncodingArray; //Should be sum of types+1
+	public Boolean[] hasEncodingArray; //Should be sum of types+1
 	private ArrayList<String> codeSection = new ArrayList<String>();
 	
 	public ${parserName}CoderCoder(int type, String[] kw, String[] fs){
@@ -152,7 +152,9 @@ public class ${parserName}CoderCoder {
 
 
 					encoding += convertToString(j, usableSymbols[i], usableSymbols[z], (int) Math.ceil((Math.log10(kw.length+1)/Math.log10(2)))); //[log_2(kw.length+1)]
-
+					if(j % 1000 == 0 && j != 0){
+					 System.out.println(j + " Encoding: " + encoding );
+					}
 					if(j != kw.length && !isKeyword(encoding) && typeCheck(type,encoding)){
 					encodingMap.put(kw[j], encoding);//Save encoding and kw[j] to map
 					//addToCodeSection("map.put("  + "\"" + kw[j]  + "\"" + ", " + "\"" + encoding + "\"" + ");");

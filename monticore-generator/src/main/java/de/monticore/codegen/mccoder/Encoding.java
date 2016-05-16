@@ -15,7 +15,7 @@ import java.util.Map;
  * @since   TODO: add version number
  *
  */
-public class Encoding {
+public class Encoding implements java.io.Serializable{
 
 		private int type;
 		private Map<String,String> map;

@@ -1,9 +1,10 @@
-${tc.signature("genHelper")}
+${tc.signature("genHelper","outputFolder")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 
 package ${genHelper.getParserPackage()};
 
+import java.io.*;
 import org.antlr.v4.runtime.*;
 import java.util.Map;
 import de.monticore.codegen.mccoder.*;
@@ -16,6 +17,27 @@ public class ${parserName}Decoder{
 	private ${parserName}CoderHelper helper = new ${parserName}CoderHelper();
 	private ${parserName}Encodings encodings = new ${parserName}Encodings();
 	
+	public ${parserName}Decoder(){
+		  try
+	      {
+	         FileInputStream fileIn = new FileInputStream("${outputFolder}/${parserName}Encodings.ser");
+	         ObjectInputStream in = new ObjectInputStream(fileIn);
+	         encodings = (${parserName}Encodings) in.readObject();
+	         in.close();
+	         fileIn.close();
+	      }catch(IOException i)
+	      {
+	         i.printStackTrace();
+	         return;
+	      }catch(ClassNotFoundException c)
+	      {
+	         System.out.println("Encodings class not found");
+	         c.printStackTrace();
+	         return;
+	      }
+		
+	}
+
 	public void decode(CommonToken toDecode){ //Decodes a token and sets it text to the decoded variant
 			String[] kw = helper.getKeywords();
 			String decodedString = toDecode.getText();

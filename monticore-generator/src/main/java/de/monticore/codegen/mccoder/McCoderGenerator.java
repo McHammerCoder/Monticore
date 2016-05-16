@@ -66,7 +66,7 @@ import de.monticore.grammar.grammar._ast.ASTMCGrammar;
 public class McCoderGenerator
 {
 	public static final String PARSER_PACKAGE = "_coder";
-	private static Class clazz;
+	//private static Class clazz;
 	
 	/*public static Lexer lex(String in){
 		try{
@@ -131,10 +131,11 @@ public class McCoderGenerator
 		
 		generatorHelper.setTokenTypes(tokens);
 		generatorHelper.resolveTokenTypes(tokens);
+		String outputdir = outputDirectory.getPath() + "/" + astGrammar.getName().toLowerCase() + "/"+ PARSER_PACKAGE;
 		
 		// Generate Decoder.java
 		final Path filePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Decoder.java");
-		generator.generate("coder.Decoder", filePath, astGrammar, new UsableSymbolExtractor(generatorHelper,grammarInfo));
+		generator.generate("coder.Decoder", filePath, astGrammar, new UsableSymbolExtractor(generatorHelper,grammarInfo), outputdir);
 		
 		// Generate DecoderVisitor.java
 		final Path filePathDVisitor = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"DecoderVisitor.java");
@@ -142,7 +143,7 @@ public class McCoderGenerator
 		
 		// Generate Encoder.java
 		final Path filePathEncoder = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Encoder.java");
-		generator.generate("coder.Encoder", filePathEncoder, astGrammar, new UsableSymbolExtractor(generatorHelper,grammarInfo));
+		generator.generate("coder.Encoder", filePathEncoder, astGrammar, new UsableSymbolExtractor(generatorHelper,grammarInfo), outputdir);
 	
 		// Generate EncoderVisitor.java
 		final Path filePathEVisitor = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"EncoderVisitor.java");
@@ -162,12 +163,11 @@ public class McCoderGenerator
 		final Path filePathEncodingHelper = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"CoderHelper.java");
 		generator.generate("coder.CoderHelper", filePathEncodingHelper, astGrammar, ex);
 		
-		String outputdir = outputDirectory.getPath() + "/" + astGrammar.getName().toLowerCase() + "/"+ PARSER_PACKAGE;
 		
 		final Path filePathEncodingGenerator = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"EncodingGenerator.java");
 		generator.generate("coder.EncodingGenerator", filePathEncodingGenerator, astGrammar, ex, outputdir);
 		
-		final Path filePathEncodings = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Encodings.ftl");
+		final Path filePathEncodings = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Encodings.java");
 		generator.generate("coder.Encodings", filePathEncodings, astGrammar, ex);
 		
 		final Path filePathCoderCoder = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"CoderCoder.java");
