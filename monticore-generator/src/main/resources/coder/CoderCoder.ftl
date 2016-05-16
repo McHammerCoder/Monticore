@@ -13,8 +13,9 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.*;
 
-import ${genHelper.getGNameToLower()}._parser.*;
+//import ${genHelper.getGNameToLower()}._parser.*;
 import de.monticore.codegen.mccoder.*;
+import ${parserName?lower_case}._mch_parser.${parserName}Checker;
 
 /**
  * TODO: Write me!
@@ -91,13 +92,18 @@ public class ${parserName}CoderCoder {
 
 
 	public boolean typeCheck(int type, String string){
+		CommonTokenFactory fac = new CommonTokenFactory();
+		return ${parserName}Checker.check( fac.create(type,string) );
+		
+		/*
 		Lexer lexer = lex(string);
 		Token nextToken =lexer.nextToken();
 
 		if(type == nextToken.getType() && lexer.nextToken().getType() == Token.EOF){
 			return true;
-			}
-			return false;
+		}
+		return false;
+		*/
 	}
 
 
@@ -113,11 +119,11 @@ public class ${parserName}CoderCoder {
 			}
 		}
 
-			Lexer lexer = lex(alphanumeric[i]);
-			lexer.removeErrorListeners(); //Removes strange error output in the console - we dont need it!
-			if(lexer.nextToken().getType() != Token.EOF){
+		//	Lexer lexer = lex(alphanumeric[i]);
+		//	lexer.removeErrorListeners(); //Removes strange error output in the console - we dont need it!
+		//	if(lexer.nextToken().getType() != Token.EOF){
 				usableSymbols[i] = alphanumeric[i];
-			 }
+		//	 }
 		}
 		usableSymbols = Arrays.stream(usableSymbols).filter(s -> (s != null && s.length() > 0)).toArray(String[]::new); 
 	return usableSymbols;
@@ -282,11 +288,11 @@ public class ${parserName}CoderCoder {
 		}		
 	}
 	
-	private ${parserName}AntlrLexer lex(String in)
+   /*private ${parserName}AntlrLexer lex(String in)
 	{
 		ANTLRInputStream input = new ANTLRInputStream(in);
 		${parserName}AntlrLexer lexer = new ${parserName}AntlrLexer(input);
 		lexer.removeErrorListeners();
 		return lexer;
-	}
+	}*/
 }

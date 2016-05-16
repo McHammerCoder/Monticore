@@ -61,6 +61,9 @@ ${r"<#list encodings as encoding>
 	
 	public boolean hasEncoding(int type){
 		
+		if( type > hasEncodingArray.length-1 )
+			return false;
+		
 		return hasEncodingArray[type];
 
 	}

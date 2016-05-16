@@ -16,7 +16,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.*;
 
-import ${genHelper.getGNameToLower()}._parser.*;
+//import ${genHelper.getGNameToLower()}._parser.*;
 
 public class ${parserName}EncoderVisitor implements ParseTreeListener {
 
@@ -24,7 +24,7 @@ public class ${parserName}EncoderVisitor implements ParseTreeListener {
 
 
 	public void visitTerminal(TerminalNode node) {
-		CommonToken token = (CommonToken)node.getPayload();
+		Token token = (Token)node.getPayload();
 	
 		if(!encoder.check(token)) {
 			encoder.encode(token);

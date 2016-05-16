@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import ${genHelper.getGNameToLower()}._parser.*;
+//import ${genHelper.getGNameToLower()}._parser.*;
 
 //Create testing case on HTML and start testing! (Sensible class division should be done at this point)
 
