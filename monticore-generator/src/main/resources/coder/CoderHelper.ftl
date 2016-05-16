@@ -20,6 +20,7 @@ public class ${parserName}CoderHelper{
 	private Set<String> kws = new HashSet<String>();
 	private int types = ${genHelper.getTokenTypes()};
 	private ArrayList<Encoding> customEncodings = new ArrayList<Encoding>();
+	//private String[] freeSymbols;
 
 	public ${parserName}CoderHelper(){
 		initiateKWAndUS();
@@ -38,6 +39,7 @@ public class ${parserName}CoderHelper{
 			${parserRuleCode}
 		</#list>
 		</#list>
+		
 	}
 
 	private void initiateCustomEncodings(){
@@ -47,6 +49,7 @@ public class ${parserName}CoderHelper{
 		</#list>
 		</#list>
 	}
+	
 
 	public String[] getKeywords(){
 		return kws.toArray(new String[kws.size()]);
@@ -54,7 +57,9 @@ public class ${parserName}CoderHelper{
 	}
 
 	public String[] getFreeSymbols(){
+		
 		return Range.union(ranges);
+		
 	}
 	
 	public ArrayList<Encoding> getCustomEncodings(){

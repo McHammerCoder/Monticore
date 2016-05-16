@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -28,7 +27,7 @@ public class ${parserName}EncodingGenerator {
 	public static String[] getSiso(){
 		List<String> allChars = new ArrayList<String>();
 		for(char i = 0; i < Character.MAX_VALUE; i++){
-			allChars.add(StringEscapeUtils.escapeJava(""+((char) i)));
+			allChars.add(""+((char) i));
 		}
 		
 		List<String> fs = Arrays.asList(helper.getFreeSymbols());
@@ -67,7 +66,7 @@ public class ${parserName}EncodingGenerator {
             set.addAll(Arrays.asList(helper.getKeywords()));
             set.addAll(Arrays.asList(getSiso()));	
             String[] keywords = set.toArray(new String[0]);
-            System.out.println(Arrays.toString(keywords));
+            //System.out.println(Arrays.toString(keywords));
          	 ${parserName}CoderCoder coder = new ${parserName}CoderCoder(helper.getTypes(), keywords , helper.getFreeSymbols());
          	 
          	 ${parserName}Encodings en = new  ${parserName}Encodings();

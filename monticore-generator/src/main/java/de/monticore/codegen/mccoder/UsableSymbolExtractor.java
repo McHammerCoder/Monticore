@@ -95,7 +95,7 @@ private MCGrammarSymbol grammarEntry;
 	private StringBuilder codeSection;
 	
 	private List<String> customEncoding = new ArrayList<String>();
-	
+	private Boolean negate = false;
 	private String indent = "\t";
 	
 	private ArrayList<Range> ranges = new ArrayList<Range>();
@@ -112,24 +112,47 @@ private MCGrammarSymbol grammarEntry;
 		return customEncodingMap;
 	}
 	
-	//@Override
+	@Override
 	public void visit(ASTLexProd ast) 
 	{
 		addToCodeSection(indent + "/*ASTLexProd " + ast.getName() + "*/\n");
 	}
-
 	
+	@Override
+	public void visit(ASTLexBlock ast) 
+	{
+		addToCodeSection(indent + "/*ASTLEXBLOCK "+ ast.isNegate() + " */ \n");
+		negate = ast.isNegate();
+	}
 	@Override
 	public void visit(ASTLexCharRange ast) 
 	{
-		addToCodeSection(indent + "ranges.add(new " + "Range(" + "'" + ast.getLowerChar() + "'" + " ,"  + "'" + ast.getUpperChar() + "'" + " , " + ast.isNegate() + "));\n" );
+		Boolean local = ast.isNegate();
+		if(negate){
+			if(local){
+				local = false;
+			}
+			else{
+				local = true;
+			}
+		}
+		addToCodeSection(indent + "ranges.add(new " + "Range(" + "'" + ast.getLowerChar() + "'" + " ,"  + "'" + ast.getUpperChar() + "'" + " , " + local + "));\n" );
 		ranges.add(new Range(StringEscapeUtils.unescapeJava(ast.getLowerChar()).charAt(0), StringEscapeUtils.unescapeJava(ast.getUpperChar()).charAt(0), ast.isNegate() ));
 	}
 
 	@Override
 	public void visit(ASTLexChar ast)
 	{
-		addToCodeSection(indent + "ranges.add(new " + "Range(" + "'" + ast.getChar() + "'" + " ,"  + "'" + ast.getChar() + "'" +  " , "  + ast.isNegate() + "));\n" );
+		Boolean local = ast.isNegate();
+		if(negate){
+			if(local){
+				local = false;
+			}
+			else{
+				local = true;
+			}
+		}
+		addToCodeSection(indent + "ranges.add(new " + "Range(" + "'" + ast.getChar() + "'" + " ,"  + "'" + ast.getChar() + "'" +  " , "  + negate + "));\n" );
 		ranges.add(new Range(StringEscapeUtils.unescapeJava(ast.getChar()).charAt(0), StringEscapeUtils.unescapeJava(ast.getChar()).charAt(0), ast.isNegate() ));
 	}
 	

@@ -125,7 +125,7 @@ public class ${parserName}CoderCoder {
 
 
 	private boolean createEncoding(String[] kw, String[] usableSymbols, int type){ //Should create a Map with different encodings
-		/*
+			/*
 		Example encoding if a \nin JSsimple
 		var -> bcbbbbbb
 		=   -> bccbbbbb
@@ -136,22 +136,29 @@ public class ${parserName}CoderCoder {
 		b   -> bccccccc
 		Binär codieren könnte das ganze kleiner machen
 		*/
-		//int length0 = kw.length;
-		//int length1 = 1; //makes for a total length of kw.length+1!
 		Map<String, String> encodingMap = new HashMap<String, String>();
 		String startEncoding = new String();
+		ArrayList<String> tmp = new ArrayList<String>();
 		//i == first
 		//z == second
-		for(int i=0; i< usableSymbols.length; i++){
-
-		String encoding = usableSymbols[i];
-			for(int z=i+1; z < usableSymbols.length && z != i; z=(z+1)%usableSymbols.length){ //Second
+		for(String s : usableSymbols){
+			if(typeCheck(type, s)){
+				tmp.add(s);
+			}
+		}
+		String[] realUsable = tmp.toArray(new String[0]);
+		
+		
+		for(int i=0; i< realUsable.length; i++){
+		
+		String encoding = realUsable[i];
+			for(int z=i+1; z < realUsable.length && z != i; z=(z+1)%realUsable.length){ //Second
 				
 
 				for(int j=0; j <= (kw.length); j++){
 
 
-					encoding += convertToString(j, usableSymbols[i], usableSymbols[z], (int) Math.ceil((Math.log10(kw.length+1)/Math.log10(2)))); //[log_2(kw.length+1)]
+					encoding += convertToString(j, realUsable[i], realUsable[z], (int) Math.ceil((Math.log10(kw.length+1)/Math.log10(2)))); //[log_2(kw.length+1)]
 					if(j % 1000 == 0 && j != 0){
 					 System.out.println(j + " Encoding: " + encoding );
 					}
@@ -162,18 +169,18 @@ public class ${parserName}CoderCoder {
 					}
 					else if(isKeyword(encoding) || !typeCheck(type,encoding)){ //Our created encoding contains a keyword reset and try again
 						encodingMap.clear();
-						encoding = usableSymbols[i];
+						encoding = realUsable[i];
 						//addToCodeSection("map.clear();");
 						break;
 					}
 					else if(j == kw.length){
 						//System.out.println(usableSymbols[i] + " = " + encoding);
 				
-						encodingMap.put(usableSymbols[i], encoding); //Last save the encoding for the start
+						encodingMap.put(realUsable[i], encoding); //Last save the encoding for the start
 						//CODE GENERATION
 						addToCodeSection("Map<String, String> map" + type + " = new HashMap<String, String>();");
 						addEncodingMapToCodeSection(encodingMap, type);
-						addToCodeSection("map" + type + ".put("  + "\"" + usableSymbols[i]  + "\"" + ", " + "\"" + encoding + "\"" + ");");
+						addToCodeSection("map" + type + ".put("  + "\"" + realUsable[i]  + "\"" + ", " + "\"" + encoding + "\"" + ");");
 						//END CODE GENERATION
 						startEncoding = encoding;
 						//System.out.println("THE GENERATED ENCODING WAS FOR TYPE: " + type);
@@ -182,7 +189,7 @@ public class ${parserName}CoderCoder {
 						printEncoding(encodingMap, type);
 						return true;
 					}
-					encoding = usableSymbols[i]; //Reset first symbol for encoding
+					encoding = realUsable[i]; //Reset first symbol for encoding
 				}
 			}
 		}
@@ -279,6 +286,7 @@ public class ${parserName}CoderCoder {
 	{
 		ANTLRInputStream input = new ANTLRInputStream(in);
 		${parserName}AntlrLexer lexer = new ${parserName}AntlrLexer(input);
+		lexer.removeErrorListeners();
 		return lexer;
 	}
 }
