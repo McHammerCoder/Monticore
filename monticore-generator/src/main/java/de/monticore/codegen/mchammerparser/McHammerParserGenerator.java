@@ -108,6 +108,10 @@ public class McHammerParserGenerator
 		// Generate Checker.java
 		final Path checkerPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Checker.java");
 		generator.generate("mchparser.Checker", checkerPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		
+		// Generate Checker.java
+		final Path tokensPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+".tokens");
+		generator.generate("mchparser.Tokens", tokensPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 				
 		/*
 		// Generate HAParseTree.java

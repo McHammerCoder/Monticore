@@ -94,7 +94,7 @@ public class GrammarAnalyzer implements Grammar_WithConceptsVisitor {
 	
 	private Map<String,Set<ASTGrammarNode>> dataFields = Maps.newHashMap();
 	
-	private List<String> lexStrings = Lists.newArrayList();
+	private Set<String> lexStrings = Sets.newHashSet();
 	
 	public GrammarAnalyzer() 
 	{
@@ -270,7 +270,7 @@ public class GrammarAnalyzer implements Grammar_WithConceptsVisitor {
 		return dataFields;
 	}
 	
-	public List<String> containsLexStrings(ASTProd ast)
+	public Set<String> containsLexStrings(ASTProd ast)
 	{
 		lexStrings.clear();
 		ast.accept(getRealThis());

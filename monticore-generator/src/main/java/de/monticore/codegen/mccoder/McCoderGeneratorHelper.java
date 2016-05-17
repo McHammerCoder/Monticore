@@ -331,7 +331,7 @@ public class McCoderGeneratorHelper
 	public void resolveTokenTypes(List<String> tokens)
 	{
 		for(String token: tokens) {
-			if( !token.startsWith("'") ){
+			if( !token.startsWith("'") && token.contains("=") ){
 					String left = token.substring(0 ,token.indexOf('='));
 					String right = token.substring(token.indexOf('=')+1, token.indexOf('=')+2);
 					//System.out.println(left + " LEFT | RIGHT " + right);

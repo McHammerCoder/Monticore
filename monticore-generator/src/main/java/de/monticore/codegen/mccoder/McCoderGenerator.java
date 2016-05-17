@@ -116,8 +116,8 @@ public class McCoderGenerator
 		
 		// Initialize GeneratorEngine
 		final GeneratorEngine generator = new GeneratorEngine(setup);
-		de.monticore.codegen.parser.ParserGeneratorHelper tmpGenHelper = new de.monticore.codegen.parser.ParserGeneratorHelper(astGrammar, generatorHelper.getGrammarSymbol());
-		final Path tokenPath = Paths.get(outputDirectory.getPath(), Names.getPathFromPackage(tmpGenHelper.getParserPackage()), astGrammar.getName()+"AntlrLexer.tokens");
+		de.monticore.codegen.mchammerparser.McHammerParserGeneratorHelper tmpGenHelper = new de.monticore.codegen.mchammerparser.McHammerParserGeneratorHelper(astGrammar, symbolTable);
+		final Path tokenPath = Paths.get(outputDirectory.getPath(), Names.getPathFromPackage(tmpGenHelper.getParserPackage()), astGrammar.getName()+".tokens");
 		List<String> tokens = Lists.newArrayList();
 		try 
 		{

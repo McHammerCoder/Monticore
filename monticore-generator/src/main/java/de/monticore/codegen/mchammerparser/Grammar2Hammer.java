@@ -133,7 +133,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 	private GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer();
 	
-	private List<String> lexStrings = Lists.newArrayList();
+	private Set<String> lexStrings = Sets.newHashSet();
 	
 	public Grammar2Hammer(McHammerParserGeneratorHelper parserGeneratorHelper, MCGrammarInfo grammarInfo) 
 	{
@@ -145,14 +145,10 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		// Find all DataFields in the grammar
 		List<ASTProd> rules = parserGeneratorHelper.getParserRulesToGenerate();
 		rules.addAll( parserGeneratorHelper.getBinaryRulesToGenerate() );
+		rules.addAll( parserGeneratorHelper.getLexerRulesToGenerate() );
 		
 		for( ASTProd rule : rules )
-		{
-			for( String data : grammarAnalyzer.containsDataFields(rule).keySet() )
-			{
-				System.out.println(data);
-			}
-			
+		{			
 			dataFields.putAll(grammarAnalyzer.containsDataFields(rule));
 			lengthFields.addAll(grammarAnalyzer.containsLengthFields(rule));
 			lexStrings.addAll(grammarAnalyzer.containsLexStrings(rule));
@@ -1965,7 +1961,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	
 	public List<String> getLexStrings()
 	{
-		return lexStrings;
+		return Arrays.asList(lexStrings.toArray(new String [lexStrings.size()]));
 	}
 	
 	public int getNumLexStrings()
