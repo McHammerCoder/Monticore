@@ -16,10 +16,10 @@ public class ${grammarName}Checker {
 	
 	private static ${grammarName}Parser parser = new ${grammarName}Parser();
 	
-	public static boolean check( CommonToken token )
+	public static boolean check( Token token )
 	{
 		int type = token.getType();
-		if( token instanceof HABinaryToken )
+		if( token instanceof HABinarySequenceToken )
 		{
 			return true;
 		}
@@ -62,7 +62,7 @@ public class ${grammarName}Checker {
 	{
 		switch(type)
 		{
-<#assign iter=genHelper.getNumLexStrings()+1>
+<#assign iter=hammerGenerator.getNumLexStrings()+1>
 <#list genHelper.getLexerRuleNames() as lexRuleName>
 		case ${iter}: return parser._${lexRuleName};
 <#assign iter=iter+1>

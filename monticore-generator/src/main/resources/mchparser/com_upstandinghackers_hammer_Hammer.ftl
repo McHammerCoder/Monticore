@@ -88,7 +88,7 @@ HParsedToken* act_${ruleName}(const HParseResult *p, void* user_data)
 </#list>
 
 <#assign iter=1>
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 HParsedToken* act_TT_${iter}(const HParseResult *p, void* user_data) 
 {
     return callAction(p,"actTT_${iter}");
@@ -191,7 +191,7 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_${grammarName}Hammer
 	}
 </#list>
 <#assign iter=1>
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 	else if( strcmp(actionName,"actTT_${iter}") == 0 )
 	{
 		RETURNWRAP( env, h_action(UNWRAP(env, p), act_TT_${iter}, NULL) );

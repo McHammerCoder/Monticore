@@ -23,7 +23,7 @@ public class ${grammarName}TreeHelper
 <#assign iter=iter+1>
 </#list>
 <#assign iter2=1>
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 		UTT_${iter2}(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter2=iter2+1>
 <#assign iter=iter+1>
@@ -75,7 +75,7 @@ public class ${grammarName}TreeHelper
 	public enum TokenType
 	{
 <#assign iter=1>
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 		TT_${iter},
 <#assign iter=iter+1>
 </#list>
@@ -106,7 +106,7 @@ public class ${grammarName}TreeHelper
 	public static String [] TokenTypeNames =
 	{
 <#assign iter=1>
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 		"TT_${iter}",
 <#assign iter=iter+1>
 </#list>
@@ -136,7 +136,7 @@ public class ${grammarName}TreeHelper
 	
 	public static String [] Literals =
 	{
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 		"'${lexString}'",
 </#list>
 		""

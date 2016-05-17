@@ -133,6 +133,8 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 	private GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer();
 	
+	private List<String> lexStrings = Lists.newArrayList();
+	
 	public Grammar2Hammer(McHammerParserGeneratorHelper parserGeneratorHelper, MCGrammarInfo grammarInfo) 
 	{
 		Preconditions.checkArgument(parserGeneratorHelper.getGrammarSymbol() != null);
@@ -153,6 +155,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 			
 			dataFields.putAll(grammarAnalyzer.containsDataFields(rule));
 			lengthFields.addAll(grammarAnalyzer.containsLengthFields(rule));
+			lexStrings.addAll(grammarAnalyzer.containsLexStrings(rule));
 		}
 	}
 
@@ -288,7 +291,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection("\n" + indent + ")");
 		
 		int id = 0;
-		List<String> terminals = parserGeneratorHelper.getLexStrings();
+		List<String> terminals = getLexStrings();
 		for( ; id < terminals.size(); id++ )
 		{
 			if(terminals.get(id).equals(name))
@@ -428,7 +431,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection("\n" + indent + ")");
 		
 		int id = 0;
-		List<String> terminals = parserGeneratorHelper.getLexStrings();
+		List<String> terminals = getLexStrings();
 		for( ; id < terminals.size(); id++ )
 		{
 			if(terminals.get(id).equals(name))
@@ -1958,5 +1961,15 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		}
 		
 		return list;
+	}
+	
+	public List<String> getLexStrings()
+	{
+		return lexStrings;
+	}
+	
+	public int getNumLexStrings()
+	{
+		return lexStrings.size();
 	}
 }

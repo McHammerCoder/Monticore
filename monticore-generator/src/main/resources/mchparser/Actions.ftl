@@ -58,7 +58,7 @@ public class ${grammarName}Actions
 	}
 </#list>	
 <#assign iter=1>
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 	public static ParsedToken actTT_${iter}(ParseResult p)
 	{		
 		ParsedToken ast = p.getAst();

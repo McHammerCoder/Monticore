@@ -97,7 +97,7 @@ public class ${grammarName}TreeConverter
 				}
 </#list>
 <#assign iter=1>
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_${iter}.getValue())
 				{
 					return buildStringTree(tok, ${grammarName}TreeHelper.TokenType.TT_${iter}.ordinal()+1);

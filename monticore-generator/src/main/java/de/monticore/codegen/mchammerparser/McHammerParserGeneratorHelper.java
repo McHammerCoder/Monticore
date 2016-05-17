@@ -405,6 +405,7 @@ public class McHammerParserGeneratorHelper
 		return rule.getType().getQualifiedName();
 	}
 	
+/*
 	List<String> lexStrings = Lists.newArrayList();
 	
 	public List<String> getLexStrings()
@@ -427,6 +428,7 @@ public class McHammerParserGeneratorHelper
 			}
 		}
 	}
+*/
 	
 	public boolean parseEntireFile()
 	{
