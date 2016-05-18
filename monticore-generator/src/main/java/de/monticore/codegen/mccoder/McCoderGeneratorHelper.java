@@ -353,5 +353,6 @@ public class McCoderGeneratorHelper
 				tokenTypes++;
 			}
 		}
+		tokenTypes -= 3;
 	}
 }
