@@ -12,8 +12,8 @@ public class HAOffsetToken implements WritableToken
 	private long position;
 	private boolean local;
 	
-	HAOffsetToken(	int tokenType, 
-					HABinaryEntry value  ) {		
+	public HAOffsetToken(	int tokenType, 
+							HABinaryEntry value  ) {		
 		this.tokenType = tokenType;
 		this.value = value;
 		this.setLocal(false);

@@ -211,18 +211,17 @@ public class ${grammarName}Parser
 	
 	private List<HAParseTree> parseOffsets( byte[] bytes, HAParseTree parseTree, long offsetOfParseTree ) throws Exception
 	{
-		List<HABinaryToken> offsets = getOffsets(parseTree,offsetOfParseTree);
+		List<HAOffsetToken> offsets = getOffsets(parseTree,offsetOfParseTree);
 		
 		List<HAParseTree> offsetTrees = Lists.newArrayList();
 		if( offsets.size() > 0 )
 		{
 			System.out.println("Offsets Found:");
-			for( HABinaryToken offsetToken : offsets )
+			for( HAOffsetToken offsetToken : offsets )
 			{
 <#list genHelper.getOffsetRulesToGenerate() as offsetProd>
 				if( offsetToken.getType() == ${grammarName}TreeHelper.TokenType.TT_${offsetProd.getName()}.ordinal()+1)
 				{
-					System.out.println("Local Offset: " + offsetToken.getPosition());
 					long offset = ${hammerGenerator.createOffsetLinearMethodCode(offsetProd)};
 <#if genHelper.parseWithoutOverlapingOffsets()>
 					long end = findEnd( offset, bytes.length*8 );
@@ -296,9 +295,9 @@ public class ${grammarName}Parser
 		return end;
 	}
 	
-	private List<HABinaryToken> getOffsets(HAParseTree parseTree, long offsetOfParseTree)
+	private List<HAOffsetToken> getOffsets(HAParseTree parseTree, long offsetOfParseTree)
 	{	
-		List<HABinaryToken> offsets = new ArrayList<HABinaryToken>();
+		List<HAOffsetToken> offsets = new ArrayList<HAOffsetToken>();
 		long position = offsetOfParseTree;
 
 		for( int i = 0; i < parseTree.getChildCount(); i++ )
@@ -310,18 +309,14 @@ public class ${grammarName}Parser
 				Token token = ((HATerminalNode)child).getSymbol();
 				position += getSize(((HATerminalNode)child));
 				
-				if( token instanceof HABinaryToken )
+				if( token instanceof HAOffsetToken )
 				{
-					if( ((HABinaryToken)token).isOffset() )
+					if( ((HAOffsetToken)token).isLocal() )
 					{
-						if( ((HABinaryToken)token).isLocal() )
-						{
-							System.out.println("Local Offset: " + position);
-							((HABinaryToken)token).setPosition(position);
-						}
-					
-						offsets.add((HABinaryToken)token);
+						((HAOffsetToken)token).setPosition(position);
 					}
+				
+					offsets.add((HAOffsetToken)token);
 				}
 			}
 			else
@@ -340,9 +335,16 @@ public class ${grammarName}Parser
 		if( parseTree instanceof HATerminalNode )
 		{
 			Token token = ((HATerminalNode)parseTree).getSymbol();
-			if( token instanceof HABinaryToken )
+			if( token instanceof HABinarySequenceToken )
 			{
-				size += ((HABinaryToken)token).getBits();
+				for( HABinaryEntry bin : ((HABinarySequenceToken)token).getValues() )
+				{
+					size += bin.getBitCount();
+				}
+			}
+			else if( token instanceof HAOffsetToken )
+			{
+				size += ((HAOffsetToken)token).getValue().getBitCount();
 			}
 			else
 			{
@@ -354,23 +356,7 @@ public class ${grammarName}Parser
 			for( int i = 0; i < parseTree.getChildCount(); i++ )
 			{
 				ParseTree child = parseTree.getChild(i);
-				
-				if( child instanceof HATerminalNode )
-				{
-					Token token = ((HATerminalNode)child).getSymbol();
-					if( token instanceof HABinaryToken )
-					{
-						size += ((HABinaryToken)token).getBits();
-					}
-					else
-					{
-						size += child.getText().getBytes().length*8;
-					}
-				}
-				else
-				{
-					size += getSize((HAParseTree)child);
-				}
+				size += getSize((HAParseTree)child);
 			}
 		}
 		

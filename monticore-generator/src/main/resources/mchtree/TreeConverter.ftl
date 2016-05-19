@@ -138,7 +138,8 @@ public class ${grammarName}TreeConverter
 <#list genHelper.getOffsetRulesToGenerate() as offsetProd>
 				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_${offsetProd.getName()}.getValue())
 				{
-					return buildOffsetTree(tok, ${grammarName}TreeHelper.TokenType.TT_${offsetProd.getName()});
+					return buildOffsetTreePlus(tok, ${grammarName}TreeHelper.TokenType.TT_${offsetProd.getName()});
+					//return buildOffsetTree(tok, ${grammarName}TreeHelper.TokenType.TT_${offsetProd.getName()});
 				}
 </#list>
 				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_EOF.getValue())
@@ -338,6 +339,29 @@ public class ${grammarName}TreeConverter
 			break;
 </#list>
 		default:
+			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "INVALID_OFFSET_VALUE") );
+		}
+		   
+		return pt;
+	}
+	
+	private static HAParseTree buildOffsetTreePlus(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType)
+	{
+		HAParseTree pt = generateParseTree( tok.getSeqValue()[0] );
+		
+		HAOffsetToken token;
+		switch(tokenType)
+		{
+<#list genHelper.getOffsetRulesToGenerate() as offsetProd>
+		case TT_${offsetProd.getName()}:			
+			token = new HAOffsetToken(	tokenType.ordinal()+1,
+										((HABinarySequenceToken) ((HATerminalNode)pt).getSymbol()).getValue(0)  );
+			token.setLocal(${offsetProd.isLocal()?c});
+			
+			return new HATerminalNode( token  );
+</#list>
+		default:
+			CommonTokenFactory fac = new CommonTokenFactory();
 			pt = new HATerminalNode( fac.create(tokenType.ordinal()+1, "INVALID_OFFSET_VALUE") );
 		}
 		   

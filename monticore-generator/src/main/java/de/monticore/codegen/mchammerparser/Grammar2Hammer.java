@@ -1648,14 +1648,14 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		if(prod.isLocal())
 		{
 			return (prod.getA().isNegative() ? "offsetToken.getPosition()-" : "offsetToken.getPosition()+")
-					 + "offsetToken.getValue()*" 
+					 + "offsetToken.getValue().getValue()*" 
 					 + prod.getA().getValue() * (prod.getA().isNegative() ? (-1) : 1 )
 					 + ((prod.getSign() == ASTConstantsGrammar.PLUS) ? "+" : "-")
 					 + prod.getB().getValue();
 		}
 		
 		return (prod.getA().isNegative() ? "(bytes.length-1)*8-" : "")
-			 + "offsetToken.getValue()*" 
+			 + "offsetToken.getValue().getValue()*" 
 			 + prod.getA().getValue() * (prod.getA().isNegative() ? (-1) : 1 )
 			 + ((prod.getSign() == ASTConstantsGrammar.PLUS) ? "+" : "-")
 			 + prod.getB().getValue();
