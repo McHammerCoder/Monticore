@@ -349,16 +349,14 @@ public class ${grammarName}TreeConverter
 	{
 		HAParseTree pt = generateParseTree( tok.getSeqValue()[0] );
 		
+		HABinaryEntry value;
 		HAOffsetToken token;
 		switch(tokenType)
 		{
 <#list genHelper.getOffsetRulesToGenerate() as offsetProd>
-		case TT_${offsetProd.getName()}:			
-			token = new HAOffsetToken(	tokenType.ordinal()+1,
-										((HABinarySequenceToken) ((HATerminalNode)pt).getSymbol()).getValue(0)  );
-			token.setLocal(${offsetProd.isLocal()?c});
-			
-			return new HATerminalNode( token  );
+		case TT_${offsetProd.getName()}:	
+			value = ((HABinarySequenceToken) ((HATerminalNode)pt).getSymbol()).getValue(0);		
+			return PT${offsetProd.getName()}.getBuilder().value( value ).build();
 </#list>
 		default:
 			CommonTokenFactory fac = new CommonTokenFactory();
