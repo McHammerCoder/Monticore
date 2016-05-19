@@ -55,6 +55,38 @@ public class HABinarySequenceToken implements WritableToken {
 		this.tokenType = tokenType;
 	}
 	
+	@Override
+	public boolean equals(Object object)
+	{
+		if( !(object instanceof HABinarySequenceToken) )
+		{
+			return false;
+		}
+		
+		HABinarySequenceToken token = (HABinarySequenceToken)object;
+		
+		if( tokenType != token.getType() )
+			return false;
+		
+		
+		List<HABinaryEntry> values = token.getValues();
+		
+		if( !(this.values.size() == values.size()) )
+		{
+			return false;
+		}
+		
+		for( int i = 0; i < values.size(); i++)
+		{
+			if( !this.values.get(i).equals(values.get(i)) )
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	// ------ Unsupported Methods -------
 
 	@Override

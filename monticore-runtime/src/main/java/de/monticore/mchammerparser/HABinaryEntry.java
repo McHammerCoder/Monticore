@@ -48,4 +48,20 @@ public class HABinaryEntry
 		return ((signed)?"uint ":"int ")
 				+ bitCount + "=" + value;
 	}
+	
+	@Override
+	public boolean equals(Object object)
+	{
+		if( !(object instanceof HABinaryEntry) )
+			return false;
+		
+		HABinaryEntry entry = (HABinaryEntry) object;
+		
+		if( this.value == entry.getValue() &&
+			this.bitCount == entry.getBitCount() &&
+			this.signed == entry.isSigned() )
+			return true;
+		else
+			return false;
+	}
 }

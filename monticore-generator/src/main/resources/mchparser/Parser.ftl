@@ -17,10 +17,10 @@ import org.antlr.v4.runtime.*;
 import java.lang.Exception;
 import java.io.IOException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Arrays;
 
 public class ${grammarName}Parser
@@ -187,14 +187,15 @@ public class ${grammarName}Parser
 			throw new Exception("Parse Failed !");
 		}
 		
-		HAParseTree parseTree = new HARuleNode(new HARuleContext(${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal()));
-		parseTree.addChild(${grammarName}TreeConverter.create(parseResult));
+		HAFileNode parseTree = new HAFileNode(new HARuleContext(${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal()));
+		parseTree.addChild(${grammarName}TreeConverter.create(parseResult),offset);
 		
 		ranges.add(new Range(offset,offset+getSize(parseTree)));
 		
-		for( HAParseTree pt : parseOffsets(bytes,parseTree,offset) )
+		Map<HAParseTree,Long> offsets = parseOffsets(bytes,parseTree,offset);
+		for( HAParseTree pt : offsets.keySet() )
 		{
-			parseTree.addChild(pt);
+			parseTree.addChild(pt,offsets.get(pt));
 		}
 		
 		printRanges();
@@ -209,11 +210,11 @@ public class ${grammarName}Parser
 		return parseTree;
 	}
 	
-	private List<HAParseTree> parseOffsets( byte[] bytes, HAParseTree parseTree, long offsetOfParseTree ) throws Exception
+	private Map<HAParseTree,Long> parseOffsets( byte[] bytes, HAParseTree parseTree, long offsetOfParseTree ) throws Exception
 	{
 		List<HAOffsetToken> offsets = getOffsets(parseTree,offsetOfParseTree);
 		
-		List<HAParseTree> offsetTrees = Lists.newArrayList();
+		Map<HAParseTree,Long> offsetTrees = Maps.newHashMap();
 		if( offsets.size() > 0 )
 		{
 			System.out.println("Offsets Found:");
@@ -240,11 +241,11 @@ public class ${grammarName}Parser
 					
 					HAParseTree pt = (HAParseTree) ${grammarName}TreeConverter.create(parseResult);
 					
-					offsetTrees.add(pt);
+					offsetTrees.put(pt,offset);
 					
 					ranges.add(new Range(offset,offset+getSize(pt)));
 					
-					offsetTrees.addAll( parseOffsets(bytes,pt,offset) );
+					offsetTrees.putAll( parseOffsets(bytes,pt,offset) );
 				}
 </#list>
 			}
