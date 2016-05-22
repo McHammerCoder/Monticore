@@ -4,7 +4,6 @@ ${tc.signature("genHelper")}
 package ${genHelper.getParserPackage()};
 
 import java.util.*;
-//import com.google.common.collect.Lists;
 import com.google.common.collect.*;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.*;
@@ -14,9 +13,44 @@ import de.monticore.mchammerparser.*;
 public class ${parserName}PP implements ParseTreeListener {
 	
 	private ArrayList<Byte> bytes = Lists.newArrayList();
+	private ArrayList<Byte> result = Lists.newArrayList();
 	private ParseTreeWalker walker = new ParseTreeWalker();	
-	private Map<ArrayList<Byte>, Long> map = Maps.newHashMap();
+	private Map<Long, HAParseTree> map = Maps.newHashMap();
 	private int offset = 0;
+	private int resOffset = 0;
+
+
+	private void appendToResult(byte [] byteArray, int size)
+	{
+		int numBytes = byteArray.length + ((size > 0) ? 1 : 0);
+		for( int i = 0; i <= numBytes-1; i++ )
+		{
+			if( i < numBytes-1)
+				appendToResult( byteArray[i], 8 );
+			else
+				appendToResult( byteArray[i], (size%8 == 0)? 8 : size%8 );
+		}
+	}
+
+	private void appendToResult(byte value, int bits)
+	{
+		int b = (result.size() > 0) ? result.remove(result.size()-1).byteValue() : 0;
+		int v = value;
+		
+		int v1 = ((v << (8-bits)) >> (resOffset));
+		int v2 = (v << ((8-resOffset)+(8-bits)));
+		
+		b = b | v1;
+		resOffset = (resOffset+bits);
+		
+		result.add((byte)b);
+		
+		if( resOffset >= 8 )
+		{
+			result.add((byte)v2);
+			resOffset %= 8;
+		}	
+	}
 
 	private void append(long value, int bits)
 	{
@@ -30,12 +64,9 @@ public class ${parserName}PP implements ParseTreeListener {
 		}
 	}
 	
-	private void append(byte value, int bits)	//49 & 8
+	private void append(byte value, int bits)
 	{
-		if(bits == 0){ bits = 8; }
-		System.out.println(value +" VALUE | BITS " + bits);
 		int b = (bytes.size() > 0) ? bytes.remove(bytes.size()-1).byteValue() : 0;
-		System.out.print((byte)b);
 		int v = value;
 		
 		int v1 = ((v << (8-bits)) >> (offset));
@@ -44,7 +75,6 @@ public class ${parserName}PP implements ParseTreeListener {
 		b = b | v1;
 		offset = (offset+bits);
 		
-		System.out.println("->" + (byte)b + "&" + (byte)v2);
 		bytes.add((byte)b);
 		
 		if( offset >= 8 )
@@ -55,53 +85,47 @@ public class ${parserName}PP implements ParseTreeListener {
 	}
 	
 	public byte[] prettyPrint(ParseTree pt){
+
+		resOffset = 0;
+		offset = 0;
+
 		if(pt instanceof HAFileNode){
-		//System.out.println("TOBI HATTE RECHT");
 			HAFileNode fn = (HAFileNode) pt;
-			int cCount = fn.getChildCount();
-			for( int i = 0; i< cCount; i++){
-			//System.out.println("TOBI HATTE RECHT2 " + cCount + "cCount | i " + i);
-				ParseTree child = fn.getChild(i);
+			int childCount = fn.getChildCount();
+
+			for( int i = 0; i < childCount; i++){
+				HAParseTree child = (HAParseTree)fn.getChild(i);
 				long offset = fn.getOffset(child);
-				walker.walk(this, child);
-				System.out.println(new String(toSmallByte(bytes.toArray(new Byte[bytes.size()]))) + " OFFSET " + this.offset);
-				if(offset == 0 && bytes.size() > 0){
-					bytes.remove(bytes.size()-1);
-				}
-				map.put(bytes, offset);
-				//System.out.println(new String(toSmallByte(bytes.toArray(new Byte[bytes.size()]))));
-				bytes = Lists.newArrayList();
-				this.offset = 0;
+				map.put(offset, child);
 			}
-			int j = map.size();
-			for(int i = 0; i < j ; i++ ){
-				//System.out.println("TOBI HATTE RECHT3 " + i + "i | j " + j);
+
+			for(int i = 0; i < map.size(); ){
 				long currentOffset = Long.MAX_VALUE;
-				for(Long offset : map.values()){
+				for(Long offset : map.keySet()){
 					if(offset < currentOffset){
 						currentOffset = offset;
 					}
-					
 				}
-				//System.out.println("Hallo, ich bin der currentOffset: " + currentOffset);
-				List<Long> list = new ArrayList<Long>(map.values());
-				int name = list.indexOf(new Long(currentOffset));
-				ArrayList<Byte> curBytes = Lists.newArrayList(map.keySet()).get(name);
-				this.offset = (int) (currentOffset % 8); 
-				for(Byte b : curBytes){
-					//System.out.println("TOBI HATTE RECHT4 " + b);
-					append(b, 8);
-					//System.out.println(new String(toSmallByte(bytes.toArray(new Byte[bytes.size()]))));
-				}
-				map.remove(curBytes);
-			}
-			if(offset == 0 && bytes.size() > 0){
+				
+				List<Long> list = Lists.newArrayList(map.keySet());
+				int index = list.indexOf(new Long(currentOffset));
+				HAParseTree child = Lists.newArrayList(map.values()).get(index); 
+				
+				walker.walk(this, child);
+				if(offset == 0 && bytes.size() > 0){
 					bytes.remove(bytes.size()-1);
 				}
-		    return toSmallByte(bytes.toArray(new Byte[bytes.size()])); 
-	    }
-	    System.err.println("PT NOT instanceof HAFileNode");
-	   return new byte[0];
+				appendToResult(toSmallByte(bytes.toArray(new Byte[bytes.size()])), (int) (getSize(child)%8));
+
+				bytes = Lists.newArrayList();
+				map.remove(currentOffset);
+			}
+			if(offset == 0 && result.size() > 0){
+				result.remove(result.size()-1);
+			}
+			return toSmallByte(result.toArray(new Byte[result.size()])); 
+	    	}
+	   	return new byte[0];
 	}
 	
 	private byte[] toSmallByte(Byte[] oBytes) {
@@ -114,23 +138,61 @@ public class ${parserName}PP implements ParseTreeListener {
 	    return bytes;
 	}
 	
+
+	private long getSize(HAParseTree parseTree)
+	{
+		long size = 0;
+
+		if( parseTree instanceof HATerminalNode )
+		{
+			Token token = ((HATerminalNode)parseTree).getSymbol();
+			if( token instanceof HABinarySequenceToken )
+			{
+				for( HABinaryEntry bin : ((HABinarySequenceToken)token).getValues() )
+				{
+					size += bin.getBitCount();
+				}
+			}
+			else if( token instanceof HAOffsetToken )
+			{
+				size += ((HAOffsetToken)token).getValue().getBitCount();
+			}
+			else
+			{
+				size += parseTree.getText().getBytes().length*8;
+			}
+		}
+		else
+		{
+			for( int i = 0; i < parseTree.getChildCount(); i++ )
+			{
+				ParseTree child = parseTree.getChild(i);
+				size += getSize((HAParseTree)child);
+			}
+		}
+		
+		return size;
+	}
+
+
 	public void visitTerminal(TerminalNode node) {
 		Token token = node.getSymbol();
 		if(token instanceof CommonToken){
-			//System.out.print(token.getText());
 			byte[] stringBytes = token.getText().getBytes();
 			for(byte b : stringBytes){
 				append(b,8);
 			}		
 		}
-		else if(token instanceof HABinarySequenceToken){
-			//System.out.print(token.getText());		
+		else if(token instanceof HABinarySequenceToken){	
 			List<HABinaryEntry> haBinaryEntries = ((HABinarySequenceToken) token).getValues();
 			for(HABinaryEntry h: haBinaryEntries){
 				int	unserBitCount = h.getBitCount();
-				System.out.println(h.getValue() + " " + unserBitCount);
 				append(h.getValue(), unserBitCount);
 			}
+		}
+		else if(token instanceof HAOffsetToken){
+			HABinaryEntry haBinaryEntry = ((HAOffsetToken) token).getValue();
+			append(haBinaryEntry.getValue(), haBinaryEntry.getBitCount());
 		}
 	}	
 	
