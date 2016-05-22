@@ -26,14 +26,16 @@ public class ${parserName}PP implements ParseTreeListener {
 			if( i < numBytes-1)
 				append( (byte) (value >> i*8), 8 );
 			else
-				append( (byte) (value >> i*8), bits%8 );
+				append( (byte) (value >> i*8), (bits%8 == 0)? 8 : bits%8 );
 		}
 	}
 	
-	private void append(byte value, int bits)
+	private void append(byte value, int bits)	//49 & 8
 	{
+		if(bits == 0){ bits = 8; }
+		System.out.println(value +" VALUE | BITS " + bits);
 		int b = (bytes.size() > 0) ? bytes.remove(bytes.size()-1).byteValue() : 0;
-		//System.out.print((byte)b);
+		System.out.print((byte)b);
 		int v = value;
 		
 		int v1 = ((v << (8-bits)) >> (offset));
@@ -42,7 +44,7 @@ public class ${parserName}PP implements ParseTreeListener {
 		b = b | v1;
 		offset = (offset+bits);
 		
-		//System.out.println("->" + (byte)b + "&" + (byte)v2);
+		System.out.println("->" + (byte)b + "&" + (byte)v2);
 		bytes.add((byte)b);
 		
 		if( offset >= 8 )
@@ -62,10 +64,12 @@ public class ${parserName}PP implements ParseTreeListener {
 				ParseTree child = fn.getChild(i);
 				long offset = fn.getOffset(child);
 				walker.walk(this, child);
+				System.out.println(new String(toSmallByte(bytes.toArray(new Byte[bytes.size()]))) + " OFFSET " + this.offset);
 				if(offset == 0 && bytes.size() > 0){
 					bytes.remove(bytes.size()-1);
 				}
 				map.put(bytes, offset);
+				//System.out.println(new String(toSmallByte(bytes.toArray(new Byte[bytes.size()]))));
 				bytes = Lists.newArrayList();
 				this.offset = 0;
 			}
@@ -123,7 +127,9 @@ public class ${parserName}PP implements ParseTreeListener {
 			//System.out.print(token.getText());		
 			List<HABinaryEntry> haBinaryEntries = ((HABinarySequenceToken) token).getValues();
 			for(HABinaryEntry h: haBinaryEntries){
-				append(h.getValue(),h.getBitCount());
+				int	unserBitCount = h.getBitCount();
+				System.out.println(h.getValue() + " " + unserBitCount);
+				append(h.getValue(), unserBitCount);
 			}
 		}
 	}	
