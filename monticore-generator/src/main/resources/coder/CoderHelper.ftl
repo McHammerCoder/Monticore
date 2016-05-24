@@ -6,6 +6,7 @@ ${tc.signature("coderGenerator")}
 
 package ${genHelper.getParserPackage()};
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -50,9 +51,26 @@ public class ${parserName}CoderHelper{
 		</#list>
 	}
 	
-
+		
 	public String[] getKeywords(){
-		return kws.toArray(new String[kws.size()]);
+	
+		HashSet<String> list = new HashSet<String>();
+		for(String todo : kws){
+			for(int i = 0; i < todo.length()-1; i++){
+				
+				list.add(todo.substring(0, i+1));
+			}
+			for(int i = 0; i< todo.length(); i++){
+				list.add(todo.substring(i, todo.length()));
+			}
+		}
+		//System.out.println((Arrays.toString(list.toArray(new String[kws.size()]))));
+		return list.toArray(new String[kws.size()]);
+
+	}
+
+	public int getKeywordsLength(){
+		return kws.size();
 
 	}
 

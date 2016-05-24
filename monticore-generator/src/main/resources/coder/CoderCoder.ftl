@@ -236,7 +236,7 @@ public class ${parserName}CoderCoder {
 		}
 		//System.out.println(kws.length + "  " + types + "INFO");
 		if(!customEncodings.isEmpty()){
-			for(int j = helper.getKeywords().length+1 ; j<=types; j++){
+			for(int j = (helper.getKeywordsLength()+1) ; j<=types; j++){
 				for(Encoding e : customEncodings){
 					if(e.getType() == j){
 						System.out.println("FOUND CUSTOM ENCODING FOR TYPE: " + j);
@@ -265,7 +265,7 @@ public class ${parserName}CoderCoder {
 			}
 
 		else{
-			for(int j = ((helper.getKeywords().length)+1) ; j<=types; j++){
+			for(int j = (helper.getKeywordsLength()+1) ; j<=types; j++){
 				hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
 				if(!hasEncodingArray[j]){
 					System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
