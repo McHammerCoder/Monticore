@@ -483,7 +483,7 @@ public class McHammerParserGeneratorHelper
 			}
 		}
 		
-		return false;
+		return true;
 	}
 	
 	/**
