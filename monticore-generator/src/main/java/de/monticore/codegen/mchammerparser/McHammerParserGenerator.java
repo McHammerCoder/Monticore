@@ -44,12 +44,10 @@ import de.monticore.grammar.MCGrammarInfo;
 import de.monticore.grammar.grammar._ast.ASTMCGrammar;
 
 /**
- * TODO: Write me!
+ * Main Generator Class for the MCHammerParser-Generator
  *
  * @author  (last commit) $Author$
  * @version $Revision$, $Date$
- * @since   TODO: add version number
- *
  */
 public class McHammerParserGenerator
 {
@@ -59,6 +57,16 @@ public class McHammerParserGenerator
 	
 	public static final String RESOURCES_FOLDER = "resources";
 	
+	/* The logger name for logging from within a Groovy script. */
+	static final String LOG_ID = "MCH Parser Generator";
+	
+	/**
+	 * Generates the parser files
+	 * 
+	 * @param symbolTable AST grammar symbols
+	 * @param astGrammar AST of the input grammar
+	 * @param outputDirectory Output directory for the generated parser files
+	 */
 	public static void generate(Scope symbolTable, ASTMCGrammar astGrammar, File outputDirectory)
 	{
 		// Initialize GeneratorHelper
@@ -76,6 +84,7 @@ public class McHammerParserGenerator
 		// Initialize GeneratorEngine
 		final GeneratorEngine generator = new GeneratorEngine(setup);
 
+/** TODO: Remove ! */
 		// Load Antlr TokenList
 /*
 		de.monticore.codegen.parser.ParserGeneratorHelper tmpGenHelper = new de.monticore.codegen.parser.ParserGeneratorHelper(astGrammar, generatorHelper.getGrammarSymbol());
@@ -92,74 +101,54 @@ public class McHammerParserGenerator
 		}
 		
 		generatorHelper.setAntlrTokens(tokens);
-*/		
-		// Generate Parser.java
+*/
+		
+		// Generate ${grammarName}Parser.java
 		final Path parserPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Parser.java");
 		generator.generate("mchparser.Parser", parserPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 		
-		// Generate Parser.java
+		// Generate NativeUtils.java
 		final Path nativeUtilsPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), "NativeUtils.java");
 		generator.generate("mchparser.NativeUtils", nativeUtilsPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 			
-		// Generate Actions.java
+		// Generate ${grammarName}Actions.java
 		final Path actionsPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Actions.java");
 		generator.generate("mchparser.Actions", actionsPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 		
-		// Generate Checker.java
+		// Generate ${grammarName}Checker.java
 		final Path checkerPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Checker.java");
 		generator.generate("mchparser.Checker", checkerPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 		
-		// Generate Checker.java
+		// Generate ${grammarName}.tokens
 		final Path tokensPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+".tokens");
 		generator.generate("mchparser.Tokens", tokensPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 				
-		/*
-		// Generate HAParseTree.java
-		final Path parseTreePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HAParseTree.java");
-		generator.generate("mchtree.HAParseTree", parseTreePath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-		
-		// Generate HARuleContext.java
-		final Path ruleContextPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HARuleContext.java");
-		generator.generate("mchtree.HARuleContext", ruleContextPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-		
-		// Generate HARuleNode.java
-		final Path ruleNodePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HARuleNode.java");
-		generator.generate("mchtree.HARuleNode", ruleNodePath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-		
-		// Generate HATerminalNode.java
-		final Path terminalNodePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HATerminalNode.java");
-		generator.generate("mchtree.HATerminalNode", terminalNodePath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-		
-		// Generate HABinaryToken.java
-		final Path binaryTokenPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "HABinaryToken.java");
-		generator.generate("mchtree.HABinaryToken", binaryTokenPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-		*/
-		// Generate TreeConverter.java
+/** TODO: Move to ParseTreeGenerator */
+		// Generate ${grammarName}TreeConverter.java
 		final Path treeConverterPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), astGrammar.getName()+"TreeConverter.java");
 		generator.generate("mchtree.TreeConverter", treeConverterPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 		
-		// Generate TreeHelper.java
+		// Generate ${grammarName}TreeHelper.java
 		final Path treeHelperPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), astGrammar.getName()+"TreeHelper.java");
 		generator.generate("mchtree.TreeHelper", treeHelperPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-				
-		// Generate com_upstandinghackers_hammer_Hammer.c
+		
+		// Generate libjhammer_${grammarName}.c
 		final Path hammerActionPath = Paths.get(RESOURCES_FOLDER, "libjhammer_"+astGrammar.getName()+".c");
 		generator.generate("mchparser.com_upstandinghackers_hammer_Hammer", hammerActionPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 	
-		// Generate HammerExtension.java in out/resources directory
+		// Generate ${grammarName}Hammer.java in out/resources directory (needed to seperate the actions of different parsers)
 		final Path hammerExtensionPath = Paths.get(RESOURCES_FOLDER,Names.getPathFromPackage("com.upstandinghackers.hammer"), astGrammar.getName()+"Hammer.java");
 		generator.generate("mchparser.HammerExtension", hammerExtensionPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 	
-		// Generate HammerExtension.java in out directory
-		//final Path hammerExtensionOutPath = Paths.get(Names.getPathFromPackage("com.upstandinghackers.hammer"), astGrammar.getName()+"Hammer.java");
-		//generator.generate("mchparser.HammerExtension", hammerExtensionOutPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-		
-		// Extract Hammer resources
+		// Extract Hammer resources if executed from MontiCore CLI
+		Log.debug("extracting McHammerParser resources!", LOG_ID);
 		final Path resourcesFolder =  Paths.get(outputDirectory.toString(),RESOURCES_FOLDER);
 		List<File> fileList = extractTemporaryResources(resourcesFolder,"resources/.*");
 		fileList.addAll( extractTemporaryResources(resourcesFolder,"com/upstandinghackers/hammer/.*") );
 		fileList.addAll( extractTemporaryResources(resourcesFolder,"Makefile") );
 				
+		// Compile resources if executed from MontiCore CLI
+		Log.debug("compiling McHammerParser resources!", LOG_ID);
 		try
 		{
 			Process p = Runtime.getRuntime().exec("make all CSOURCES=\"libjhammer_" + astGrammar.getName() + ".c\" REALLY_USE_OBSOLETE_BUILD_SYSTEM=yes",null,resourcesFolder.toFile());
@@ -170,10 +159,15 @@ public class McHammerParserGenerator
 		{
 			e.printStackTrace();
 		}
-		
-		//System.console().readLine();
 	}
 		
+	/**
+	 * Extracts a files and folders (resources) from its JAR
+	 * 
+	 * @param outputDirectory Output directory of the extracted files
+	 * @param resourcePath Path of the extracted resources inside the JAR
+	 * @return A list of all extracted files
+	 */
 	private static List<File> extractTemporaryResources(Path outputDirectory,String resourcePath)
 	{
 		try
@@ -191,14 +185,11 @@ public class McHammerParserGenerator
 	        {
 	        	if( !resource.endsWith("/") )
 	        	{
-	        	
-		        	//System.out.println(resource);
 		        	String resourceOutput = outputDirectory + "/" + resource;
 		        	File tempPath = new File(resourceOutput.substring(0,resourceOutput.lastIndexOf("/")));
 		        	tempPath.mkdirs();
 		        	File tempFile = new File(resourceOutput);       	
 		        	tempFile.createNewFile();
-		        	//tempFile.deleteOnExit();
 		        	
 		        	if (!tempFile.exists()) 
 		        	{
