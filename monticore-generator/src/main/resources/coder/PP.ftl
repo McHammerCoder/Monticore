@@ -85,7 +85,8 @@ public class ${parserName}PP implements ParseTreeListener {
 	}
 	
 	public byte[] prettyPrint(ParseTree pt){
-
+	
+		result.clear();
 		resOffset = 0;
 		offset = 0;
 
