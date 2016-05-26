@@ -374,7 +374,8 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		List<String> terminals = getLexStrings();
 		for( ; id < terminals.size(); id++ )
 		{
-			if(terminals.get(id).equals(name))
+			String terminal = StringEscapeUtils.unescapeJava(terminals.get(id));
+			if(terminal.equals(name))
 			{
 				break;
 			}	
@@ -675,10 +676,24 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTLexString ast) 
 	{
-		
 		String name = StringEscapeUtils.unescapeJava(ast.getString());
 		
-		System.out.println(name);
+		int id = 0;
+		List<String> terminals = getLexStrings();
+		for( ; id < terminals.size(); id++ )
+		{
+			String terminal = StringEscapeUtils.unescapeJava(terminals.get(id));
+			if(terminal.equals(name))
+			{
+				break;
+			}	
+		}
+		
+		if( id < terminals.size() )
+		{
+			addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
+			increaseIndent();
+		}
 		
 		addToCodeSection("\n" + indent + "Hammer.sequence( ");
 		increaseIndent();
@@ -707,6 +722,12 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ")");
+		
+		if( id < terminals.size() )
+		{
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ", \"actTT_" + (id+1) + "\" )");
+		}
 	}
 	
 	@Override
