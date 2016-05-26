@@ -60,6 +60,9 @@ public class ${grammarName}Checker {
 						int keywordValidCount = 0;
 						String keyword = ${grammarName}TreeHelper.Literals[i].substring(1,${grammarName}TreeHelper.Literals[i].length()-1);
 						
+						// contains dangerous parts of keywords?
+						startsOrEndsWithPartOfKeyword(tok,keyword);
+						
 						for( int j = 0; j < ${grammarName}TreeHelper.Literals.length-1; j++)
 						{
 							String kw = ${grammarName}TreeHelper.Literals[j].substring(1,${grammarName}TreeHelper.Literals[j].length()-1);
@@ -91,6 +94,26 @@ public class ${grammarName}Checker {
 				}
 			}
 		}
+	}
+	
+	private static boolean startsOrEndsWithPartOfKeyword(String text, String keyword)
+	{
+		if( keyword.length() <= 1 )
+			return false;
+
+		for( int i = 1; i < keyword.length(); i++ )
+		{
+			if( text.startsWith(keyword.substring(i)) )
+				return true;
+		}
+
+		for( int i = keyword.length()-2; i >= 0; i-- )
+		{
+			if( text.endsWith(keyword.substring(0,i)) )
+				return true;
+		}
+
+		return false;
 	}
 	
 	private static int countKeywords(String text, String keyword)
