@@ -3,7 +3,7 @@ ${tc.signature("genHelper")}
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign packageName = genHelper.getQualifiedGrammarName()?cap_first>
 
-package ${genHelper.getParserPackage()};
+package ${genHelper.getCoderPackage()};
 
 
 import org.antlr.v4.runtime.Token;

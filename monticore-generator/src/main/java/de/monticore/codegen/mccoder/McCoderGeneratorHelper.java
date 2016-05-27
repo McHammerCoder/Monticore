@@ -146,9 +146,9 @@ public class McCoderGeneratorHelper
 	/**
 	 * @return the package for the generated parser files
 	 */
-	public String getParserPackage() 
+	public String getCoderPackage() 
 	{
-		return getQualifiedGrammarName().toLowerCase() + "." + McCoderGenerator.PARSER_PACKAGE;
+		return getQualifiedGrammarName().toLowerCase() + "." + McCoderGenerator.CODER_PACKAGE;
 	}
 	
 	

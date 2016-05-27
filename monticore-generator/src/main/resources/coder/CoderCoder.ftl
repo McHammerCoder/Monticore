@@ -4,7 +4,7 @@ ${tc.signature("coderGenerator")}
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
-package ${genHelper.getParserPackage()};
+package ${genHelper.getCoderPackage()};
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -162,7 +162,8 @@ public class ${parserName}CoderCoder {
 						encodingMap.put(realUsable[i], encoding); //Last save the encoding for the start
 						startEncoding = encoding;
 						allEncodings.add(new Encoding(type, encodingMap , startEncoding));
-						printEncoding(encodingMap, type);
+						System.out.println("[INFO] Generated (en/de)coding for token type: " + type);
+						printEncoding(encodingMap);
 						return true;
 					}
 					encoding = realUsable[i]; //Reset first symbol for encoding
@@ -209,6 +210,8 @@ public class ${parserName}CoderCoder {
 				for(Encoding e : customEncodings){
 					if(e.getType() == j){
 						System.out.println("[INFO] Found custom encoding for type: " + j);
+						printEncoding(e.getMap());
+						
 						hasEncodingArray[j] = true;
 						Map<String, String> map = e.getMap();
 						int numOfKws = 0;
@@ -247,8 +250,7 @@ public class ${parserName}CoderCoder {
 				addToCodeSection("map" + type + ".put("  + "\"" + key  + "\"" + ", " + "\"" + map.get(key) + "\"" + ");");
 			}
 	}
-	public void printEncoding(Map <String,String> map, int type ){
-		System.out.println("[INFO] Generated (en/de)coding for token type: " + type);
+	public void printEncoding(Map <String,String> map){
 		if(map.size() != 0){
 			for(String key:map.keySet()){		
 				System.out.println(key + " = " + map.get(key));

@@ -4,7 +4,7 @@ ${tc.signature("coderGenerator","outputFolder")}
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
-package ${genHelper.getParserPackage()};
+package ${genHelper.getCoderPackage()};
 
 import java.io.*;
 import java.util.ArrayList;
@@ -78,7 +78,7 @@ public class ${parserName}EncodingGenerator {
 		         out.writeObject(en);
 		         out.close();
 		         fileOut.close();
-		         System.out.printf("[INFO] Serialized data is saved");
+		         System.out.println("[INFO] Serialized data is saved");
 		      }catch(IOException i)
 		      {
 		          i.printStackTrace();

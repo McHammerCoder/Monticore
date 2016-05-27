@@ -34,7 +34,7 @@ import de.monticore.grammar.grammar._ast.ASTMCGrammar;
  */
 public class McCoderPPGenerator
 	{
-		public static final String PARSER_PACKAGE = "_coder.pp";
+		public static final String PP_PACKAGE = "_coder.pp";
 		
 		public static void generate(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)
 		{
@@ -49,7 +49,7 @@ public class McCoderPPGenerator
 			final GeneratorEngine generator = new GeneratorEngine(setup);
 			
 			// Generate _Decoder.java
-			final Path filePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"PP.java");
+			final Path filePath = Paths.get(Names.getPathFromPackage(generatorHelper.getPPPackage()), astGrammar.getName()+"PP.java");
 			generator.generate("coder.PP", filePath, astGrammar, generatorHelper);	
 		}
 	}

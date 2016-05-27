@@ -87,9 +87,9 @@ public class McCoderPPGeneratorHelper {
 	/**
 	 * @return the package for the generated parser files
 	 */
-	public String getParserPackage() 
+	public String getPPPackage() 
 	{
-		return getQualifiedGrammarName().toLowerCase() + "." + McCoderPPGenerator.PARSER_PACKAGE;
+		return getQualifiedGrammarName().toLowerCase() + "." + McCoderPPGenerator.PP_PACKAGE;
 	}
 	public String getGNameToLower(){
 		

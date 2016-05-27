@@ -4,7 +4,7 @@ ${tc.signature("coderGenerator")}
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
-package ${genHelper.getParserPackage()};
+package ${genHelper.getCoderPackage()};
 
 
 import java.util.ArrayList;

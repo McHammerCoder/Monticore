@@ -1,7 +1,7 @@
 ${tc.signature("genHelper")}
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 
-package ${genHelper.getParserPackage()};
+package ${genHelper.getPPPackage()};
 
 import java.util.*;
 import com.google.common.collect.*;

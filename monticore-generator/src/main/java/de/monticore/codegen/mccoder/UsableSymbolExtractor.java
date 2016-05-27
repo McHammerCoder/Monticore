@@ -364,19 +364,7 @@ private MCGrammarSymbol grammarEntry;
 		return Range.union(ranges);
 	}
 	
-	public void printTable(){
-		for(String c:customEncodingMap.keySet())
-		{
-			System.out.println("Encoding Table " + c);
-			Map<String,String> map = customEncodingMap.get(c);
-			for(String m:map.keySet())
-			{
-				System.out.println(m + " -> " + map.get(m));
-			}
-			
-		}
-		
-	}
+	
 	public void addEncodingMapToCodeSection (Map<String, String> map, String type){
 		for(String key: map.keySet()){
 			addToCustomEncoding("map" + type + ".put("  + "\"" + key  + "\"" + ", " + "\"" + map.get(key) + "\"" + ");");
@@ -390,7 +378,7 @@ private MCGrammarSymbol grammarEntry;
 				return resolved.get(r);
 			}
 		}
-		System.err.println("TOKEN NAME "+ name + " CANNOT BE RESOLVED");
+		System.err.println("[ERR] Token name "+ name + " cannot be resolved");
 		return null;
 	}
 

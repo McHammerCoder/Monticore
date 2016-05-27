@@ -4,7 +4,7 @@ ${tc.signature("coderGenerator","outputFolder")}
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
-package ${genHelper.getParserPackage()};
+package ${genHelper.getCoderPackage()};
 
 import ${parserName?lower_case}._mch_parser.${parserName}Checker;
 import de.monticore.mchammerparser.*;

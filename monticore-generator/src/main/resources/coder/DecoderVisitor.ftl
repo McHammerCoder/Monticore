@@ -2,7 +2,7 @@ ${tc.signature("genHelper")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 
-package ${genHelper.getParserPackage()};
+package ${genHelper.getCoderPackage()};
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
