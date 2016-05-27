@@ -8,9 +8,7 @@ import java.io.*;
 import org.antlr.v4.runtime.*;
 import java.util.Map;
 import de.monticore.codegen.mccoder.*;
-/*
-Visit functions need to be generated - move them to a seperate part e.g. DecodeVisitor and EncodeVisitor
-*/
+
 
 public class ${parserName}Decoder{
 
@@ -18,6 +16,9 @@ public class ${parserName}Decoder{
 	private ${parserName}Encodings encodings = new ${parserName}Encodings();
 	
 	public ${parserName}Decoder(){
+	/*
+	Loads the serialized (EN/DE)coding for the current grammar
+	*/
 		  try
 	      {
 	         FileInputStream fileIn = new FileInputStream("${outputFolder}/${parserName}Encodings.ser");
@@ -37,6 +38,9 @@ public class ${parserName}Decoder{
 	      }
 		
 	}
+	/*
+	Decodes the current token
+	*/
 
 	public void decode(CommonToken toDecode){ //Decodes a token and sets it text to the decoded variant
 			String[] kw = helper.getKeywords();
@@ -52,7 +56,6 @@ public class ${parserName}Decoder{
 			String startEncoding = encoding.getStartEncoding();
 			int elength = startEncoding.length();
 			
-			//encoder.printEncoding(map, toDecode.getType());
 			if(! (decodedString.length() < elength) )
 			{
 				

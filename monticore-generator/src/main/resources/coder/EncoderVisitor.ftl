@@ -16,7 +16,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.*;
 
-//import ${genHelper.getGNameToLower()}._parser.*;
 
 public class ${parserName}EncoderVisitor implements ParseTreeListener {
 

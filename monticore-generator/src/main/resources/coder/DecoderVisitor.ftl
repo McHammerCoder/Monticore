@@ -4,8 +4,6 @@ ${tc.signature("genHelper")}
 
 package ${genHelper.getParserPackage()};
 
-//import ${genHelper.getGNameToLower()}._parser.*;
-
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ErrorNode;

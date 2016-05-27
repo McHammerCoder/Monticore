@@ -13,7 +13,6 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.*;
 
-//import ${genHelper.getGNameToLower()}._parser.*;
 import de.monticore.codegen.mccoder.*;
 import ${parserName?lower_case}._mch_parser.${parserName}Checker;
 
@@ -94,16 +93,6 @@ public class ${parserName}CoderCoder {
 	public boolean typeCheck(int type, String string){
 		CommonTokenFactory fac = new CommonTokenFactory();
 		return ${parserName}Checker.check( fac.create(type,string) );
-		
-		/*
-		Lexer lexer = lex(string);
-		Token nextToken =lexer.nextToken();
-
-		if(type == nextToken.getType() && lexer.nextToken().getType() == Token.EOF){
-			return true;
-		}
-		return false;
-		*/
 	}
 
 
@@ -118,12 +107,7 @@ public class ${parserName}CoderCoder {
 				break;
 			}
 		}
-
-		//	Lexer lexer = lex(alphanumeric[i]);
-		//	lexer.removeErrorListeners(); //Removes strange error output in the console - we dont need it!
-		//	if(lexer.nextToken().getType() != Token.EOF){
 				usableSymbols[i] = alphanumeric[i];
-		//	 }
 		}
 		usableSymbols = Arrays.stream(usableSymbols).filter(s -> (s != null && s.length() > 0)).toArray(String[]::new); 
 	return usableSymbols;
@@ -145,8 +129,6 @@ public class ${parserName}CoderCoder {
 		Map<String, String> encodingMap = new HashMap<String, String>();
 		String startEncoding = new String();
 		ArrayList<String> tmp = new ArrayList<String>();
-		//i == first
-		//z == second
 		for(String s : usableSymbols){
 			if(typeCheck(type, s)){
 				tmp.add(s);
@@ -170,27 +152,15 @@ public class ${parserName}CoderCoder {
 					}
 					if(j != kw.length && !isKeyword(encoding) && typeCheck(type,encoding)){
 					encodingMap.put(kw[j], encoding);//Save encoding and kw[j] to map
-					//addToCodeSection("map.put("  + "\"" + kw[j]  + "\"" + ", " + "\"" + encoding + "\"" + ");");
-					//System.out.println(kw[j] + " = " + encoding);
 					}
 					else if(isKeyword(encoding) || !typeCheck(type,encoding)){ //Our created encoding contains a keyword reset and try again
 						encodingMap.clear();
 						encoding = realUsable[i];
-						//addToCodeSection("map.clear();");
 						break;
 					}
 					else if(j == kw.length){
-						//System.out.println(usableSymbols[i] + " = " + encoding);
-				
 						encodingMap.put(realUsable[i], encoding); //Last save the encoding for the start
-						//CODE GENERATION
-						addToCodeSection("Map<String, String> map" + type + " = new HashMap<String, String>();");
-						addEncodingMapToCodeSection(encodingMap, type);
-						addToCodeSection("map" + type + ".put("  + "\"" + realUsable[i]  + "\"" + ", " + "\"" + encoding + "\"" + ");");
-						//END CODE GENERATION
 						startEncoding = encoding;
-						//System.out.println("THE GENERATED ENCODING WAS FOR TYPE: " + type);
-						addToCodeSection("allEncodings.add(new Encoding(" + type + ", " + "map" + type + ", " + "\""+ startEncoding + "\"" +"));\n");
 						allEncodings.add(new Encoding(type, encodingMap , startEncoding));
 						printEncoding(encodingMap, type);
 						return true;
@@ -231,15 +201,14 @@ public class ${parserName}CoderCoder {
 		String[] usableSymb = getUsableSymbols();
 		String[] kw = kws;
 		if(kw.length == 0){
-			System.out.println("NO KEYWORDS FOUND - NO ENCODING WILL BE GENERATED");
+			System.out.println("[INFO] No keywords found, no encoding will be generated!");
 			return ;
 		}
-		//System.out.println(kws.length + "  " + types + "INFO");
 		if(!customEncodings.isEmpty()){
 			for(int j = (helper.getKeywordsLength()+1) ; j<=types; j++){
 				for(Encoding e : customEncodings){
 					if(e.getType() == j){
-						System.out.println("FOUND CUSTOM ENCODING FOR TYPE: " + j);
+						System.out.println("[INFO] Found custom encoding for type: " + j);
 						hasEncodingArray[j] = true;
 						Map<String, String> map = e.getMap();
 						int numOfKws = 0;
@@ -251,7 +220,7 @@ public class ${parserName}CoderCoder {
 						   }
 						}
 						if(numOfKws != kw.length){
-							System.err.println("NOT ALL KEYWORDS HAVE BEEN ENCODED");
+							System.err.println("[WARN] Not all keywords have been encoded");
 						}
 					}
 				}
@@ -259,7 +228,7 @@ public class ${parserName}CoderCoder {
 				 	hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
 				 	}
 					if(!hasEncodingArray[j]){
-						System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
+						System.out.println("[INFO] No encoding found for type:" + j);
 					}
 				}
 			}
@@ -268,7 +237,7 @@ public class ${parserName}CoderCoder {
 			for(int j = (helper.getKeywordsLength()+1) ; j<=types; j++){
 				hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
 				if(!hasEncodingArray[j]){
-					System.out.println("NO ENCODING FOUND FOR TYPE: " + j);
+					System.out.println("[INFO] No encoding found for type: " + j);
 				}
 			}
 		}
@@ -279,7 +248,7 @@ public class ${parserName}CoderCoder {
 			}
 	}
 	public void printEncoding(Map <String,String> map, int type ){
-		System.out.println("GENERATED (EN/DE)CODING FOR TOKEN TYPE: " + type);
+		System.out.println("[INFO] Generated (en/de)coding for token type: " + type);
 		if(map.size() != 0){
 			for(String key:map.keySet()){		
 				System.out.println(key + " = " + map.get(key));
@@ -287,12 +256,4 @@ public class ${parserName}CoderCoder {
 			}
 		}		
 	}
-	
-   /*private ${parserName}AntlrLexer lex(String in)
-	{
-		ANTLRInputStream input = new ANTLRInputStream(in);
-		${parserName}AntlrLexer lexer = new ${parserName}AntlrLexer(input);
-		lexer.removeErrorListeners();
-		return lexer;
-	}*/
 }

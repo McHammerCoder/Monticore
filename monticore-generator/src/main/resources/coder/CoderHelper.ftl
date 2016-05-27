@@ -15,13 +15,18 @@ import java.util.Set;
 import java.util.HashSet;
 import de.monticore.codegen.mccoder.*;
 
+/*
+Contains everything extracted from the MC4 Grammar AST
+-Keywords
+-UsableSymbols
+Has basic conversion functions to create the full list of keywords
+*/
 public class ${parserName}CoderHelper{
 
 	private ArrayList<Range> ranges = new ArrayList<Range>();
 	private Set<String> kws = new HashSet<String>();
 	private int types = ${genHelper.getTokenTypes()};
 	private ArrayList<Encoding> customEncodings = new ArrayList<Encoding>();
-	//private String[] freeSymbols;
 
 	public ${parserName}CoderHelper(){
 		initiateKWAndUS();
@@ -64,7 +69,6 @@ public class ${parserName}CoderHelper{
 				list.add(todo.substring(i, todo.length()));
 			}
 		}
-		//System.out.println((Arrays.toString(list.toArray(new String[kws.size()]))));
 		return list.toArray(new String[kws.size()]);
 
 	}

@@ -15,12 +15,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-
-//http://viralpatel.net/blogs/freemaker-template-hello-world-tutorial/
-
 public class ${parserName}EncodingGenerator {
   private static ${parserName}CoderHelper helper = new ${parserName}CoderHelper();
   
@@ -36,7 +30,6 @@ public class ${parserName}EncodingGenerator {
 				allChars.remove(s); 
 			}
 		}
-		//System.out.println(Arrays.toString(allChars.toArray()));
 		return allChars.toArray(new String[0]);
 	}
 
@@ -46,27 +39,13 @@ public class ${parserName}EncodingGenerator {
 		if( args.length != 0){
          siso = args[0];
          }	
-        //Freemarker configuration object
-      /*  @SuppressWarnings( "deprecation" )
-        Configuration cfg = new Configuration();
-        try {
-            //Load template from source folder
-            cfg.setDirectoryForTemplateLoading(new File("${outputFolder}"));
-            Template template = cfg.getTemplate("${parserName}Encodings.ftl");
-             
-            // Build the data-model
-            Map<String, Object> data = new HashMap<String, Object>();
-            //data.put("message", "Hello World!");
-            //List parsing */
-            
             
             if(siso.equals("siso")){
-            System.out.println("LET THE MADNESS BEGIN");
+            System.out.println("[INFO] LET THE MADNESS BEGIN");
             Set<String> set = new HashSet<>();
             set.addAll(Arrays.asList(helper.getKeywords()));
             set.addAll(Arrays.asList(getSiso()));	
             String[] keywords = set.toArray(new String[0]);
-            //System.out.println(Arrays.toString(keywords));
          	 ${parserName}CoderCoder coder = new ${parserName}CoderCoder(helper.getTypes(), keywords , helper.getFreeSymbols());
          	 
          	 ${parserName}Encodings en = new  ${parserName}Encodings();
@@ -85,23 +64,9 @@ public class ${parserName}EncodingGenerator {
 		      {
 		          i.printStackTrace();
 		      }
-         	/*  data.put("hasEncoding", coder.getHasEncoding());
-            // data.put("encodings", coder.getCodeSection());
-              // File output
-            Writer file = new FileWriter (new File("${outputFolder}/${parserName}Encodings.java"));
-            template.process(data, file);
-            file.flush();
-            file.close(); */
             }
             else{
             ${parserName}CoderCoder coder = new ${parserName}CoderCoder(helper.getTypes(),helper.getKeywords(), helper.getFreeSymbols());
-           /*  data.put("hasEncoding", coder.getHasEncoding());
-            data.put("encodings", coder.getCodeSection());
-              // File output
-            Writer file = new FileWriter (new File("${outputFolder}/${parserName}Encodings.java"));
-            template.process(data, file);
-            file.flush();
-            file.close(); */
             ${parserName}Encodings en = new  ${parserName}Encodings();
          	 en.setHasEncodingArray(coder.hasEncodingArray);
          	 en.setAllEncodings(coder.allEncodings);
@@ -113,21 +78,12 @@ public class ${parserName}EncodingGenerator {
 		         out.writeObject(en);
 		         out.close();
 		         fileOut.close();
-		         System.out.printf("Serialized data is saved");
+		         System.out.printf("[INFO] Serialized data is saved");
 		      }catch(IOException i)
 		      {
 		          i.printStackTrace();
 		      }
             }
-           
-   
-          
-             
-      /*  } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TemplateException e) {
-            e.printStackTrace();
-        } */
     }
 
 }
