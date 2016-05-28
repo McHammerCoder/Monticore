@@ -39,13 +39,13 @@ public class ${parserName}Encoder{
 	         return;
 	      }catch(ClassNotFoundException c)
 	      {
-	         System.out.println("Encodings class not found");
+	         System.err.println("[ERR] Encodings class not found, serialized object missing");
 	         c.printStackTrace();
 	         return;
 	      }
 	}
 
-	  public boolean check(Token receivedtoken){
+	  public boolean check(Token receivedtoken) throws Exception{
 	/*
 	Receives a tokens text, checks the text and compares
 	the received text with the text of the first token from the checker
@@ -76,9 +76,8 @@ public class ${parserName}Encoder{
 			return true;
 		}
 		if(!encodings.hasEncoding(receivedtoken.getType())){
-			System.out.println("[ERR] Token: " + originaltext + "should be encoded but no encoding is present, terminating.");
-			System.exit(2);		
-			return false;
+			System.err.println("[ERR] Token: " + originaltext + "should be encoded but no encoding is present, terminating.");
+			throw new Exception();
 		}
 		return false;
 	}
@@ -91,14 +90,14 @@ public class ${parserName}Encoder{
 	Encodes a token and sets it text to the encoded variant
 	Currently does NOT encode binary tokens
 	*/
-	public void encode (Token token){
+	public void encode (Token token) throws Exception{
 	
 		if( token instanceof HABinarySequenceToken )
 			return ;
 			
 		CommonToken toEncode = (CommonToken) token;
 
-		String encodedString = toEncode.getText(); //CAREFUL can cause problems use decode method
+		String encodedString = toEncode.getText();
 		@SuppressWarnings("unchecked")
 		Encoding encoding = encodings.getEncoding(toEncode.getType());
 		Map<String, String> map = (Map<String, String>) encoding.getMap();
@@ -122,8 +121,8 @@ public class ${parserName}Encoder{
 		else
 		{
 			 //Something has gone horribly wrong
-			System.err.println("Type missmatch while encoding");
-			System.exit(2);
+			System.err.println("[ERR] Type missmatch while encoding");
+			throw new Exception();
 		}
 	}
 

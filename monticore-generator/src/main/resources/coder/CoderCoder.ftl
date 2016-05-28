@@ -67,18 +67,15 @@ public class ${parserName}CoderCoder {
 		String[] allKW = kws;		
 		for(int i=0; i<allKW.length; i++){
 			if(toCheck.contains(kws[i])){
-				//System.out.println(toCheck + " " + "CASE HAS A KEYWORD" + " " + kws[i]);
 				return true;
 			}
 		}
 		for(int i=0; i<toCheck.length(); i++){
 			for(String kw:allKW){
 				if(kw.startsWith(toCheck.substring(i, toCheck.length()))){
-					//System.out.println(toCheck + " " + "CASE HAS A STARTKW" + " " + kw);
 					return true;
 				}
 				if(kw.endsWith(toCheck.substring(0, i+1))){
-					//System.out.println(toCheck + " " + "CASE HAS AN ENDKW "+ kw);
 					return true;
 				}
 			}
@@ -115,16 +112,30 @@ public class ${parserName}CoderCoder {
 
 
 	private boolean createEncoding(String[] kw, String[] usableSymbols, int type){ //Should create a Map with different encodings
-			/*
-		Example encoding if a \nin JSsimple
-		var -> bcbbbbbb
-		=   -> bccbbbbb
-		,   -> bcccbbbb
-		"   -> bccccbbb
-		;   -> bcccccbb
-		WS  -> bccccccb
-		b   -> bccccccc
-		Binär codieren könnte das ganze kleiner machen
+		/*
+		Example encoding for HTMLRed:
+		  =  # # # 
+		/i> =  ######
+		<b =  ##### 
+		<p> =  #### #
+		/b> =  ####  
+		<i =  ### ##
+		p> =  ### # 
+		</b =  ###  #
+		<i> =  ###   
+		</ =  ## ###
+		</b> =  ## ## 
+		</i> =  ## # #
+		<p =  ## #  
+		i> =  ##  ##
+		</i =  ##  # 
+		<b> =  ##   #
+		< =  ##    
+		b> =  # ####
+		</p =  # ### 
+		</p> =  # ## #
+		/p> =  # ##  
+		> =  # # ##
 		*/
 		Map<String, String> encodingMap = new HashMap<String, String>();
 		String startEncoding = new String();

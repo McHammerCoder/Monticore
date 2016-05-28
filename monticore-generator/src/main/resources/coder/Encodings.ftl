@@ -17,7 +17,7 @@ import java.util.Map;
 public class ${parserName}Encodings implements java.io.Serializable{
 
 	private ArrayList<Encoding> allEncodings = new ArrayList<Encoding>();
-	private Boolean[] hasEncodingArray; //=${r"${hasEncoding}"};
+	private Boolean[] hasEncodingArray;
 	
 	public void setAllEncodings(ArrayList<Encoding> ens){
 			this.allEncodings = ens;
@@ -28,7 +28,7 @@ public class ${parserName}Encodings implements java.io.Serializable{
 	}
 	
 		
-	public Encoding getEncoding(int type){
+	public Encoding getEncoding(int type) throws Exception{
 	${parserName}CoderHelper helper = new ${parserName}CoderHelper();
 	ArrayList<Encoding> customEncodings = helper.getCustomEncodings();
 		for(Encoding e:customEncodings){
@@ -43,9 +43,8 @@ public class ${parserName}Encodings implements java.io.Serializable{
 			}	
 		}
 		
-		System.out.println("NO SUCH MAP WAS FOUND: " + type + "\n Something went wrong terminating.");
-		System.exit(4);
-		return null;
+		System.err.println("[ERR]  A map for : " + type + " is needed but none exists!");
+		throw new Exception();
 	}
 	
 	public boolean hasEncoding(int type){

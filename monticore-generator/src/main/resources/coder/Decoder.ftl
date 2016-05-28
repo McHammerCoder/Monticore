@@ -32,17 +32,17 @@ public class ${parserName}Decoder{
 	         return;
 	      }catch(ClassNotFoundException c)
 	      {
-	         System.out.println("Encodings class not found");
+	         System.err.println("[ERR] Encodings class not found, serialized object missing");
 	         c.printStackTrace();
 	         return;
 	      }
 		
 	}
+	
 	/*
-	Decodes the current token
+	Decodes a token and sets it text to the decoded variant
 	*/
-
-	public void decode(CommonToken toDecode){ //Decodes a token and sets it text to the decoded variant
+	public void decode(CommonToken toDecode){ 
 			String[] kw = helper.getKeywords();
 			String decodedString = toDecode.getText();
 
@@ -50,42 +50,46 @@ public class ${parserName}Decoder{
 			{
 			 return;
 			}
-			@SuppressWarnings("unchecked")
-			Encoding encoding = encodings.getEncoding(toDecode.getType());
-			Map<String, String> map = (Map<String, String>) encoding.getMap();
-			String startEncoding = encoding.getStartEncoding();
-			int elength = startEncoding.length();
-			
-			if(! (decodedString.length() < elength) )
-			{
+			try{
+				@SuppressWarnings("unchecked")
+				Encoding encoding = encodings.getEncoding(toDecode.getType());
+				Map<String, String> map = (Map<String, String>) encoding.getMap();
+				String startEncoding = encoding.getStartEncoding();
+				int elength = startEncoding.length();
 				
-				for(int i = 0; i <= decodedString.length()-elength; i++)
+				if(! (decodedString.length() < elength) )
 				{
 					
-					for(String key: map.keySet())
+					for(int i = 0; i <= decodedString.length()-elength; i++)
 					{
-			
-						if( startEncoding.equals(map.get(key)) )
+						
+						for(String key: map.keySet())
 						{
-							if( decodedString.substring(i).startsWith(map.get(key)) )
+				
+							if( startEncoding.equals(map.get(key)) )
 							{
-								
-								decodedString =	decodedString.substring(0, i) + key + decodedString.substring(i+map.get(key).length());
-								break;
+								if( decodedString.substring(i).startsWith(map.get(key)) )
+								{
+									
+									decodedString =	decodedString.substring(0, i) + key + decodedString.substring(i+map.get(key).length());
+									break;
+								}
 							}
-						}
-						else
-						{
-							if( decodedString.substring(i).startsWith(map.get(key)) )
+							else
 							{
-								decodedString =	decodedString.substring(0, i) + key + decodedString.substring(i+map.get(key).length()); //.replaceFirst(map.get(key), key);
+								if( decodedString.substring(i).startsWith(map.get(key)) )
+								{
+									decodedString =	decodedString.substring(0, i) + key + decodedString.substring(i+map.get(key).length()); //.replaceFirst(map.get(key), key);
+								}
 							}
 						}
 					}
 				}
+				toDecode.setText(decodedString);
 			}
-
-			toDecode.setText(decodedString);
+			catch(Exception e){
+			e.printStackTrace();
+			}
 	}
 
 }

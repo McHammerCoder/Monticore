@@ -41,7 +41,7 @@ public class ${parserName}EncodingGenerator {
          }	
             
             if(siso.equals("siso")){
-            System.out.println("[INFO] LET THE MADNESS BEGIN");
+            System.out.println("[INFO] Let the madness begin");
             Set<String> set = new HashSet<>();
             set.addAll(Arrays.asList(helper.getKeywords()));
             set.addAll(Arrays.asList(getSiso()));	
@@ -59,7 +59,7 @@ public class ${parserName}EncodingGenerator {
 		         out.writeObject(en);
 		         out.close();
 		         fileOut.close();
-		         System.out.printf("Serialized data is saved");
+		          System.out.println("[INFO] Serialized data is saved for SiSo");
 		      }catch(IOException i)
 		      {
 		          i.printStackTrace();

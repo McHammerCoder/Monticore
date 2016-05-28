@@ -25,8 +25,14 @@ public class ${parserName}EncoderVisitor implements ParseTreeListener {
 	public void visitTerminal(TerminalNode node) {
 		Token token = (Token)node.getPayload();
 	
-		if(!encoder.check(token)) {
-			encoder.encode(token);
+		try{
+			if(!encoder.check(token)) {
+				encoder.encode(token);
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
 		}
 	}	
 	
