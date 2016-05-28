@@ -199,6 +199,15 @@ component grammar Grammar extends de.monticore.literals.Literals {
     b:IntLiteral
     ";";
  
+  EncodeTableProd implements Prod =
+    "encodeTable" Name
+    "="  
+    "{" 
+    ("options" "{" (encodeTableOptions:EncodeTableOption ";")*  "}")?
+    encodeTableEntries:EncodeTableEntry ("," encodeTableEntries:EncodeTableEntry)* 
+    "}"
+    ";";
+ 
   /** A LexProd is formed by the keyword ident in the beginning followed by an option
   slash indicating that this LexProd is protected. The following name, options and
   symbol are handed to antlr directly
@@ -655,7 +664,37 @@ component grammar Grammar extends de.monticore.literals.Literals {
      )?
      binaryAlts:(BinaryAlt || "|")+ ")"
      (iteration:["?"|"*"|"+"])?; 
-                
+     
+  BinaryLengthValue implements BinaryComponent, RuleComponent =
+    (UInt8 | UInt16 | UInt32 | UInt64 | UBits) "->" repeat:BinaryComponent ; 
+    
+  BinaryNRepeat implements BinaryComponent, RuleComponent =
+    uIntValue:IntLiteral "->" repeat:BinaryComponent ; 
+          
+  BinaryNonTerminal implements BinaryComponent =
+    (variable:Name& "=")? Name ;
+   
+  BinarySimpleIteration implements BinaryComponent =
+    (BinaryNonTerminal | UInt8 | UInt16 | UInt32 | UInt64 | Int8 | Int16 | Int32 | Int64 | UBits | Bits ) iteration:["?"|"*"|"+"];
+   
+  BinaryOption =
+    "options" "{" iD:Name "=" value:Name ";" "}";
+    
+  BinaryLength implements BinaryComponent, RuleComponent = 
+    ( UInt8 | UInt16 | UInt32 | UInt64 | UBits ) 
+    ".L{"
+    id:Name
+    "}" ;
+    
+  BinaryData implements BinaryComponent, RuleComponent = 
+    ( BinaryNonTerminal | UInt8 | UInt16 | UInt32 | UInt64 | Int8 | Int16 | Int32 | Int64 | UBits | Bits ) 
+    ".D{"
+    id:Name
+    "}" ;
+    
+  Offset implements RuleComponent =
+    ( UInt8 | UInt16 | UInt32 | UInt64 | UBits ) "#" (variable:Name& "=")? Name;
+    
   UInt8 implements BinaryComponent, RuleComponent =
     (negate:["~"])? "uint8" 
     ( ranged:["["]
@@ -775,45 +814,6 @@ component grammar Grammar extends de.monticore.literals.Literals {
       "]"
     )?
     ; 
-    
-  BinaryLengthValue implements BinaryComponent =
-    (UInt8 | UInt16 | UInt32 | UInt64 | UBits) "->" repeat:BinaryComponent ; 
-    
-  BinaryNRepeat implements BinaryComponent =
-    uIntValue:IntLiteral "->" repeat:BinaryComponent ; 
-          
-  BinaryNonTerminal implements BinaryComponent =
-    (variable:Name& "=")? Name ;
-   
-  BinarySimpleIteration implements BinaryComponent =
-    (BinaryNonTerminal | UInt8 | UInt16 | UInt32 | UInt64 | Int8 | Int16 | Int32 | Int64 | UBits | Bits ) iteration:["?"|"*"|"+"];
-   
-  BinaryOption =
-    "options" "{" iD:Name "=" value:Name ";" "}";
-    
-  BinaryLength implements BinaryComponent = 
-    ( UInt8 | UInt16 | UInt32 | UInt64 | UBits ) 
-    ".L{"
-    id:Name
-    "}" ;
-    
-  BinaryData implements BinaryComponent = 
-    ( BinaryNonTerminal | UInt8 | UInt16 | UInt32 | UInt64 | Int8 | Int16 | Int32 | Int64 | UBits | Bits ) 
-    ".D{"
-    id:Name
-    "}" ;
-    
-  Offset implements RuleComponent =
-    ( UInt8 | UInt16 | UInt32 | UInt64 | UBits ) "#" (variable:Name& "=")? Name;
-    
-   EncodeTableProd implements Prod =
-    "encodeTable" Name
-    "="  
-    "{" 
-    ("options" "{" (encodeTableOptions:EncodeTableOption ";")*  "}")?
-    encodeTableEntries:EncodeTableEntry ("," encodeTableEntries:EncodeTableEntry)* 
-    "}"
-    ";";
 
   EncodeTableEntry = 
     (

@@ -50,7 +50,7 @@ bool callValidation(const HParseResult *p, const char* name)
     assert (rs == JNI_OK);
 
     jclass actionsClass;
-    FIND_CLASS(actionsClass, env, "htmlred/_mch_parser/HTMLRedActions");
+    FIND_CLASS(actionsClass, env, "${grammarNameLowerCase}/_mch_parser/${grammarName}Actions");
    
     jmethodID mid = (*env)->GetStaticMethodID(env, actionsClass, name, "(Lcom/upstandinghackers/hammer/ParseResult;)Z");
     if (mid == 0)
