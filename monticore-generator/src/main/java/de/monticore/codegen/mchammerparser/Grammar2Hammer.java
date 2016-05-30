@@ -520,7 +520,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 			addToCodeSection("\n" + indent + "Hammer.choice(");
 			increaseIndent();
 			
-			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u0079')," );
+			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u007F')," );
 			addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, (long)'\\uc280', (long)'\\udfba')" );
 			
 			decreaseIndent();
@@ -594,18 +594,18 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 			
 			if( upperChar <= 0x007F )
 			{
-				addToCodeSection("\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u0079'), Hammer.intRange( uInt_8, (long)'" + lower  + "', (long)'" + upper + "') )," );
+				addToCodeSection("\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u007F'), Hammer.intRange( uInt_8, (long)'" + lower  + "', (long)'" + upper + "') )," );
 				addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, (long)'\\uc280', (long)'\\udfba')" );
 			}
 			else if( lowerChar > 0xc280 )
 			{
-				addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u0079')," );
+				addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u007F')," );
 				addToCodeSection("\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_16, (long)'\\uc280', (long)'\\udfba'), Hammer.intRange( uInt_16, (long)'" + lower  + "', (long)'" + upper + "') )" );
 			}
 			else
 			{
 				addToCodeSection("\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_16, (long)'\\uc280', (long)'\\udfba'), Hammer.intRange( uInt_16, (long)'\\uc280', (long)'" + upper + "') )," );
-				addToCodeSection("\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u0079'), Hammer.intRange( uInt_8, (long)'" + lower  + "', (long)'\\u007F') )" );
+				addToCodeSection("\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u007F'), Hammer.intRange( uInt_8, (long)'" + lower  + "', (long)'\\u007F') )" );
 			}
 			
 			decreaseIndent();
@@ -653,7 +653,7 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 			addToCodeSection( "\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_16, (long)'\\uc280', (long)'\\udfba')"
 											+ ", Hammer.intRange( uInt_16, (long)'" + c + "', (long)'" + c + "') )," );
 			
-			addToCodeSection( "\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u0079')"
+			addToCodeSection( "\n" + indent + "Hammer.butNot( Hammer.intRange( uInt_8, (long)'\\u0000', (long)'\\u007F')"
 											+ ", Hammer.intRange( uInt_8, (long)'" + c + "', (long)'" + c + "') )" );
 			
 			decreaseIndent();
