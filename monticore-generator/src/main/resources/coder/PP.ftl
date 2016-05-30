@@ -125,8 +125,15 @@ public class ${parserName}PP implements ParseTreeListener {
 				result.remove(result.size()-1);
 			}
 			return toSmallByte(result.toArray(new Byte[result.size()])); 
-	    	}
-	   	return new byte[0];
+	    }
+	    else
+		  {
+		   walker.walk(this, pt);
+		   if(offset == 0 && bytes.size() > 0){
+		    bytes.remove(bytes.size()-1);
+		   }
+		   return toSmallByte(bytes.toArray(new Byte[bytes.size()])); 
+		  }
 	}
 	
 	private byte[] toSmallByte(Byte[] oBytes) {

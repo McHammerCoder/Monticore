@@ -16,9 +16,12 @@ public class ${parserName}DecoderVisitor implements ParseTreeListener {
 	private ${parserName}Decoder decoder = new ${parserName}Decoder();
 
 	public void visitTerminal(TerminalNode node) {
-		CommonToken token = (CommonToken)node.getPayload();
-	 	decoder.decode(token);
-	}
+ 		Token token = node.getSymbol();
+ 	 	if( token instanceof CommonToken)
+  	 	{
+   		decoder.decode((CommonToken)token);
+ 		}
+ }
 	
 	@Override public void enterEveryRule(ParserRuleContext ctx) { }
 
