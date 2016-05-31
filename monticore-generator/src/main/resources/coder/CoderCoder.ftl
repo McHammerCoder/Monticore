@@ -86,13 +86,6 @@ public class ${parserName}CoderCoder {
 
 	}
 
-
-	public boolean typeCheck(int type, String string){
-		CommonTokenFactory fac = new CommonTokenFactory();
-		return ${parserName}Checker.check( fac.create(type,string) );
-	}
-
-
 	public String[] getUsableSymbols(){
 		//Each usable symbol should be lexable. No usable symbol should be a keyword.
 		String[] alphanumeric = freeS;
@@ -136,12 +129,12 @@ public class ${parserName}CoderCoder {
 		</p> =  # ## #
 		/p> =  # ##  
 		> =  # # ##
-		*/
+		*/		
 		Map<String, String> encodingMap = new HashMap<String, String>();
 		String startEncoding = new String();
 		ArrayList<String> tmp = new ArrayList<String>();
 		for(String s : usableSymbols){
-			if(typeCheck(type, s)){
+			if(${parserName}Checker.check(type, s)){
 				tmp.add(s);
 			}
 		}
@@ -161,10 +154,10 @@ public class ${parserName}CoderCoder {
 					if(j % 1000 == 0 && j != 0){
 					 System.out.println(j + " Encoding: " + encoding );
 					}
-					if(j != kw.length && !isKeyword(encoding) && typeCheck(type,encoding)){
+					if(j != kw.length && !isKeyword(encoding) && ${parserName}Checker.check(type,encoding)){
 					encodingMap.put(kw[j], encoding);//Save encoding and kw[j] to map
 					}
-					else if(isKeyword(encoding) || !typeCheck(type,encoding)){ //Our created encoding contains a keyword reset and try again
+					else if(isKeyword(encoding) || !${parserName}Checker.check(type,encoding)){ //Our created encoding contains a keyword reset and try again
 						encodingMap.clear();
 						encoding = realUsable[i];
 						break;

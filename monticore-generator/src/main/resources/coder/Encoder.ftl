@@ -82,10 +82,6 @@ public class ${parserName}Encoder{
 		return false;
 	}
 
-	public boolean typeCheck(int type, String string){
-		CommonTokenFactory fac = new CommonTokenFactory();
-		return ${parserName}Checker.check( fac.create( type, string ) );
-	}
 	/*
 	Encodes a token and sets it text to the encoded variant
 	Currently does NOT encode binary tokens
@@ -115,7 +111,7 @@ public class ${parserName}Encoder{
 			}
 		}
 	
-		if(typeCheck(toEncode.getType(), encodedString)){
+		if(${parserName}Checker.check(toEncode.getType(), encodedString)){
 			toEncode.setText(encodedString);
 		}
 		else
