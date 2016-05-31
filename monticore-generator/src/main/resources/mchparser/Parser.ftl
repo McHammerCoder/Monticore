@@ -180,6 +180,7 @@ public class ${grammarName}Parser
 	public ParseTree parse( byte[] bytes ) throws Exception
 	{
 		long offset = 0;
+		ranges.clear();
 		ParseResult parseResult = Hammer.parse(parser, bytes, bytes.length);
 		
 		if( parseResult == null )

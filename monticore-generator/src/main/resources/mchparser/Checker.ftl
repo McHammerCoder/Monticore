@@ -7,6 +7,7 @@ ${tc.signature("hammerGenerator")}
 package ${genHelper.getParserPackage()};
 
 import ${grammarNameLowerCase}._mch_parser.tree.*;
+import ${grammarNameLowerCase}._coder.pp.*;
 import com.upstandinghackers.hammer.*;
 import de.monticore.mchammerparser.*;
 import org.antlr.v4.runtime.tree.*;
@@ -16,16 +17,36 @@ public class ${grammarName}Checker {
 	
 	private static ${grammarName}Parser parser = new ${grammarName}Parser();
 	
+	private static ${grammarName}PP pp = new ${grammarName}PP();
+	
+	public static boolean check( int type, String string )
+	{
+		if( ${grammarName}TreeHelper.isBinary(type) )
+			return false;
+
+		CommonTokenFactory fac = new CommonTokenFactory();
+		return ${grammarName}Checker.check( fac.create(type,string) );
+	}
+	
 	public static boolean check( Token token )
 	{
 		int type = token.getType();
-		if( token instanceof HABinarySequenceToken )
-		{
-			return true;
-		}
-		else if( token instanceof HAOffsetToken )
-		{
-			return true;
+		if( token instanceof HABinarySequenceToken || token instanceof HAOffsetToken )
+		{ 
+			if( !${grammarName}TreeHelper.isBinaryProd(type) )
+				return true;
+				
+			ParseTree parseTree = new HATerminalNode(token);
+			byte [] bytes = pp.prettyPrint(parseTree);
+			ParseResult pr = Hammer.parse(getParserForType(type),bytes,bytes.length);
+
+			if( pr == null )
+				return false;
+
+			ParseTree pt = ${grammarName}TreeConverter.create(pr);
+			byte [] bytesNew = pp.prettyPrint(pt);
+
+			return ( pt instanceof HATerminalNode && ((HATerminalNode)pt).getSymbol().equals(token) );
 		}
 		else
 		{
@@ -175,7 +196,11 @@ public class ${grammarName}Checker {
 		case ${iter}: return parser._${lexRuleName};
 <#assign iter=iter+1>
 </#list>
-		default: return Hammer.nothingP();
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+		case ${iter}: return parser._${binRuleName};
+<#assign iter=iter+1>
+</#list>
+		default: return Hammer.epsilonP();
 		}
 	}
 }

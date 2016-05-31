@@ -29,7 +29,7 @@ import com.upstandinghackers.hammer.ParseResult;
 import ${genHelper.getGNameToLower()}._mch_parser.tree.*;
 import ${genHelper.getGNameToLower()}._mch_parser.*;
 import ${genHelper.getGNameToLower()}._coder.*;
-
+import ${genHelper.getGNameToLower()}._coder.pp.*;
 
 public class ${parserName}Tool 
 {	
@@ -72,7 +72,8 @@ public class ${parserName}Tool
 				
 				System.out.println(pt.getText());
 				
-				pt = parser.parse(pt.getText().getBytes());
+				${parserName}PP pp = new ${parserName}PP();
+				pt = parser.parse(pp.prettyPrint(pt));
 
 				System.out.println();
 				System.out.println("ReparseResult:");

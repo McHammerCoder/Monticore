@@ -157,4 +157,24 @@ public class ${grammarName}TreeHelper
 </#list>
 		"Undefined"
 	};
+	
+	public static boolean isBinary( int type )
+	{
+<#assign binaryTypeLowerBound = 1>
+<#list hammerGenerator.getLexStrings() as lexString>
+	<#assign binaryTypeLowerBound = binaryTypeLowerBound+1>
+</#list>
+<#list genHelper.getLexerRuleNames() as lexRuleName>
+	<#assign binaryTypeLowerBound = binaryTypeLowerBound+1>
+</#list>
+		return ( type >= ${binaryTypeLowerBound} );
+	}
+	
+	public static boolean isBinaryProd( int type )
+	{
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+	<#assign binaryTypeLowerBound = binaryTypeLowerBound+1>
+</#list>
+		return ( type < ${binaryTypeLowerBound} ) && isBinary(type);
+	}
 }
