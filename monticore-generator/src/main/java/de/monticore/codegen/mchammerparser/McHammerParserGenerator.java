@@ -107,18 +107,10 @@ public class McHammerParserGenerator
 		final Path parserPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Parser.java");
 		generator.generate("mchparser.Parser", parserPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
 		
-		// Generate NativeUtils.java
-		final Path nativeUtilsPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), "NativeUtils.java");
-		generator.generate("mchparser.NativeUtils", nativeUtilsPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-			
 		// Generate ${grammarName}Actions.java
 		final Path actionsPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Actions.java");
 		generator.generate("mchparser.Actions", actionsPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-		
-		// Generate ${grammarName}Checker.java
-		final Path checkerPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Checker.java");
-		generator.generate("mchparser.Checker", checkerPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
-		
+
 		// Generate ${grammarName}.tokens
 		final Path tokensPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+".tokens");
 		generator.generate("mchparser.Tokens", tokensPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));

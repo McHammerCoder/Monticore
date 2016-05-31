@@ -45,6 +45,7 @@ import de.monticore.codegen.mccoder.McCoderGenerator;
 import de.monticore.codegen.mccoder.McCoderPPGenerator;
 import de.monticore.codegen.mchammer.MCHammerGenerator;
 import de.monticore.codegen.mchammerparser.McHammerParserGenerator;
+import de.monticore.codegen.mchammer.checker.McHammerCheckerGenerator;
 import de.monticore.codegen.mchammer.parsetree.McHammerParseTreeGenerator;
 import de.monticore.codegen.mchcexamples.McHCExampleGenerator;
 import de.monticore.codegen.parser.ParserGenerator;
@@ -683,6 +684,22 @@ public class MontiCoreScript extends Script implements GroovyRunner {
 	  Log.info("generating McHammerParser!", LOG_ID);
 	  
 	  McHammerParserGenerator.generate(symbolTable, astGrammar, outputDirectory);
+  }
+  
+  /**
+   * Generates the McHammerParser
+   * 
+   * @param symbolTable AST grammar symbols
+   * @param astGrammar AST of the input grammar
+   * @param outputDirectory Output directory for the generated parser files
+   */
+  public void generateMcHammerChecker(Scope symbolTable, ASTMCGrammar astGrammar, File outputDirectory)
+  {
+	  Log.errorIfNull( astGrammar,
+			  	"MCHC0001 Generation of MCHammerChecker can't be processed: the reference to the grammar ast is null");
+	  Log.info("generating McHammerParser!", LOG_ID);
+	  
+	  McHammerCheckerGenerator.generate(symbolTable, astGrammar, outputDirectory);
   }
   
   /**

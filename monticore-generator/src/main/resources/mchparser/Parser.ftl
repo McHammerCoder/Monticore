@@ -25,21 +25,25 @@ import java.util.Arrays;
 
 public class ${grammarName}Parser
 {
-	// Load Hammer Library via JNI
 	static 
 	{
+		loadLibrary("jhammer");
+		loadLibrary("jhammer_${grammarName}");
+	}
+	
+	private static void loadLibrary(String name)
+	{
+		// Load Hammer Library via JNI
 		try 
-		{
-			System.loadLibrary("jhammer");
-			System.loadLibrary("jhammer_${grammarName}");
+		{			
+			System.loadLibrary(name);
 		} 
 		catch (UnsatisfiedLinkError e) 
 		{
 			// Load Hammer Library from Jar or Dependencies
 			try 
 			{    
-				NativeUtils.loadLibraryFromJar("/resources/libjhammer.so");
-				NativeUtils.loadLibraryFromJar("/resources/libjhammer_${grammarName}.so");  
+				NativeUtils.loadLibraryFromJar("/resources/lib" + name + ".so");
 			} 
 			catch (IOException e1)
 			{    
