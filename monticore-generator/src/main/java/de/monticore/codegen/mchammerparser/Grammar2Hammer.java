@@ -160,6 +160,16 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection(indent + "_" + ast.getName() + ".bindIndirect( ");
 		increaseIndent();
 		
+		List<String> lengthFields = grammarAnalyzer.containsLengthFields(ast);
+		if(!lengthFields.isEmpty())
+		{
+			for(String length : lengthFields)
+			{
+				addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
+				increaseIndent();
+			}
+		}
+		
 		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
@@ -189,6 +199,15 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"act" + ast.getName() + "\" )");
+		
+		if(!lengthFields.isEmpty())
+		{
+			for(String length : lengthFields)
+			{
+				decreaseIndent();
+				addToCodeSection("\n" + indent + ",\"length_" + length + "_Reset\")");
+			}
+		}
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ");");
