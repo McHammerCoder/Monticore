@@ -182,7 +182,7 @@ public class ${grammarName}Actions
 		parsedLengths.put("${lengthField}",p.getAst().getUIntValue());
 		lengthIterators.put("${lengthField}",(long)0);
 		
-		System.out.println("length_${lengthField}: " + p.getAst().getUIntValue());
+		//System.out.println("length_${lengthField}: " + p.getAst().getUIntValue());
 		
 		return true;
 	}
@@ -206,13 +206,13 @@ public class ${grammarName}Actions
 	{			
 		if(lengthIterators.get("${lengthField}") < parsedLengths.get("${lengthField}")-1)
 		{
-			System.out.println("length_${lengthField}_Data: False " + lengthIterators.get("${lengthField}") + "/" + parsedLengths.get("${lengthField}"));
+			//System.out.println("length_${lengthField}_Data: False " + lengthIterators.get("${lengthField}") + "/" + parsedLengths.get("${lengthField}"));
 			lengthIterators.put("${lengthField}",(long)0);
 			return false;
 		}
 		else
 		{
-			System.out.println("length_${lengthField}_Data: True " + lengthIterators.get("${lengthField}") + "/" + parsedLengths.get("${lengthField}"));
+			//System.out.println("length_${lengthField}_Data: True " + lengthIterators.get("${lengthField}") + "/" + parsedLengths.get("${lengthField}"));
 			lengthIterators.put("${lengthField}",(long)0);
 			return true;
 		}

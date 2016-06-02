@@ -203,7 +203,7 @@ public class ${grammarName}Parser
 			parseTree.addChild(pt,offsets.get(pt));
 		}
 		
-		printRanges();
+		//printRanges();
 		
 <#if genHelper.parseEntireFile()>
 		if( !checkFullyParsed(bytes.length*8) )
