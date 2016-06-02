@@ -1471,9 +1471,6 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void handle(ASTBinaryData ast)
 	{		
-		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
-		increaseIndent();
-		
 		ASTGrammarNode astNode = null;
 		
 		if (ast.getUInt8().isPresent()) {
@@ -1523,10 +1520,34 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 			}
 			i++;
 		}
+		
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.choice( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
+		increaseIndent();
+		
+		addToCodeSection("\n" + indent + "Hammer.sequence() ");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"length_" + id + "_Zero\" )");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", \"actUndefined\" ),");
+		
+		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
+		increaseIndent();
+		
 		addToCodeSection("\n" + indent + "dataField_" + id + "_" + i);
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"length_" + id + "_Data\" )");
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
 	}
 	
 	@Override

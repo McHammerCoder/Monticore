@@ -194,6 +194,14 @@ public class ${grammarName}Actions
 		return true;
 	}
 	
+	public static boolean length_${lengthField}_Zero(ParseResult p)
+	{		
+		if( parsedLengths.get("${lengthField}") == 0 )
+			return true;
+		else
+			return false;
+	}
+	
 	public static boolean length_${lengthField}_Data(ParseResult p)
 	{			
 		if(lengthIterators.get("${lengthField}") < parsedLengths.get("${lengthField}")-1)

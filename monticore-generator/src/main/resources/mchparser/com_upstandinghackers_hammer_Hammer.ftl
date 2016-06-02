@@ -150,6 +150,11 @@ bool length_${lengthField}_Reset(HParseResult *p, void* user_data)
     return callValidation(p,"length_${lengthField}_Reset");
 }
 
+bool length_${lengthField}_Zero(HParseResult *p, void* user_data) 
+{
+    return callValidation(p,"length_${lengthField}_Zero");
+}
+
 bool length_${lengthField}_Data(HParseResult *p, void* user_data) 
 {
     return callValidation(p,"length_${lengthField}_Data");
@@ -247,6 +252,10 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_${grammarName}Hammer
 	else if( strcmp(actionName,"length_${lengthField}_Reset") == 0 )
 	{
 		RETURNWRAP( env, h_attr_bool(UNWRAP(env, p), length_${lengthField}_Reset, NULL) );
+	}
+	else if( strcmp(actionName,"length_${lengthField}_Zero") == 0 )
+	{
+		RETURNWRAP( env, h_attr_bool(UNWRAP(env, p), length_${lengthField}_Zero, NULL) );
 	}
 	else if( strcmp(actionName,"length_${lengthField}_Data") == 0 )
 	{
