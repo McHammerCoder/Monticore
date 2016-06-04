@@ -50,7 +50,7 @@ public class HAFileNode extends HAParseTree implements RuleNode
 	public boolean deepEquals(HAParseTree parseTree)
 	{
 		if( !(parseTree instanceof HAFileNode) ||
-			!((HARuleContext)getRuleContext()).equals(((HARuleNode)parseTree).getRuleContext()) )
+			!((HARuleContext)getRuleContext()).equals(((HAFileNode)parseTree).getRuleContext()) )
 			return false;			
 		
 		if( childs.size() == parseTree.getChildCount() )
