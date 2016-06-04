@@ -20,7 +20,11 @@ import org.antlr.v4.runtime.*;
 public class ${parserName}EncoderVisitor implements ParseTreeListener {
 
 	private ${parserName}Encoder encoder = new ${parserName}Encoder();
-
+	private boolean foundException = false;
+	
+	public boolean foundException(){
+		return foundException;
+	}
 
 	public void visitTerminal(TerminalNode node) {
 		Token token = (Token)node.getPayload();
@@ -32,6 +36,7 @@ public class ${parserName}EncoderVisitor implements ParseTreeListener {
 		}
 		catch(Exception e)
 		{
+			foundException = true;
 			e.printStackTrace();
 		}
 	}	
