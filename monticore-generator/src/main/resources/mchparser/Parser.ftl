@@ -181,7 +181,7 @@ public class ${grammarName}Parser
 	 * @param bytes DNS-message
 	 * @return Antlr-ParseTree
 	 */
-	public ParseTree parse( byte[] bytes ) throws Exception
+	public ParseTree parse( byte[] bytes ) throws MCHParserException
 	{
 		long offset = 0;
 		ranges.clear();
@@ -189,7 +189,7 @@ public class ${grammarName}Parser
 		
 		if( parseResult == null )
 		{
-			throw new Exception("Parse Failed !");
+			throw new MCHParserException("Parsing failed !");
 		}
 		
 		HAFileNode parseTree = new HAFileNode(new HARuleContext(${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal()));
@@ -208,14 +208,14 @@ public class ${grammarName}Parser
 <#if genHelper.parseEntireFile()>
 		if( !checkFullyParsed(bytes.length*8) )
 		{
-			throw new Exception("File has not been parsed entirely !");
+			throw new MCHParserException("Parsing failed: File has not been parsed entirely !");
 		}
 </#if>
 				
 		return parseTree;
 	}
 	
-	private Map<HAParseTree,Long> parseOffsets( byte[] bytes, HAParseTree parseTree, long offsetOfParseTree ) throws Exception
+	private Map<HAParseTree,Long> parseOffsets( byte[] bytes, HAParseTree parseTree, long offsetOfParseTree ) throws MCHParserException
 	{
 		List<HAOffsetToken> offsets = getOffsets(parseTree,offsetOfParseTree);
 		
@@ -241,7 +241,7 @@ public class ${grammarName}Parser
 																				
 					if( parseResult == null )
 					{
-						throw new Exception("Parse Failed: Offset - ${offsetProd.getName()}");
+						throw new MCHParserException("Parsing failed: Offset - ${offsetProd.getName()}");
 					}
 					
 					HAParseTree pt = (HAParseTree) ${grammarName}TreeConverter.create(parseResult);
@@ -279,7 +279,7 @@ public class ${grammarName}Parser
 		return res;
 	}
 	
-	private long findEnd( long start, long size ) throws Exception
+	private long findEnd( long start, long size ) throws MCHParserException
 	{
 		long end = size;
 		for( Range range : ranges )
@@ -289,7 +289,7 @@ public class ${grammarName}Parser
 <#if genHelper.parseWithoutOverlapingOffsets()>
 			if( start > rangeStart && start < rangeEnd )
 			{
-				throw new Exception("Trying to parse offset at illegal position!");
+				throw new MCHParserException("Parsing failed: Trying to parse offset at illegal position!");
 			}
 </#if>
 			if( rangeStart > start && rangeStart < end )

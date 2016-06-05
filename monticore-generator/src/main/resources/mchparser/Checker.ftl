@@ -110,7 +110,7 @@ public class ${grammarName}Checker {
 				}
 				catch(Exception ex)
 				{
-					// parse failed !
+					// parsing failed !
 					return false;
 				}
 			}
