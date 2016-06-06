@@ -25,7 +25,9 @@ public class ${parserName}EncoderVisitor implements ParseTreeListener {
 	public boolean foundException(){
 		return foundException;
 	}
-
+	public void clearException(){
+		foundException=false;
+	}
 	public void visitTerminal(TerminalNode node) {
 		Token token = (Token)node.getPayload();
 	
