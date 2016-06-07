@@ -17,12 +17,17 @@ import com.google.common.collect.Lists;
 
 public class ${grammarName}TreeConverter 
 {
-	public static ParseTree create(ParseResult parseResult)
+	private static ArrayList<Byte> bytes = Lists.newArrayList();
+	private static int offset = 0;
+
+	public static ParseTree create(ParseResult parseResult) throws MCHParserException
 	{
+		bytes.clear();
+		offset = 0;
 		return generateParseTree(parseResult.getAst());
 	}
 	
-	public static HAParseTree generateParseTree( ParsedToken tok )
+	public static HAParseTree generateParseTree( ParsedToken tok ) throws MCHParserException
 	{    	
 		CommonTokenFactory fac = new CommonTokenFactory();
 		
@@ -146,6 +151,18 @@ public class ${grammarName}TreeConverter
 				{
 					return buildStringTree(tok, ${grammarName}TreeHelper.TokenType.TT_EOF.ordinal()+1);
 				}
+				else if(tt == ${grammarName}TreeHelper.UserTokenTypes.UTT_Little.getValue())
+				{
+					HATerminalNode resTree = (HATerminalNode) generateParseTree(tok.getSeqValue()[0]);
+					HABinarySequenceToken res = (HABinarySequenceToken) resTree.getSymbol();
+					List<HABinaryEntry> values = res.getValues();
+					for( HABinaryEntry value : values )
+					{
+						value.setLE(true);
+					}
+					res.setValues(values);
+					return resTree;
+				}
 				else
 				{
 					System.out.println("User"); 
@@ -156,7 +173,7 @@ public class ${grammarName}TreeConverter
 		return new HATerminalNode(fac.create(0, ""));    	
 	}
 	
-	private static HAParseTree buildRuleTreePlus(ParsedToken tok, ${grammarName}TreeHelper.RuleType ruleType)
+	private static HAParseTree buildRuleTreePlus(ParsedToken tok, ${grammarName}TreeHelper.RuleType ruleType) throws MCHParserException
 	{
 		ParsedToken[] seq = tok.getSeqValue();
 		List<HAParseTree> childs = Lists.newArrayList();
@@ -189,7 +206,7 @@ public class ${grammarName}TreeConverter
 		}
 	}
 	
-	private static HAParseTree buildRuleTree(ParsedToken tok, int tokenType)
+	private static HAParseTree buildRuleTree(ParsedToken tok, int tokenType) throws MCHParserException
 	{
 		ParsedToken[] seq = tok.getSeqValue();
 		HAParseTree pt = new HARuleNode( new HARuleContext( tokenType ) );
@@ -215,7 +232,7 @@ public class ${grammarName}TreeConverter
 	    return pt;
 	}
 	
-	private static HAParseTree buildStringTreePlus(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType)
+	private static HAParseTree buildStringTreePlus(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType) throws MCHParserException
 	{
 		ParsedToken[] seq = tok.getSeqValue();
 		    
@@ -237,7 +254,7 @@ public class ${grammarName}TreeConverter
 		}
 	}
 	
-	private static HAParseTree buildStringTree(ParsedToken tok, int tokenType)
+	private static HAParseTree buildStringTree(ParsedToken tok, int tokenType) throws MCHParserException
 	{
 		CommonTokenFactory fac = new CommonTokenFactory();
 		
@@ -256,7 +273,7 @@ public class ${grammarName}TreeConverter
 		return pt;
 	}
 	
-	private static HAParseTree buildBinaryTree(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType)
+	private static HAParseTree buildBinaryTree(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType) throws MCHParserException
 	{		
 		List<HABinaryEntry> values = Lists.newArrayList();
 	
@@ -321,7 +338,7 @@ public class ${grammarName}TreeConverter
 		}
 	}
 	
-	private static HAParseTree buildOffsetTree(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType)
+	private static HAParseTree buildOffsetTree(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType) throws MCHParserException
 	{
 		CommonTokenFactory fac = new CommonTokenFactory();
 		
@@ -345,7 +362,7 @@ public class ${grammarName}TreeConverter
 		return pt;
 	}
 	
-	private static HAParseTree buildOffsetTreePlus(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType)
+	private static HAParseTree buildOffsetTreePlus(ParsedToken tok, ${grammarName}TreeHelper.TokenType tokenType) throws MCHParserException
 	{
 		HAParseTree pt = generateParseTree( tok.getSeqValue()[0] );
 		
@@ -364,5 +381,37 @@ public class ${grammarName}TreeConverter
 		}
 		   
 		return pt;
+	}
+	
+	private static void append(long value, int bits)
+	{
+		int numBytes = bits/8 + ((bits%8 > 0) ? 1 : 0);
+		for( int i = numBytes-1; i >= 0; i-- )
+		{
+			if( i < numBytes-1)
+				append( (byte) (value >> i*8), 8 );
+			else
+				append( (byte) (value >> i*8), (bits%8 == 0)? 8 : bits%8 );
+		}
+	}
+	
+	private static void append(byte value, int bits)
+	{
+		int b = (bytes.size() > 0) ? bytes.remove(bytes.size()-1).byteValue() : 0;
+		int v = value;
+		
+		int v1 = ((v << (8-bits)) >> (offset));
+		int v2 = (v << ((8-offset)+(8-bits)));
+		
+		b = b | v1;
+		offset = (offset+bits);
+		
+		bytes.add((byte)b);
+		
+		if( offset >= 8 )
+		{
+			bytes.add((byte)v2);
+			offset %= 8;
+		}	
 	}
 }

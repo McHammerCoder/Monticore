@@ -653,7 +653,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
   interface BinaryComponent;
       
   BinaryBlock implements BinaryComponent =
-    (negate:["~"])? "("
+    "("
     (
       (
         option:BinaryOption ("init" "{" initAction:Action "}")? // Statements
@@ -697,12 +697,13 @@ component grammar Grammar extends de.monticore.literals.Literals {
     
   UInt8 implements BinaryComponent, RuleComponent =
     (negate:["~"])? "uint8" 
-    ( ranged:["["]
+    ( valued:["["]
       ( lowerUInt:IntLiteral ".." upperUInt:IntLiteral
       | lowerChar:Char ".." upperChar:Char
       | valueUInt:IntLiteral
       | valueChar:Char ) 
     "]")?
+    ( little:["/le"] | big:["/be"] )?
     ;
     
   UInt16 implements BinaryComponent, RuleComponent =
@@ -711,6 +712,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
       ( lower:IntLiteral ranged:[".."] upper:IntLiteral
       | value:IntLiteral )
     "]")?
+    ( little:["/le"] | big:["/be"] )?
     ;
     
   UInt32 implements BinaryComponent, RuleComponent =
@@ -719,6 +721,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
       ( lower:IntLiteral ranged:[".."] upper:IntLiteral
       | value:IntLiteral )
     "]")?
+    ( little:["/le"] | big:["/be"] )?
     ;
     
   UInt64 implements BinaryComponent, RuleComponent =
@@ -727,6 +730,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
       ( lower:IntLiteral ranged:[".."] upper:IntLiteral
       | value:IntLiteral )
     "]")?
+    ( little:["/le"] | big:["/be"] )?
     ;
     
   Int8 implements BinaryComponent, RuleComponent =
@@ -735,6 +739,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
       ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
       | value:SignedIntLiteral )
     "]")?
+    ( little:["/le"] | big:["/be"] )?
     ;
     
   Int16 implements BinaryComponent, RuleComponent =
@@ -743,6 +748,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
       ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
       | value:SignedIntLiteral )
     "]")?
+    ( little:["/le"] | big:["/be"] )?
     ;
     
   Int32 implements BinaryComponent, RuleComponent =
@@ -751,6 +757,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
       ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
       | value:SignedIntLiteral )
     "]")?
+    ( little:["/le"] | big:["/be"] )?
     ;
     
   Int64 implements BinaryComponent, RuleComponent =
@@ -759,6 +766,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
       ( lower:SignedIntLiteral ranged:[".."] upper:SignedIntLiteral
       | value:SignedIntLiteral )
     "]")?
+    ( little:["/le"] | big:["/be"] )?
     ; 
     
   
@@ -787,6 +795,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
       | value:IntLiteral )
       "]"
     )?
+    ( little:["/le"] | big:["/be"] )?
     ; 
     
   Bits implements BinaryComponent, RuleComponent =
@@ -813,6 +822,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
       | value:SignedIntLiteral )
       "]"
     )?
+    ( little:["/le"] | big:["/be"] )?
     ; 
 
   EncodeTableEntry = 

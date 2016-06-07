@@ -171,6 +171,25 @@ HParsedToken* act_EOF(const HParseResult *p, void* user_data)
     return callAction(p,"actEOF");
 }
 
+HParsedToken* act_Little(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actLittle");
+}
+
+<#list 1..64 as bits>
+HParsedToken* act_ToBigU${bits}(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actToBigU${bits}");
+}
+</#list>
+
+<#list 1..64 as bits>
+HParsedToken* act_ToBigS${bits}(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actToBigS${bits}");
+}
+</#list>
+
 JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_${grammarName}Hammer_action
   (JNIEnv *env, jclass class, jobject p, jstring a)
 {
@@ -270,6 +289,22 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_${grammarName}Hammer
 	else if( strcmp(actionName,"act${offsetProd.getName()}") == 0 )
 	{
 		RETURNWRAP( env, h_action(UNWRAP(env, p), act_${offsetProd.getName()}, NULL) );
+	}
+</#list>
+    else if( strcmp(actionName,"actLittle") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_Little, NULL) );
+	}
+<#list 1..64 as bits>
+	else if( strcmp(actionName,"actToBigU${bits}") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_ToBigU${bits}, NULL) );
+	}
+</#list>
+<#list 1..64 as bits>
+	else if( strcmp(actionName,"actToBigS${bits}") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_ToBigS${bits}, NULL) );
 	}
 </#list>
 	else return p;

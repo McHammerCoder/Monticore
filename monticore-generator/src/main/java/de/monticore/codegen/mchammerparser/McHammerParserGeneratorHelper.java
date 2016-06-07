@@ -453,13 +453,6 @@ public class McHammerParserGeneratorHelper
 	    return ruleNames;
 	}
 	
-	/*	
-	public static String getASTClassName(MCRuleSymbol rule) 
-	{
-		return rule.getType().getQualifiedName();
-	}
-	*/
-	
 	/**
 	 * If DoNotParseEntireFile is NOT set in the grammar the generated parser will fail if the input is not parsed entirely.
 	 * It is recommended NOT to set this flag as it is not compatible with the pretty printer and is considered a bad style.
@@ -511,6 +504,38 @@ public class McHammerParserGeneratorHelper
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * If ParseWithOverlapingOffsets is NOT set in the grammar the generated parser will fail if the parsed offset points to a position of the input that
+	 * has already been parsed and does not allow to parse any part if the input twice through offsets.
+	 * It is recommended NOT to set this flag as it is not compatible with the pretty printer and is considered a bad style.
+	 * 
+	 * @return false if ParseWithOverlapingOffsets is set in the grammar else true
+	 */
+	private static boolean logged = false;
+	public boolean defaultLittleEndian()
+	{
+		Optional<ASTGrammarOption> options = astGrammar.getGrammarOptions();
+		if( options.isPresent() )
+		{
+			List<ASTHammerOption> hammerOptions = options.get().getHammerOptions();
+			
+			for( ASTHammerOption hammerOption : hammerOptions )
+			{
+				if( hammerOption.getName().equals("DefaultLittleEndian") )
+				{
+					if( !logged )
+					{
+						Log.info("option DefaultLittleEndian found!", LOG_ID);
+						logged = true;
+					}
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 }
 

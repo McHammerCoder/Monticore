@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import com.upstandinghackers.hammer.Hammer;
 
 import de.monticore.ast.ASTNode;
+import de.monticore.codegen.GeneratorHelper;
 import de.monticore.codegen.parser.ParserGeneratorHelper;
 import de.monticore.codegen.parser.antlr.ASTConstructionActions;
 import de.monticore.codegen.parser.antlr.AttributeCardinalityConstraint;
@@ -131,12 +132,15 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	
 	private GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer();
 	
+	private boolean defaultLittleEndian = false;
+	
 	public Grammar2Hammer(McHammerParserGeneratorHelper parserGeneratorHelper, MCGrammarInfo grammarInfo) 
 	{
 		Preconditions.checkArgument(parserGeneratorHelper.getGrammarSymbol() != null);
 		this.parserGeneratorHelper = parserGeneratorHelper;
 		this.grammarEntry = parserGeneratorHelper.getGrammarSymbol();
 		this.grammarInfo = grammarInfo;
+		this.defaultLittleEndian = parserGeneratorHelper.defaultLittleEndian();
 		
 		// Find all DataFields and LexStrings in the grammar
 		List<ASTProd> rules = parserGeneratorHelper.getParserRulesToGenerate();
@@ -893,76 +897,30 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	{
 		printIteration(ast.getIteration()); 
 		
-		if( ast.isNegate() )
+		
+		addToCodeSection("\n" + indent + "Hammer.choice( ");
+		increaseIndent();
+		
+		List<ASTBinaryAlt> alts = ast.getBinaryAlts();
+		for( int i = 0; i < alts.size(); i++ )
 		{
-			negated = true;
-			
 			addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 			increaseIndent();
 			
-			addToCodeSection("\n" + indent + "Hammer.sequence( ");
-			increaseIndent();
-			
-			List<ASTBinaryAlt> alts = ast.getBinaryAlts();
-			for( int i = 0; i < alts.size(); i++ )
-			{
-				if( i < alts.size()-1 )
-				{
-					addToCodeSection("\n" + indent + "Hammer.and( ");
-					increaseIndent();
-				}
-				
-				addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
-				increaseIndent();
-				
-				ASTBinaryAlt alt = alts.get(i);
-				alt.accept(getRealThis());
-				
-				decreaseIndent();
-				addToCodeSection("\n" + indent + ", \"actUndefined\" )");
-				
-				if( i < alts.size()-1 )
-				{
-					decreaseIndent();
-					addToCodeSection("\n" + indent + "),");
-				}
-			}
-			
-			decreaseIndent();
-			addToCodeSection("\n" + indent + ")");
+			ASTBinaryAlt alt = alts.get(i);
+			alt.accept(getRealThis());
 			
 			decreaseIndent();
 			addToCodeSection("\n" + indent + ", \"actUndefined\" )");
 			
-			negated = false;
-			
-		}
-		else
-		{
-			addToCodeSection("\n" + indent + "Hammer.choice( ");
-			increaseIndent();
-			
-			List<ASTBinaryAlt> alts = ast.getBinaryAlts();
-			for( int i = 0; i < alts.size(); i++ )
+			if( i < alts.size()-1 )
 			{
-				addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
-				increaseIndent();
-				
-				ASTBinaryAlt alt = alts.get(i);
-				alt.accept(getRealThis());
-				
-				decreaseIndent();
-				addToCodeSection("\n" + indent + ", \"actUndefined\" )");
-				
-				if( i < alts.size()-1 )
-				{
-					addToCodeSection(", ");
-				}
+				addToCodeSection(", ");
 			}
-			
-			decreaseIndent();
-			addToCodeSection("\n" + indent + ")");
 		}
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ")");
 		
 		printIterationEnd(ast.getIteration()); 
 	}
@@ -1064,56 +1022,128 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		addToCodeSection("\n" + indent + ") ");
 	}
 	
+	public void printIntParserRanged(int numBits, long lower, long upper, boolean signed, boolean little, boolean negated)
+	{
+		if( negated )
+		{
+			addToCodeSection("\n" + indent + "Hammer.butNot( ");
+			increaseIndent();
+			
+			printIntParser(numBits, signed, little);
+					
+			addToCodeSection(",");
+		}
+		
+		addToCodeSection("\n" + indent + "Hammer.intRange( ");
+		increaseIndent();
+		
+		printIntParser(numBits, signed, little);
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", " + lower + ", " + upper + ")" );
+		
+		if( negated )
+		{
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")" );			
+		}
+	}
+	
+	public void printIntParserRanged(int numBits, String lower, String upper, boolean signed, boolean little, boolean negated)
+	{
+		if( negated )
+		{
+			addToCodeSection("\n" + indent + "Hammer.butNot( ");
+			increaseIndent();
+			
+			printIntParser(numBits, signed, little);
+					
+			addToCodeSection(",");
+		}
+		
+		addToCodeSection("\n" + indent + "Hammer.intRange( ");
+		increaseIndent();
+		
+		printIntParser(numBits, signed, little);
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + ", (byte)'" + lower + "', (byte)'" + upper + "')" );
+		
+		if( negated )
+		{
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")" );			
+		}
+	}
+	
+	public void printIntParser(int numBits, boolean signed, boolean little)
+	{
+		if( little )
+		{
+			addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
+			increaseIndent();
+		}
+		
+		addToCodeSection("\n" + indent + (signed ? "int_" : "uInt_") + numBits );
+		
+		if( little )
+		{
+			decreaseIndent();
+			addToCodeSection("\n" + indent + (signed ? ", \"actToBigS" : ", \"actToBigU") + numBits + "\") ");
+		}			
+	}
+	
+	
 	@Override
 	public void visit(ASTUInt8 uint8)
 	{	
+		boolean littleEndian = uint8.isLittle() || (defaultLittleEndian && !uint8.isBig());
+		
 		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 		
-		if( uint8.isRanged() )
+		if( uint8.isValued() )
 		{
-			if( negated ? !uint8.isNegate() : uint8.isNegate() )
+			boolean neg = uint8.isNegate();
+			
+			if( uint8.getValueChar().isPresent() )
 			{
-				if( uint8.getValueChar().isPresent() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_8, Hammer.intRange( uInt_8, (byte)'" + StringEscapeUtils.escapeJava(Character.toString(uint8.getValueChar().get().charAt(0))) + "', (byte)'" + StringEscapeUtils.escapeJava(Character.toString(uint8.getValueChar().get().charAt(0))) + "') )");
-				}
-				else if( uint8.getLowerChar().isPresent() && uint8.getUpperChar().isPresent() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_8, Hammer.intRange( uInt_8, (byte)'" + StringEscapeUtils.escapeJava(Character.toString(uint8.getLowerChar().get().charAt(0))) + "', (byte)'" + StringEscapeUtils.escapeJava(Character.toString(uint8.getUpperChar().get().charAt(0))) + "') )");
-				}
-				else if( uint8.getValueUInt().isPresent() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_8, Hammer.intRange( uInt_8, " + uint8.getValueUInt().get().getValue() + ", " + uint8.getValueUInt().get().getValue() + ") )");
-				}
-				else if( uint8.getLowerUInt().isPresent() && uint8.getUpperUInt().isPresent() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_8, Hammer.intRange( uInt_8, " + uint8.getLowerUInt().get().getValue() + ", " + uint8.getUpperUInt().get().getValue() + ") )");
-				}
+				String value = StringEscapeUtils.escapeJava(Character.toString(uint8.getValueChar().get().charAt(0)));
+				printIntParserRanged(8, value, value, false, uint8.isLittle(), neg);
 			}
-			else
+			else if( uint8.getLowerChar().isPresent() && uint8.getUpperChar().isPresent() )
 			{
-				if( uint8.getValueChar().isPresent() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + StringEscapeUtils.escapeJava(Character.toString(uint8.getValueChar().get().charAt(0))) + "', (byte)'" + StringEscapeUtils.escapeJava(Character.toString(uint8.getValueChar().get().charAt(0))) + "')");
-				}
-				else if( uint8.getLowerChar().isPresent() && uint8.getUpperChar().isPresent() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, (byte)'" + StringEscapeUtils.escapeJava(Character.toString(uint8.getLowerChar().get().charAt(0))) + "', (byte)'" + StringEscapeUtils.escapeJava(Character.toString(uint8.getUpperChar().get().charAt(0))) + "')");
-				}
-				else if( uint8.getValueUInt().isPresent() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + uint8.getValueUInt().get().getValue() + ", " + uint8.getValueUInt().get().getValue() + ")");
-				}
-				else if( uint8.getLowerUInt().isPresent() && uint8.getUpperUInt().isPresent() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_8, " + uint8.getLowerUInt().get().getValue() + ", " + uint8.getUpperUInt().get().getValue() + ")");
-				}
+				String lower = StringEscapeUtils.escapeJava(Character.toString(uint8.getLowerChar().get().charAt(0)));
+				String upper = StringEscapeUtils.escapeJava(Character.toString(uint8.getUpperChar().get().charAt(0)));
+				printIntParserRanged(8, lower, upper, false, uint8.isLittle(), neg);
+			}
+			else if( uint8.getValueUInt().isPresent() )
+			{
+				long value = uint8.getValueUInt().get().getValue();
+				
+				if( value > 255 )
+					Log.error("Value of uint8 " + value + " too big!");
+				
+				printIntParserRanged(8, value, value, false, littleEndian, neg);
+			}
+			else if( uint8.getLowerUInt().isPresent() && uint8.getUpperUInt().isPresent() )
+			{
+				long lower = uint8.getLowerUInt().get().getValue();
+				long upper = uint8.getUpperUInt().get().getValue();
+				
+				if( lower > upper )
+					Log.error("Lower value of uint8 range is greater than upper value!");			
+				if( lower > 255 )
+					Log.error("Lower value of uint8 range " + lower + " too big!");
+				if( upper > 255 )
+					Log.error("Upper value of uint8 range " + upper + " too big!");
+				
+				printIntParserRanged(8, lower, upper, false, littleEndian, neg);
 			}
 		}
 		else
 		{
-			addToCodeSection("\n" + indent + "uInt_8");
+			printIntParser(8, false, littleEndian);
 		}
 		
 		decreaseIndent();
@@ -1123,39 +1153,44 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTUInt16 uint16)
 	{
+		boolean littleEndian = uint16.isLittle() || (defaultLittleEndian && !uint16.isBig());
+		
 		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
-		
+
 		if( uint16.isValued() )
 		{
-			if( negated ? !uint16.isNegate() : uint16.isNegate() )
+			boolean neg = uint16.isNegate();
+			
+			if( uint16.getValue().isPresent() )
 			{
-				if( !uint16.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_16, Hammer.intRange( uInt_16, " + uint16.getValue().get().getValue() + ", " + uint16.getValue().get().getValue() + ") )");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_16, Hammer.intRange( uInt_16, " + uint16.getLower().get().getValue() + ", " + uint16.getUpper().get().getValue() + ") )");
-				}
+				long value = uint16.getValue().get().getValue();
+				
+				if( value > 65535 )
+					Log.error("Value of uint16 " + value + " too big!");
+				
+				printIntParserRanged(16, value, value, false, littleEndian, neg);
 			}
-			else
+			else if( uint16.getLower().isPresent() && uint16.getUpper().isPresent() )
 			{
-				if( !uint16.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, " + uint16.getValue().get().getValue() + ", " + uint16.getValue().get().getValue() + ")");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_16, " + uint16.getLower().get().getValue() + ", " + uint16.getUpper().get().getValue() + ")");
-				}
+				long lower = uint16.getLower().get().getValue();
+				long upper = uint16.getUpper().get().getValue();
+				
+				if( lower > upper )
+					Log.error("Lower value of uint16 range is greater than upper value!");			
+				if( lower > 65535 )
+					Log.error("Lower value of uint16 range " + lower + " too big!");
+				if( upper > 65535 )
+					Log.error("Upper value of uint16 range " + upper + " too big!");
+				
+				printIntParserRanged(16, lower, upper, false, littleEndian, neg);
 			}
 		}
 		else
 		{
-			addToCodeSection("\n" + indent + "uInt_16");
+			printIntParser(16, false, littleEndian);
 		}
-		
+
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actUInt16\") ");
 	}
@@ -1163,39 +1198,44 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTUInt32 uint32)
 	{
+		boolean littleEndian = uint32.isLittle() || (defaultLittleEndian && !uint32.isBig());
+		
 		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
-		
+
 		if( uint32.isValued() )
 		{
-			if( negated ? !uint32.isNegate() : uint32.isNegate() )
+			boolean neg = uint32.isNegate();
+			
+			if( uint32.getValue().isPresent() )
 			{
-				if( !uint32.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_32, Hammer.intRange( uInt_32, " + uint32.getValue().get().getValue() + ", " + uint32.getValue().get().getValue() + ") )");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_32, Hammer.intRange( uInt_32, " + uint32.getLower().get().getValue() + ", " + uint32.getUpper().get().getValue() + ") )");
-				}
+				long value = uint32.getValue().get().getValue();
+				
+				if( value > 4294967295L )
+					Log.error("Value of uint32 " + value + " too big!");
+				
+				printIntParserRanged(32, value, value, false, littleEndian, neg);
 			}
-			else
+			else if( uint32.getLower().isPresent() && uint32.getUpper().isPresent() )
 			{
-				if( !uint32.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_32, " + uint32.getValue().get().getValue() + ", " + uint32.getValue().get().getValue() + ")");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_32, " + uint32.getLower().get().getValue() + ", " + uint32.getUpper().get().getValue() + ")");
-				}
-			}	
+				long lower = uint32.getLower().get().getValue();
+				long upper = uint32.getUpper().get().getValue();
+				
+				if( lower > upper )
+					Log.error("Lower value of uint32 range is greater than upper value!");			
+				if( lower > 4294967295L )
+					Log.error("Lower value of uint32 range " + lower + " too big!");
+				if( upper > 4294967295L )
+					Log.error("Upper value of uint32 range " + upper + " too big!");
+				
+				printIntParserRanged(32, lower, upper, false, littleEndian, neg);
+			}
 		}
 		else
 		{
-			addToCodeSection("\n" + indent + "uInt_32");
+			printIntParser(32, false, littleEndian);
 		}
-		
+
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actUInt32\") ");
 	}
@@ -1203,39 +1243,44 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTUInt64 uint64)
 	{
+		boolean littleEndian = uint64.isLittle() || (defaultLittleEndian && !uint64.isBig());
+		
 		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
-		
+
 		if( uint64.isValued() )
 		{
-			if( negated ? !uint64.isNegate() : uint64.isNegate() )
+			boolean neg = uint64.isNegate();
+			
+			if( uint64.getValue().isPresent() )
 			{
-				if( !uint64.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_64, Hammer.intRange( uInt_64, " + uint64.getValue().get().getValue() + ", " + uint64.getValue().get().getValue() + ") )");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( uInt_64, Hammer.intRange( uInt_64, " + uint64.getLower().get().getValue() + ", " + uint64.getUpper().get().getValue() + ") )");
-				}
+				long value = uint64.getValue().get().getValue();
+				
+				if( value > Long.MAX_VALUE )
+					Log.error("Value of uint64 " + value + " too big!");
+				
+				printIntParserRanged(64, value, value, false, littleEndian, neg);
 			}
-			else
+			else if( uint64.getLower().isPresent() && uint64.getUpper().isPresent() )
 			{
-				if( !uint64.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_64, " + uint64.getValue().get().getValue() + ", " + uint64.getValue().get().getValue() + ")");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( uInt_64, " + uint64.getLower().get().getValue() + ", " + uint64.getUpper().get().getValue() + ")");
-				}
+				long lower = uint64.getLower().get().getValue();
+				long upper = uint64.getUpper().get().getValue();
+				
+				if( lower > upper )
+					Log.error("Lower value of uint64 range is greater than upper value!");			
+				if( lower > Long.MAX_VALUE )
+					Log.error("Lower value of uint64 range " + lower + " too big!");
+				if( upper > Long.MAX_VALUE )
+					Log.error("Upper value of uint64 range " + upper + " too big!");
+				
+				printIntParserRanged(64, lower, upper, false, littleEndian, neg);
 			}
 		}
 		else
 		{
-			addToCodeSection("\n" + indent + "uInt_64");
+			printIntParser(64, false, littleEndian);
 		}
-		
+
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actUInt64\") ");
 	}
@@ -1243,39 +1288,53 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTInt8 int8)
 	{
+		boolean littleEndian = int8.isLittle() || (defaultLittleEndian && !int8.isBig());
+		
 		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
-		
+
 		if( int8.isValued() )
 		{
-			if( negated ? !int8.isNegate() : int8.isNegate() )
+			boolean neg = int8.isNegate();
+			
+			if( int8.getValue().isPresent() )
 			{
-				if( !int8.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( int_8, Hammer.intRange( int_8, " + int8.getValue().get().getValue() + ", " + int8.getValue().get().getValue() + ") )");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( int_8, Hammer.intRange( int_8, " + int8.getLower().get().getValue() + ", " + int8.getUpper().get().getValue() + ") )");
-				}
+				long value = int8.getValue().get().getValue();
+				
+				if( value > Byte.MAX_VALUE )
+					Log.error("Value of int8 " + value + " too big!");
+				
+				if( value < Byte.MIN_VALUE )
+					Log.error("Value of int8 " + value + " too small!");
+				
+				printIntParserRanged(8, value, value, false, littleEndian, neg);
 			}
-			else
+			else if( int8.getLower().isPresent() && int8.getUpper().isPresent() )
 			{
-				if( !int8.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( int_8, " + int8.getValue().get().getValue() + ", " + int8.getValue().get().getValue() + ")");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( int_8, " + int8.getLower().get().getValue() + ", " + int8.getUpper().get().getValue() + ")");
-				}
-			}	
+				long lower = int8.getLower().get().getValue();
+				long upper = int8.getUpper().get().getValue();
+				
+				if( lower > upper )
+					Log.error("Lower value of int8 range is greater than upper value!");			
+				
+				if( lower > Byte.MAX_VALUE )
+					Log.error("Lower value of int8 range " + lower + " too big!");
+				if( upper > Byte.MAX_VALUE )
+					Log.error("Upper value of int8 range " + upper + " too big!");
+				
+				if( lower < Byte.MIN_VALUE )
+					Log.error("Lower value of int8 range " + lower + " too small!");
+				if( upper < Byte.MIN_VALUE )
+					Log.error("Upper value of int8 range " + upper + " too small!");	
+				
+				printIntParserRanged(8, lower, upper, false, littleEndian, neg);
+			}
 		}
 		else
 		{
-			addToCodeSection("\n" + indent + "int_8");
+			printIntParser(8, false, littleEndian);
 		}
-		
+
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actInt8\") ");
 	}
@@ -1283,39 +1342,53 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTInt16 int16)
 	{
+		boolean littleEndian = int16.isLittle() || (defaultLittleEndian && !int16.isBig());
+		
 		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
 
 		if( int16.isValued() )
 		{
-			if( negated ? !int16.isNegate() : int16.isNegate() )
+			boolean neg = int16.isNegate();
+			
+			if( int16.getValue().isPresent() )
 			{
-				if( !int16.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( int_16, Hammer.intRange( int_16, " + int16.getValue().get().getValue() + ", " + int16.getValue().get().getValue() + ") )");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( int_16, Hammer.intRange( int_16, " + int16.getLower().get().getValue() + ", " + int16.getUpper().get().getValue() + ") )");
-				}
+				long value = int16.getValue().get().getValue();
+				
+				if( value > Character.MAX_VALUE )
+					Log.error("Value of int16 " + value + " too big!");
+				
+				if( value < Character.MIN_VALUE )
+					Log.error("Value of int16 " + value + " too small!");
+				
+				printIntParserRanged(16, value, value, false, littleEndian, neg);
 			}
-			else
+			else if( int16.getLower().isPresent() && int16.getUpper().isPresent() )
 			{
-				if( !int16.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( int_16, " + int16.getValue().get().getValue() + ", " + int16.getValue().get().getValue() + ")");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( int_16, " + int16.getLower().get().getValue() + ", " + int16.getUpper().get().getValue() + ")");
-				}
+				long lower = int16.getLower().get().getValue();
+				long upper = int16.getUpper().get().getValue();
+				
+				if( lower > upper )
+					Log.error("Lower value of int16 range is greater than upper value!");			
+				
+				if( lower > Character.MAX_VALUE )
+					Log.error("Lower value of int16 range " + lower + " too big!");
+				if( upper > Character.MAX_VALUE )
+					Log.error("Upper value of int16 range " + upper + " too big!");
+				
+				if( lower < Character.MIN_VALUE )
+					Log.error("Lower value of int16 range " + lower + " too small!");
+				if( upper < Character.MIN_VALUE )
+					Log.error("Upper value of int16 range " + upper + " too small!");	
+				
+				printIntParserRanged(16, lower, upper, false, littleEndian, neg);
 			}
 		}
 		else
 		{
-			addToCodeSection("\n" + indent + "int_16");
+			printIntParser(16, false, littleEndian);
 		}
-		
+
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actInt16\") ");
 	}
@@ -1323,40 +1396,53 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTInt32 int32)
 	{
+		boolean littleEndian = int32.isLittle() || (defaultLittleEndian && !int32.isBig());
+		
 		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
-		
+
 		if( int32.isValued() )
 		{
-			if( negated ? !int32.isNegate() : int32.isNegate() )
+			boolean neg = int32.isNegate();
+			
+			if( int32.getValue().isPresent() )
 			{
-				if( !int32.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( int_32, Hammer.intRange( int_32, " + int32.getValue().get().getValue() + ", " + int32.getValue().get().getValue() + ") )");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( int_32, Hammer.intRange( int_32, " + int32.getLower().get().getValue() + ", " + int32.getUpper().get().getValue() + ") )");
-				}
+				long value = int32.getValue().get().getValue();
+				
+				if( value > Integer.MAX_VALUE )
+					Log.error("Value of int32 " + value + " too big!");
+				
+				if( value < Integer.MIN_VALUE )
+					Log.error("Value of int32 " + value + " too small!");
+				
+				printIntParserRanged(32, value, value, false, littleEndian, neg);
 			}
-			else
+			else if( int32.getLower().isPresent() && int32.getUpper().isPresent() )
 			{
-
-				if( !int32.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( int_32, " + int32.getValue().get().getValue() + ", " + int32.getValue().get().getValue() + ")");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( int_32, " + int32.getLower().get().getValue() + ", " + int32.getUpper().get().getValue() + ")");
-				}
+				long lower = int32.getLower().get().getValue();
+				long upper = int32.getUpper().get().getValue();
+				
+				if( lower > upper )
+					Log.error("Lower value of int32 range is greater than upper value!");			
+				
+				if( lower > Integer.MAX_VALUE )
+					Log.error("Lower value of int32 range " + lower + " too big!");
+				if( upper > Integer.MAX_VALUE )
+					Log.error("Upper value of int32 range " + upper + " too big!");
+				
+				if( lower < Integer.MIN_VALUE )
+					Log.error("Lower value of int32 range " + lower + " too small!");
+				if( upper < Integer.MIN_VALUE )
+					Log.error("Upper value of int32 range " + upper + " too small!");	
+				
+				printIntParserRanged(32, lower, upper, false, littleEndian, neg);
 			}
 		}
 		else
 		{
-			addToCodeSection("\n" + indent + "int_32");
+			printIntParser(32, false, littleEndian);
 		}
-		
+
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actInt32\") ");
 	}
@@ -1364,48 +1450,100 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 	@Override
 	public void visit(ASTInt64 int64)
 	{
+		boolean littleEndian = int64.isLittle() || (defaultLittleEndian && !int64.isBig());
+		
 		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
-		
+
 		if( int64.isValued() )
 		{
-			if( negated ? !int64.isNegate() : int64.isNegate() )
+			boolean neg = int64.isNegate();
+			
+			if( int64.getValue().isPresent() )
 			{
-				if( !int64.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( int_32, Hammer.intRange( int_64, " + int64.getValue().get().getValue() + ", " + int64.getValue().get().getValue() + ") )");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.butNot( int_32, Hammer.intRange( int_64, " + int64.getLower().get().getValue() + ", " + int64.getUpper().get().getValue() + ") )");
-				}
+				long value = int64.getValue().get().getValue();
+				
+				if( value > Long.MAX_VALUE )
+					Log.error("Value of int64 " + value + " too big!");
+				
+				if( value < Long.MIN_VALUE )
+					Log.error("Value of int64 " + value + " too small!");
+				
+				printIntParserRanged(64, value, value, false, littleEndian, neg);
 			}
-			else
+			else if( int64.getLower().isPresent() && int64.getUpper().isPresent() )
 			{
-				if( !int64.isRanged() )
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( int_64, " + int64.getValue().get().getValue() + ", " + int64.getValue().get().getValue() + ")");
-				}
-				else
-				{
-					addToCodeSection("\n" + indent + "Hammer.intRange( int_64, " + int64.getLower().get().getValue() + ", " + int64.getUpper().get().getValue() + ")");
-				}
+				long lower = int64.getLower().get().getValue();
+				long upper = int64.getUpper().get().getValue();
+				
+				if( lower > upper )
+					Log.error("Lower value of int64 range is greater than upper value!");			
+				
+				if( lower > Long.MAX_VALUE )
+					Log.error("Lower value of int64 range " + lower + " too big!");
+				if( upper > Long.MAX_VALUE )
+					Log.error("Upper value of int64 range " + upper + " too big!");
+				
+				if( lower < Long.MIN_VALUE )
+					Log.error("Lower value of int64 range " + lower + " too small!");
+				if( upper < Long.MIN_VALUE )
+					Log.error("Upper value of int64 range " + upper + " too small!");
+				
+				printIntParserRanged(64, lower, upper, false, littleEndian, neg);
 			}
 		}
 		else
 		{
-			addToCodeSection("\n" + indent + "int_64");
+			printIntParser(64, false, littleEndian);
 		}
-		
+
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actInt64\") ");
+	}
+	
+	public void printBitsRange( int numBits, long lower, long upper, boolean signed, boolean little)
+	{
+		addToCodeSection("\n" + indent + "Hammer.intRange("); 
+		increaseIndent();
+		
+		printBits( numBits, signed, little );
+		
+		decreaseIndent();
+		addToCodeSection("\n" + indent + "," + lower + ", " + upper + ")");
+	}
+	
+	public void printBits( int numBits, boolean signed, boolean little )
+	{
+		if( little )
+		{
+			addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action(");
+			increaseIndent();
+		}
+		
+		addToCodeSection("\n" + indent + "Hammer.bits(" + numBits + (signed ? ",true)" : ",false)"));
+				
+		if( little )
+		{
+			decreaseIndent();
+			addToCodeSection("\n" + indent + (signed ? ", \"actToBigS" : ", \"actToBigU") + numBits + "\") ");
+		}
 	}
 	
 	@Override
 	public void visit(ASTBits bits)
 	{
-		int numBits = bits.getBits()+1-ASTConstantsGrammar.CONSTANT64;
+		int numBits = bits.getBits()+1-ASTConstantsGrammar.CONSTANT66;
 		
+		boolean littleEndian = bits.isLittle() || (defaultLittleEndian && !bits.isBig());
+		
+		if( bits.isLittle() )
+		{
+			addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
+			increaseIndent();
+		
+			addToCodeSection("\n" + indent + "Hammer.sequence(");
+			increaseIndent();
+		}
 		
 		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
@@ -1414,27 +1552,53 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		{
 			if( !bits.isRanged() )
 			{
-				addToCodeSection("\n" + indent + "Hammer.intRange( Hammer.bits(" + numBits + ",true), " + bits.getValue().get().getValue() + ", " + bits.getValue().get().getValue() + ")");
+				long value = bits.getValue().get().getValue();
+				
+				printBitsRange(numBits,value,value,true, littleEndian);
 			}
 			else
 			{
-				addToCodeSection("\n" + indent + "Hammer.intRange( Hammer.bits(" + numBits + ",true), " + bits.getLower().get().getValue() + ", " + bits.getUpper().get().getValue() + ")");
+				long lower = bits.getLower().get().getValue();
+				long upper = bits.getUpper().get().getValue();
+				
+				printBitsRange(numBits,lower,upper,true, littleEndian);
 			}
 		}
 		else
 		{
-			addToCodeSection("\n" + indent + "Hammer.bits(" + numBits + ",true)");
+			printBits( numBits, true, littleEndian );
 		}
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actBits" + numBits + "\") ");
+		
+		if( bits.isLittle() )
+		{
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")");
+		
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ", \"actLittle\") ");
+		}
 	}
 	
 	@Override
 	public void visit(ASTUBits ubits)
 	{
-		int numBits = ubits.getBits()+1-ASTConstantsGrammar.CONSTANT0;
+		int numBits = ubits.getBits()+1-ASTConstantsGrammar.CONSTANT2;
 		
+		boolean littleEndian = ubits.isLittle() || (defaultLittleEndian && !ubits.isBig());
+		
+		System.out.println("isBit = " + ubits.isBig());
+		
+		if( ubits.isLittle() )
+		{
+			addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
+			increaseIndent();
+		
+			addToCodeSection("\n" + indent + "Hammer.sequence(");
+			increaseIndent();
+		}
 		
 		addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");
 		increaseIndent();
@@ -1443,20 +1607,34 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		{
 			if( !ubits.isRanged() )
 			{
-				addToCodeSection("\n" + indent + "Hammer.intRange( Hammer.bits(" + numBits + ",false), " + ubits.getValue().get().getValue() + ", " + ubits.getValue().get().getValue() + ")");
+				long value = ubits.getValue().get().getValue();
+				
+				printBitsRange(numBits,value,value,false,littleEndian);
 			}
 			else
 			{
-				addToCodeSection("\n" + indent + "Hammer.intRange( Hammer.bits(" + numBits + ",false), " + ubits.getLower().get().getValue() + ", " + ubits.getUpper().get().getValue() + ")");
+				long lower = ubits.getLower().get().getValue();
+				long upper = ubits.getUpper().get().getValue();
+				
+				printBitsRange(numBits,lower,upper,false,littleEndian);
 			}
 		}
 		else
 		{
-			addToCodeSection("\n" + indent + "Hammer.bits(" + numBits + ",false)");
+			printBits( numBits, false, littleEndian );
 		}
 		
 		decreaseIndent();
 		addToCodeSection("\n" + indent + ", \"actUBits" + numBits + "\") ");
+		
+		if( ubits.isLittle() )
+		{
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ")");
+		
+			decreaseIndent();
+			addToCodeSection("\n" + indent + ", \"actLittle\") ");
+		}
 	}
 	
 	@Override

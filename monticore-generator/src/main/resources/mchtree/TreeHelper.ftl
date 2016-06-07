@@ -56,7 +56,11 @@ public class ${grammarName}TreeHelper
 		UTT_${offsetProd.getName()}(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter=iter+1>
 </#list>
-		UTT_EOF(Hammer.TokenType.USER.getValue()+${iter});
+		UTT_EOF(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+		UTT_Little(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+		UTT_Combine(Hammer.TokenType.USER.getValue()+${iter});
 
 		UserTokenTypes(int numValue)
 		{
