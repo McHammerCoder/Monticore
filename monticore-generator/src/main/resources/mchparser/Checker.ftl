@@ -33,20 +33,28 @@ public class ${grammarName}Checker {
 		int type = token.getType();
 		if( token instanceof HABinarySequenceToken || token instanceof HAOffsetToken )
 		{ 
-			if( !${grammarName}TreeHelper.isBinaryProd(type) )
-				return true;
-				
-			ParseTree parseTree = new HATerminalNode(token);
-			byte [] bytes = pp.prettyPrint(parseTree);
-			ParseResult pr = Hammer.parse(getParserForType(type),bytes,bytes.length);
-
-			if( pr == null )
+			try
+			{
+				if( !${grammarName}TreeHelper.isBinaryProd(type) )
+					return true;
+					
+				ParseTree parseTree = new HATerminalNode(token);
+				byte [] bytes = pp.prettyPrint(parseTree);
+				ParseResult pr = Hammer.parse(getParserForType(type),bytes,bytes.length);
+	
+				if( pr == null )
+					return false;
+	
+				ParseTree pt = ${grammarName}TreeConverter.create(pr);
+				byte [] bytesNew = pp.prettyPrint(pt);
+	
+				return ( pt instanceof HATerminalNode && ((HATerminalNode)pt).getSymbol().equals(token) );
+			}
+			catch (Exception ex)
+			{
+			    // parsing failed !
 				return false;
-
-			ParseTree pt = ${grammarName}TreeConverter.create(pr);
-			byte [] bytesNew = pp.prettyPrint(pt);
-
-			return ( pt instanceof HATerminalNode && ((HATerminalNode)pt).getSymbol().equals(token) );
+			}
 		}
 		else
 		{
