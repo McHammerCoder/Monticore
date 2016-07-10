@@ -53,4 +53,8 @@ public class PT${prod.getName()}
 			return this;
 		} 
 	}
+	
+<#list codeGenerator.getTypeConversion(prod) as method>
+${method}	
+</#list>
 }

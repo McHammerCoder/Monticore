@@ -193,7 +193,101 @@ public class Grammar2ParseTree implements Grammar_WithConceptsVisitor
 		return !getSuperClass(ast).isEmpty();
 	}
 	
+	public List<String> getTypeConversion(ASTProd ast)
+	{
+		List<String> res = Lists.newArrayList();
+		
+		if(ast instanceof ASTBinaryProd)
+		{
+			ASTBinaryProd astBin = (ASTBinaryProd) ast;
+			if(astBin.getVariable().isPresent())
+			{
+				String variable = astBin.getVariable().get();
+				String variableFirstUp = variable.substring(0, 1).toUpperCase() + variable.substring(1);
+				
+				if(!astBin.getType().isEmpty())
+				{
+					String type = "";
+					
+					for(String pType : astBin.getType())
+					{
+						type += pType + ".";
+					}
+					
+					type = type.substring(0,type.length()-1);
+					
+					String method = indent + "public" + type + " get" + variableFirstUp + "() {";
+					if(astBin.getBlock().isPresent())
+					{
+						StringBuffer buffer = new StringBuffer();
+					    for (ASTBlockStatement action: ((ASTAction) astBin.getBlock().get()).getBlockStatements()) {
+					    	buffer.append(getPrettyPrinter().prettyprint(action));
+					    }
+							
+					    method += "\n" + indent + indent + buffer.toString();
+					}
+					method += "\n" + indent + "}";
+					
+					res.add(method);
+				}
+				else
+				{
+					String method = indent + "public" + variable + " get" + variableFirstUp + "() {";
+					if(variable.equals("String"))
+					{
+						method += "\n" + indent + indent + "return new String( new htmlred._coder.pp.HTMLRedPP().prettyPrint(this) );";
+					}
+					else if(variable.equals("char"))
+					{
+						method += "\n" + indent + indent + "return new String( new htmlred._coder.pp.HTMLRedPP().prettyPrint(this) ).charAt(0);";
+					}
+					else 
+					{
+						method += "\n" + indent + indent + "long res = 0;";
+						method += "\n" + indent + indent + "HABinarySequenceToken token = (HABinarySequenceToken) getSymbol();";
+						method += "\n" + indent + indent + "List<HABinaryEntry> entries = token.getValues();";
+						method += "\n" + indent + indent + "for( HABinaryEntry entry : entries )";
+						method += "\n" + indent + indent + "{";
+						method += "\n" + indent + indent + "\tres = (res << entry.getBitCount()) + (entry.getValue() & (Long.MAX_VALUE >> (64-entry.getBitCount()-1)));"; 
+						method += "\n" + indent + indent + "\tSystem.out.println(\"res = \" + res);";
+						method += "\n" + indent + indent + "}";
+						
+						if(variable.equals("int"))
+							method += "\n" + indent + indent + "return (int) res;";
+						else if(variable.equals("long"))
+							method += "\n" + indent + indent + "return res;";
+						else if(variable.equals("byte"))
+							method += "\n" + indent + indent + "return (byte)res;";
+						else if(variable.equals("short"))
+							method += "\n" + indent + indent + "return (short)res;";
+						else if(variable.equals("double"))
+							method += "\n" + indent + indent + "return Double.longBitsToDouble(res);";
+						else if(variable.equals("float"))
+							method += "\n" + indent + indent + "return Float.intBitsToFloat((int)res);";
+					}
+					method += "\n" + indent + "}";
+					
+					res.add(method);
+				}
+			}
+		}
+		
+		return res;
+	}
+	
 	// ----------------- End of codegen methods ---------------------------------------------
+	
+	/**
+	 * Gets PrettyPrinter for ASTGrammar
+	 * 
+	 * @return
+	 */
+	public static Grammar_WithConceptsPrettyPrinter getPrettyPrinter() {
+		if (prettyPrinter == null) {
+    		prettyPrinter = new Grammar_WithConceptsPrettyPrinter(new IndentPrinter());
+    	}
+    	return prettyPrinter;
+	}
 	
 	/**
 	 * Gets the antlr code (for printing)

@@ -1589,8 +1589,6 @@ public class Grammar2Hammer implements Grammar_WithConceptsVisitor
 		
 		boolean littleEndian = ubits.isLittle() || (defaultLittleEndian && !ubits.isBig());
 		
-		System.out.println("isBit = " + ubits.isBig());
-		
 		if( ubits.isLittle() )
 		{
 			addToCodeSection("\n" + indent + grammarEntry.getName() + "Hammer.action( ");

@@ -697,7 +697,7 @@ public class MontiCoreScript extends Script implements GroovyRunner {
   {
 	  Log.errorIfNull( astGrammar,
 			  	"MCHC0001 Generation of MCHammerChecker can't be processed: the reference to the grammar ast is null");
-	  Log.info("generating McHammerParser!", LOG_ID);
+	  Log.info("generating McHammerChecker!", LOG_ID);
 	  
 	  McHammerCheckerGenerator.generate(symbolTable, astGrammar, outputDirectory);
   }
