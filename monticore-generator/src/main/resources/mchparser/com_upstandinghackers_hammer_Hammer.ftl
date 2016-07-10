@@ -50,7 +50,7 @@ bool callValidation(const HParseResult *p, const char* name)
     assert (rs == JNI_OK);
 
     jclass actionsClass;
-    FIND_CLASS(actionsClass, env, "htmlred/_mch_parser/HTMLRedActions");
+    FIND_CLASS(actionsClass, env, "${grammarNameLowerCase}/_mch_parser/${grammarName}Actions");
    
     jmethodID mid = (*env)->GetStaticMethodID(env, actionsClass, name, "(Lcom/upstandinghackers/hammer/ParseResult;)Z");
     if (mid == 0)
@@ -88,7 +88,7 @@ HParsedToken* act_${ruleName}(const HParseResult *p, void* user_data)
 </#list>
 
 <#assign iter=1>
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 HParsedToken* act_TT_${iter}(const HParseResult *p, void* user_data) 
 {
     return callAction(p,"actTT_${iter}");
@@ -150,6 +150,11 @@ bool length_${lengthField}_Reset(HParseResult *p, void* user_data)
     return callValidation(p,"length_${lengthField}_Reset");
 }
 
+bool length_${lengthField}_Zero(HParseResult *p, void* user_data) 
+{
+    return callValidation(p,"length_${lengthField}_Zero");
+}
+
 bool length_${lengthField}_Data(HParseResult *p, void* user_data) 
 {
     return callValidation(p,"length_${lengthField}_Data");
@@ -165,6 +170,25 @@ HParsedToken* act_EOF(const HParseResult *p, void* user_data)
 {
     return callAction(p,"actEOF");
 }
+
+HParsedToken* act_Little(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actLittle");
+}
+
+<#list 1..64 as bits>
+HParsedToken* act_ToBigU${bits}(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actToBigU${bits}");
+}
+</#list>
+
+<#list 1..64 as bits>
+HParsedToken* act_ToBigS${bits}(const HParseResult *p, void* user_data) 
+{
+    return callAction(p,"actToBigS${bits}");
+}
+</#list>
 
 JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_${grammarName}Hammer_action
   (JNIEnv *env, jclass class, jobject p, jstring a)
@@ -191,7 +215,7 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_${grammarName}Hammer
 	}
 </#list>
 <#assign iter=1>
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 	else if( strcmp(actionName,"actTT_${iter}") == 0 )
 	{
 		RETURNWRAP( env, h_action(UNWRAP(env, p), act_TT_${iter}, NULL) );
@@ -248,6 +272,10 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_${grammarName}Hammer
 	{
 		RETURNWRAP( env, h_attr_bool(UNWRAP(env, p), length_${lengthField}_Reset, NULL) );
 	}
+	else if( strcmp(actionName,"length_${lengthField}_Zero") == 0 )
+	{
+		RETURNWRAP( env, h_attr_bool(UNWRAP(env, p), length_${lengthField}_Zero, NULL) );
+	}
 	else if( strcmp(actionName,"length_${lengthField}_Data") == 0 )
 	{
 		RETURNWRAP( env, h_attr_bool(UNWRAP(env, p), length_${lengthField}_Data, NULL) );
@@ -261,6 +289,22 @@ JNIEXPORT jobject JNICALL Java_com_upstandinghackers_hammer_${grammarName}Hammer
 	else if( strcmp(actionName,"act${offsetProd.getName()}") == 0 )
 	{
 		RETURNWRAP( env, h_action(UNWRAP(env, p), act_${offsetProd.getName()}, NULL) );
+	}
+</#list>
+    else if( strcmp(actionName,"actLittle") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_Little, NULL) );
+	}
+<#list 1..64 as bits>
+	else if( strcmp(actionName,"actToBigU${bits}") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_ToBigU${bits}, NULL) );
+	}
+</#list>
+<#list 1..64 as bits>
+	else if( strcmp(actionName,"actToBigS${bits}") == 0 )
+	{
+		RETURNWRAP( env, h_action(UNWRAP(env, p), act_ToBigS${bits}, NULL) );
 	}
 </#list>
 	else return p;

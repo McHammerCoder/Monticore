@@ -148,5 +148,20 @@ public class HAParseTree implements ParseTree
 		return null;
 	}
 	
-
+	public boolean deepEquals(HAParseTree parseTree)
+	{
+		if( childs.size() == parseTree.getChildCount() )
+		{
+			for(int i = 0; i < childs.size(); i++)
+			{
+				HAParseTree child = (HAParseTree) childs.get(i);
+				if( !child.deepEquals((HAParseTree)parseTree.getChild(i)) )
+					return false;
+			}
+			
+			return true;
+		}
+		else
+			return false;
+	}
 }

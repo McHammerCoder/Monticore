@@ -104,6 +104,15 @@ public class McHammerParseTreeGenerator {
 			final Path parseTreePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "PT" + rule.getName() + ".java");
 			generator.generate("mchtree.BinaryNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), rule);
 		}
+		
+		// Generate OffsetTerminalNodes
+		rules = Lists.newArrayList();
+		rules.addAll(generatorHelper.getOffsetRulesToGenerate());
+		for(ASTProd rule : rules)
+		{
+			final Path parseTreePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "PT" + rule.getName() + ".java");
+			generator.generate("mchtree.OffsetNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), rule);
+		}
 				
 		
 		/*

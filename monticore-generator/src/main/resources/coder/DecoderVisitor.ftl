@@ -2,9 +2,7 @@ ${tc.signature("genHelper")}
 <#assign genHelper = glex.getGlobalValue("genHelper")>
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 
-package ${genHelper.getParserPackage()};
-
-import ${genHelper.getGNameToLower()}._parser.*;
+package ${genHelper.getCoderPackage()};
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
@@ -18,9 +16,12 @@ public class ${parserName}DecoderVisitor implements ParseTreeListener {
 	private ${parserName}Decoder decoder = new ${parserName}Decoder();
 
 	public void visitTerminal(TerminalNode node) {
-		CommonToken token = (CommonToken)node.getPayload();
-	 	decoder.decode(token);
-	}
+ 		Token token = node.getSymbol();
+ 	 	if( token instanceof CommonToken)
+  	 	{
+   		decoder.decode((CommonToken)token);
+ 		}
+ }
 	
 	@Override public void enterEveryRule(ParserRuleContext ctx) { }
 

@@ -58,7 +58,7 @@ public class ${grammarName}Actions
 	}
 </#list>	
 <#assign iter=1>
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 	public static ParsedToken actTT_${iter}(ParseResult p)
 	{		
 		ParsedToken ast = p.getAst();
@@ -182,7 +182,7 @@ public class ${grammarName}Actions
 		parsedLengths.put("${lengthField}",p.getAst().getUIntValue());
 		lengthIterators.put("${lengthField}",(long)0);
 		
-		System.out.println("length_${lengthField}: " + p.getAst().getUIntValue());
+		//System.out.println("length_${lengthField}: " + p.getAst().getUIntValue());
 		
 		return true;
 	}
@@ -194,17 +194,25 @@ public class ${grammarName}Actions
 		return true;
 	}
 	
+	public static boolean length_${lengthField}_Zero(ParseResult p)
+	{		
+		if( parsedLengths.get("${lengthField}") == 0 )
+			return true;
+		else
+			return false;
+	}
+	
 	public static boolean length_${lengthField}_Data(ParseResult p)
 	{			
 		if(lengthIterators.get("${lengthField}") < parsedLengths.get("${lengthField}")-1)
 		{
-			System.out.println("length_${lengthField}_Data: False " + lengthIterators.get("${lengthField}") + "/" + parsedLengths.get("${lengthField}"));
+			//System.out.println("length_${lengthField}_Data: False " + lengthIterators.get("${lengthField}") + "/" + parsedLengths.get("${lengthField}"));
 			lengthIterators.put("${lengthField}",(long)0);
 			return false;
 		}
 		else
 		{
-			System.out.println("length_${lengthField}_Data: True " + lengthIterators.get("${lengthField}") + "/" + parsedLengths.get("${lengthField}"));
+			//System.out.println("length_${lengthField}_Data: True " + lengthIterators.get("${lengthField}") + "/" + parsedLengths.get("${lengthField}"));
 			lengthIterators.put("${lengthField}",(long)0);
 			return true;
 		}
@@ -229,4 +237,76 @@ public class ${grammarName}Actions
 		return p.getAst();
 	}
 </#list>
+
+	public static ParsedToken actLittle(ParseResult p)
+	{		
+		p.getAst().setUserTokenType(${grammarName}TreeHelper.UserTokenTypes.UTT_Little.getValue());
+		
+		return p.getAst();
+	}
+
+<#list 1..64 as bits>
+	public static ParsedToken actToBigU${bits}(ParseResult p)
+	{		
+		long value = p.getAst().getUIntValue();
+		value = toBigEndian(value,${bits});
+		p.getAst().setUIntValue(value);
+		
+		return p.getAst();
+	}
+</#list>
+
+<#list 1..64 as bits>
+	public static ParsedToken actToBigS${bits}(ParseResult p)
+	{		
+		long value = p.getAst().getSIntValue();
+		value = toBigEndian(value,${bits});
+		p.getAst().setSIntValue(value);
+		
+		return p.getAst();
+	}
+</#list>
+
+	public static long toBigEndian(long value, int bitCount)
+	{
+		int bits = bitCount % 8;
+		int bytes = bitCount / 8 + ((bits > 0) ? 1 : 0);
+		
+		if( bytes > 1 )
+		{
+			long res = 0;
+			long val = value;
+			
+			// adjust bit offset
+			if( bits != 0 )
+			{
+				long moveBy = (val & (0xff >> (8-bits)));
+				val = ((val - moveBy) << (8-bits)) + moveBy;
+			}
+			
+			// swap byte order
+			for( int i = 0 ; i < bytes; i++ )
+			{				
+				if( i < bytes/2 )
+				{
+					long rByte = (0xff << i*8);
+					res += ((val >> ((bytes-1-i*2)*8)) & rByte);
+				}					
+				if( i >= bytes/2 )
+				{
+					long rByte = (0xff << (bytes-1-i)*8);
+					res += ((val & rByte) << ((bytes-(bytes-1-(i-bytes/2)*2) - ((bytes%2==1) ? 1 : 0))*8));
+				}				
+			}
+			
+			if( value < 0 )
+			{
+				res = (Long.MAX_VALUE << bitCount) | res;
+			}
+			
+			return res;
+		}
+		else
+			return value;	
+	}
 }

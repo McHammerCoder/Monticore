@@ -3,7 +3,7 @@ ${tc.signature("genHelper")}
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign packageName = genHelper.getQualifiedGrammarName()?cap_first>
 
-package ${genHelper.getParserPackage()};
+package ${genHelper.getCoderPackage()};
 
 
 import org.antlr.v4.runtime.Token;
@@ -16,18 +16,30 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.*;
 
-import ${genHelper.getGNameToLower()}._parser.*;
 
 public class ${parserName}EncoderVisitor implements ParseTreeListener {
 
 	private ${parserName}Encoder encoder = new ${parserName}Encoder();
-
-
-	public void visitTerminal(TerminalNode node) {
-		CommonToken token = (CommonToken)node.getPayload();
+	private boolean foundException = false;
 	
-		if(!encoder.check(token)) {
-			encoder.encode(token);
+	public boolean foundException(){
+		return foundException;
+	}
+	public void clearException(){
+		foundException=false;
+	}
+	public void visitTerminal(TerminalNode node) {
+		Token token = (Token)node.getPayload();
+	
+		try{
+			if(!encoder.check(token)) {
+				encoder.encode(token);
+			}
+		}
+		catch(Exception e)
+		{
+			foundException = true;
+			e.printStackTrace();
 		}
 	}	
 	

@@ -3,6 +3,8 @@ package de.monticore.mchammerparser;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.TokenSource;
 
+import java.util.List;
+
 import org.antlr.v4.runtime.*;
 
 public class HAOffsetToken implements WritableToken 
@@ -12,8 +14,8 @@ public class HAOffsetToken implements WritableToken
 	private long position;
 	private boolean local;
 	
-	HAOffsetToken(	int tokenType, 
-					HABinaryEntry value  ) {		
+	public HAOffsetToken(	int tokenType, 
+							HABinaryEntry value  ) {		
 		this.tokenType = tokenType;
 		this.value = value;
 		this.setLocal(false);
@@ -57,6 +59,25 @@ public class HAOffsetToken implements WritableToken
 	@Override
 	public void setType(int tokenType) {
 		this.tokenType = tokenType;
+	}
+	
+	@Override
+	public boolean equals(Object object)
+	{
+		if( !(object instanceof HAOffsetToken) )
+		{
+			return false;
+		}
+		
+		HAOffsetToken token = (HAOffsetToken)object;
+		
+		if( this.tokenType == token.getType() &&
+			this.value == token.getValue() &&
+			this.local == token.isLocal() &&
+			this.position == token.getPosition() )
+			return true;
+		else
+			return false;
 	}
 	
 	// ------ Unsupported Methods -------

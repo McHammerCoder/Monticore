@@ -23,7 +23,7 @@ public class ${grammarName}TreeHelper
 <#assign iter=iter+1>
 </#list>
 <#assign iter2=1>
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 		UTT_${iter2}(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter2=iter2+1>
 <#assign iter=iter+1>
@@ -56,7 +56,11 @@ public class ${grammarName}TreeHelper
 		UTT_${offsetProd.getName()}(Hammer.TokenType.USER.getValue()+${iter}),
 <#assign iter=iter+1>
 </#list>
-		UTT_EOF(Hammer.TokenType.USER.getValue()+${iter});
+		UTT_EOF(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+		UTT_Little(Hammer.TokenType.USER.getValue()+${iter}),
+<#assign iter=iter+1>
+		UTT_Combine(Hammer.TokenType.USER.getValue()+${iter});
 
 		UserTokenTypes(int numValue)
 		{
@@ -75,7 +79,7 @@ public class ${grammarName}TreeHelper
 	public enum TokenType
 	{
 <#assign iter=1>
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 		TT_${iter},
 <#assign iter=iter+1>
 </#list>
@@ -106,7 +110,7 @@ public class ${grammarName}TreeHelper
 	public static String [] TokenTypeNames =
 	{
 <#assign iter=1>
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 		"TT_${iter}",
 <#assign iter=iter+1>
 </#list>
@@ -136,7 +140,7 @@ public class ${grammarName}TreeHelper
 	
 	public static String [] Literals =
 	{
-<#list genHelper.getLexStrings() as lexString>
+<#list hammerGenerator.getLexStrings() as lexString>
 		"'${lexString}'",
 </#list>
 		""
@@ -157,4 +161,24 @@ public class ${grammarName}TreeHelper
 </#list>
 		"Undefined"
 	};
+	
+	public static boolean isBinary( int type )
+	{
+<#assign binaryTypeLowerBound = 1>
+<#list hammerGenerator.getLexStrings() as lexString>
+	<#assign binaryTypeLowerBound = binaryTypeLowerBound+1>
+</#list>
+<#list genHelper.getLexerRuleNames() as lexRuleName>
+	<#assign binaryTypeLowerBound = binaryTypeLowerBound+1>
+</#list>
+		return ( type >= ${binaryTypeLowerBound} );
+	}
+	
+	public static boolean isBinaryProd( int type )
+	{
+<#list genHelper.getBinaryRuleNames() as binRuleName>
+	<#assign binaryTypeLowerBound = binaryTypeLowerBound+1>
+</#list>
+		return ( type < ${binaryTypeLowerBound} ) && isBinary(type);
+	}
 }

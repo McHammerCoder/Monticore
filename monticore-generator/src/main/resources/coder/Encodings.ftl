@@ -4,7 +4,7 @@ ${tc.signature("coderGenerator")}
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
-package ${genHelper.getParserPackage()};
+package ${genHelper.getCoderPackage()};
 
 import java.util.Map;
 
@@ -14,23 +14,21 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ${parserName}Encodings {
+public class ${parserName}Encodings implements java.io.Serializable{
 
 	private ArrayList<Encoding> allEncodings = new ArrayList<Encoding>();
-	private Boolean[] hasEncodingArray =${r"${hasEncoding}"};
+	private Boolean[] hasEncodingArray;
 	
-	public ${parserName}Encodings(){
-		initiateEncodings();
+	public void setAllEncodings(ArrayList<Encoding> ens){
+			this.allEncodings = ens;
 	}
 	
-	private void initiateEncodings()
-	{
-${r"<#list encodings as encoding>
-		${encoding}
-</#list>"}
+	public void setHasEncodingArray(Boolean[] hea){
+		this.hasEncodingArray = hea;
 	}
 	
-	public Encoding getEncoding(int type){
+		
+	public Encoding getEncoding(int type) throws Exception{
 	${parserName}CoderHelper helper = new ${parserName}CoderHelper();
 	ArrayList<Encoding> customEncodings = helper.getCustomEncodings();
 		for(Encoding e:customEncodings){
@@ -45,12 +43,14 @@ ${r"<#list encodings as encoding>
 			}	
 		}
 		
-		System.out.println("NO SUCH MAP WAS FOUND: " + type + "\n Something went wrong terminating.");
-		System.exit(4);
-		return null;
+		System.err.println("[ERR]  A map for : " + type + " is needed but none exists!");
+		throw new Exception();
 	}
 	
 	public boolean hasEncoding(int type){
+		
+		if( type > hasEncodingArray.length-1 )
+			return false;
 		
 		return hasEncodingArray[type];
 

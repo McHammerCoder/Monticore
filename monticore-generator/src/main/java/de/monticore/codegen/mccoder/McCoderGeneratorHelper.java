@@ -146,9 +146,9 @@ public class McCoderGeneratorHelper
 	/**
 	 * @return the package for the generated parser files
 	 */
-	public String getParserPackage() 
+	public String getCoderPackage() 
 	{
-		return getQualifiedGrammarName().toLowerCase() + "." + McCoderGenerator.PARSER_PACKAGE;
+		return getQualifiedGrammarName().toLowerCase() + "." + McCoderGenerator.CODER_PACKAGE;
 	}
 	
 	
@@ -331,7 +331,7 @@ public class McCoderGeneratorHelper
 	public void resolveTokenTypes(List<String> tokens)
 	{
 		for(String token: tokens) {
-			if( !token.startsWith("'") ){
+			if( !token.startsWith("'") && token.contains("=") ){
 					String left = token.substring(0 ,token.indexOf('='));
 					String right = token.substring(token.indexOf('=')+1, token.indexOf('=')+2);
 					//System.out.println(left + " LEFT | RIGHT " + right);
@@ -353,5 +353,6 @@ public class McCoderGeneratorHelper
 				tokenTypes++;
 			}
 		}
+		tokenTypes -= 3;
 	}
 }

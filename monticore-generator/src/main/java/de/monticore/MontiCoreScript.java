@@ -45,6 +45,7 @@ import de.monticore.codegen.mccoder.McCoderGenerator;
 import de.monticore.codegen.mccoder.McCoderPPGenerator;
 import de.monticore.codegen.mchammer.MCHammerGenerator;
 import de.monticore.codegen.mchammerparser.McHammerParserGenerator;
+import de.monticore.codegen.mchammer.checker.McHammerCheckerGenerator;
 import de.monticore.codegen.mchammer.parsetree.McHammerParseTreeGenerator;
 import de.monticore.codegen.mchcexamples.McHCExampleGenerator;
 import de.monticore.codegen.parser.ParserGenerator;
@@ -669,37 +670,98 @@ public class MontiCoreScript extends Script implements GroovyRunner {
     
   }
   
+  /**
+   * Generates the McHammerParser
+   * 
+   * @param symbolTable AST grammar symbols
+   * @param astGrammar AST of the input grammar
+   * @param outputDirectory Output directory for the generated parser files
+   */
   public void generateMcHammerParser(Scope symbolTable, ASTMCGrammar astGrammar, File outputDirectory)
   {
-	  System.out.println("Start generating McHammerParser!");
+	  Log.errorIfNull( astGrammar,
+			  	"MCHC0001 Generation of MCHammerParser can't be processed: the reference to the grammar ast is null");
+	  Log.info("generating McHammerParser!", LOG_ID);
 	  
 	  McHammerParserGenerator.generate(symbolTable, astGrammar, outputDirectory);
   }
   
+  /**
+   * Generates the McHammerParser
+   * 
+   * @param symbolTable AST grammar symbols
+   * @param astGrammar AST of the input grammar
+   * @param outputDirectory Output directory for the generated parser files
+   */
+  public void generateMcHammerChecker(Scope symbolTable, ASTMCGrammar astGrammar, File outputDirectory)
+  {
+	  Log.errorIfNull( astGrammar,
+			  	"MCHC0001 Generation of MCHammerChecker can't be processed: the reference to the grammar ast is null");
+	  Log.info("generating McHammerChecker!", LOG_ID);
+	  
+	  McHammerCheckerGenerator.generate(symbolTable, astGrammar, outputDirectory);
+  }
+  
+  /**
+   * Generates the McHammerParseTree
+   * 
+   * @param symbolTable AST grammar symbols
+   * @param astGrammar AST of the input grammar
+   * @param outputDirectory Output directory for the generated parser files
+   */
   public void generateMcHammerParseTree(Scope symbolTable, ASTMCGrammar astGrammar, File outputDirectory)
   {
-	  System.out.println("Start generating McHammerParseTree!");
-	  //Stop hammer time
+	  Log.errorIfNull( astGrammar,
+       	   		"MCHC0002 Generation of MCHammerParseTree can't be processed: the reference to the grammar ast is null");
+	  Log.info("generating MCHammerParseTree!", LOG_ID);
+
 	  McHammerParseTreeGenerator.generate(symbolTable, astGrammar, outputDirectory);
   }
   
+  /**
+   * Generates the McCoder
+   * 
+   * @param symbolTable AST grammar symbols
+   * @param astGrammar AST of the input grammar
+   * @param outputDirectory Output directory for the generated parser files
+   */
   public void generateMcCoder(Scope symbolTable, File outputDirectory, ASTMCGrammar astGrammar)
   {
-	  System.out.println("Start generating McCoder!");
+	  Log.errorIfNull( astGrammar,
+	       	   "MCHC0003 Generation of McCoder can't be processed: the reference to the grammar ast is null");
+	  Log.info("generating McCoder!", LOG_ID);
 	  
 	  McCoderGenerator.generate(symbolTable, outputDirectory, astGrammar);
   }
   
+  /**
+   * Generates the McPrettyPrinter
+   * 
+   * @param symbolTable AST grammar symbols
+   * @param astGrammar AST of the input grammar
+   * @param outputDirectory Output directory for the generated parser files
+   */
   public void generatePP(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)
   {
-	  System.out.println("Start generating PP!");
+	  Log.errorIfNull( astGrammar,
+	       	   "MCHC0004 Generation of MCPrettyPrinter can't be processed: the reference to the grammar ast is null");
+	  Log.info("generating McPrettyPrinter!", LOG_ID);
 	  
 	  McCoderPPGenerator.generate(glex, outputDirectory, astGrammar);
   } 
   
+  /**
+   * Generates some examples on how to use McHammerCoder in an application
+   * 
+   * @param symbolTable AST grammar symbols
+   * @param astGrammar AST of the input grammar
+   * @param outputDirectory Output directory for the generated parser files
+   */
   public void generateExample(GlobalExtensionManagement glex, File outputDirectory, ASTMCGrammar astGrammar)
   {
-	  System.out.println("Start generating Example!");
+	  Log.errorIfNull( astGrammar,
+	       	   "MCHC0005 Generation of Examples can't be processed: the reference to the grammar ast is null");
+	  Log.info("generating Examples!", LOG_ID);
 	  
 	  McHCExampleGenerator.generate(glex, outputDirectory, astGrammar);
   } 

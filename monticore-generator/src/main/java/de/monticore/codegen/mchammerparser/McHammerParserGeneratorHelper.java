@@ -68,11 +68,10 @@ import de.se_rwth.commons.StringTransformations;
 import de.se_rwth.commons.logging.Log;
 
 /**
- * TODO: Write me!
+ * Helper class for the MCHammerParser-Generator
  *
  * @author  (last commit) $Author$
  * @version $Revision$, $Date$
- * @since   TODO: add version number
  *
  */
 public class McHammerParserGeneratorHelper 
@@ -86,12 +85,19 @@ public class McHammerParserGeneratorHelper
 	private MCGrammarSymbol grammarSymbol;
 	
 	/* The logger name for logging from within a Groovy script. */
-	static final String LOG_ID = "MCH Parser Generator";
+	static final String LOG_ID = "MCH Parser Generator Helper";
 	
-	public McHammerParserGeneratorHelper(ASTMCGrammar ast, Scope symbolTable) 
+	/**
+	 * Constructor
+	 * 
+	 * @param astGrammar AST of the input grammar
+	 * @param symbolTable AST grammar symbols
+	 */
+	public McHammerParserGeneratorHelper(ASTMCGrammar astGrammar, Scope symbolTable) 
 	{
-		Log.errorIfNull(ast);
-		this.astGrammar = ast;
+		Log.errorIfNull( astGrammar,
+				"MCHC0006 McHammerParserGeneratorHelper can't be initialized: the reference to the grammar ast is null");
+		this.astGrammar = astGrammar;
 		this.qualifiedGrammarName = 
 			astGrammar.getPackage().isEmpty() ? 
 				astGrammar.getName() :
@@ -101,7 +107,7 @@ public class McHammerParserGeneratorHelper
 			symbolTable.<MCGrammarSymbol> resolve(qualifiedGrammarName,
 												  MCGrammarSymbol.KIND).orElse(null);
 		Log.errorIfNull(grammarSymbol, 
-						"0xA4034 Grammar " 
+						"MCHC0007 Grammar " 
 						+ qualifiedGrammarName
 						+ " can't be resolved in the scope " 
 						+ symbolTable);
@@ -141,7 +147,15 @@ public class McHammerParserGeneratorHelper
 	}
 	
 	/**
-	 * @return the package for the generated parser files
+	 * @return classname of the given rule in the AST
+	 */
+	public static String getASTClassName(MCRuleSymbol rule) 
+	{
+	    return rule.getType().getQualifiedName();
+	}
+	
+	/**
+	 * @return the package of the generated parser files
 	 */
 	public String getParserPackage() 
 	{
@@ -149,7 +163,7 @@ public class McHammerParserGeneratorHelper
 	}
 	
 	/**
-	 * @return the package for the generated parser files
+	 * @return the package of the generated parser files as path string (i.e.: html._mch_parser -> html/_mch_parser/)
 	 */
 	public String getParserPackageC()
 	{
@@ -157,7 +171,7 @@ public class McHammerParserGeneratorHelper
 	}
 	
 	/**
-	 * @return the package for the generated parser files
+	 * @return the package of the generated parsetree files
 	 */
 	public String getParseTreePackage() 
 	{
@@ -172,34 +186,36 @@ public class McHammerParserGeneratorHelper
 		return grammarSymbol;
 	}
 	
+	/**
+	 * @return list of all rule names which require an indirect definition in hammer
+	 */
 	public List<String> getIndirectRulesToGenerate()
 	{
 		List<String> prods = Lists.newArrayList();
 	    
+		// ParserRules
 		List<ASTProd> parserRules = getParserRulesToGenerate();
-	    
 		for(ASTProd parserRule : parserRules)
 		{
 			prods.add("_" + parserRule.getName());
 		}
 		
+		// BinaryRules
 		List<ASTProd> binaryRules = getBinaryRulesToGenerate() ;
-	    
 		for(ASTProd binaryRule : binaryRules)
 		{
 			prods.add("_" + binaryRule.getName());
 		}
 		
-		
+		// LexerRules
 		List<ASTLexProd> lexerRules = getLexerRulesToGenerate();
-	    
 		for(ASTLexProd lexerRule : lexerRules)
 		{
 			prods.add("_" + lexerRule.getName());
 		}
 		
+		// InterfaceRules
 		List<MCRuleSymbol> interfaceRules = getInterfaceRulesToGenerate();
-	    
 		for(MCRuleSymbol interfaceRule : interfaceRules)
 		{
 			prods.add("_" + interfaceRule.getName());
@@ -209,12 +225,16 @@ public class McHammerParserGeneratorHelper
 	    return prods;
 	}
 	
+	/**
+	 * @return list of all parser rules in the grammar and its inherited grammars
+	 */
 	public List<ASTProd> getParserRulesToGenerate() 
 	{
 		// Iterate over all Rules
 		List<ASTProd> prods = Lists.newArrayList();
 		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited().values()) 
 		{
+			// Add corresponding rules
 			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.PARSERRULE)) 
 			{
 				Optional<ASTClassProd> astProd = ((MCClassRuleSymbol) ruleSymbol).getRuleNode();
@@ -231,12 +251,16 @@ public class McHammerParserGeneratorHelper
 	    return prods;
 	}
 	
+	/**
+	 * @return list of all class rules (parser rules without enums) in the grammar and its inherited grammars
+	 */
 	public List<ASTProd> getClassRulesToGenerate() 
 	{
 		// Iterate over all Rules
 		List<ASTProd> prods = Lists.newArrayList();
 		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited().values()) 
 		{
+			// Add corresponding rules
 			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.PARSERRULE)) 
 			{
 				Optional<ASTClassProd> astProd = ((MCClassRuleSymbol) ruleSymbol).getRuleNode();
@@ -249,12 +273,16 @@ public class McHammerParserGeneratorHelper
 	    return prods;
 	}
 	
+	/**
+	 * @return list of all enum rules in the grammar and its inherited grammars
+	 */
 	public List<ASTProd> getEnumRulesToGenerate() 
 	{
 		// Iterate over all Rules
 		List<ASTProd> prods = Lists.newArrayList();
 		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited().values()) 
 		{
+			// Add corresponding rules
 			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.ENUMRULE)) 
 			{
 				prods.add(((MCEnumRuleSymbol) ruleSymbol).getRule());
@@ -263,12 +291,16 @@ public class McHammerParserGeneratorHelper
 	    return prods;
 	}
 	
+	/**
+	 * @return list of all binary rules in the grammar and its inherited grammars
+	 */
 	public List<ASTProd> getBinaryRulesToGenerate() 
 	{
 		// Iterate over all Rules
 		List<ASTProd> prods = Lists.newArrayList();
 		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited().values()) 
 		{
+			// Add corresponding rules
 			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.BINARYRULE)) 
 			{
 				Optional<ASTBinaryProd> astProd = ((MCBinaryRuleSymbol) ruleSymbol).getRuleNode();
@@ -281,12 +313,16 @@ public class McHammerParserGeneratorHelper
 	    return prods;
 	}
 	
+	/**
+	 * @return list of all offset rules in the grammar and its inherited grammars
+	 */
 	public List<ASTProd> getOffsetRulesToGenerate() 
 	{
 		// Iterate over all Rules
 		List<ASTProd> prods = Lists.newArrayList();
 		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited().values()) 
 		{
+			// Add corresponding rules
 			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.OFFSETRULE)) 
 			{
 				Optional<ASTOffsetProd> astProd = ((MCOffsetRuleSymbol) ruleSymbol).getRuleNode();
@@ -299,13 +335,17 @@ public class McHammerParserGeneratorHelper
 	    return prods;
 	}
 	
+	/**
+	 * @return list of all interface rules in the grammar and its inherited grammars
+	 */
 	public List<MCRuleSymbol> getInterfaceRulesToGenerate() 
 	{
+		// Iterate over all Rules
 		List<MCRuleSymbol> interfaceRules = Lists.newArrayList();
-		
 		for (MCRuleSymbol ruleSymbol : grammarSymbol.getRulesWithInherited()
 		    .values()) 
 		{
+			// Add corresponding rules
 			if (ruleSymbol.getKindSymbolRule().equals(KindSymbolRule.INTERFACEORABSTRACTRULE)) 
 			{
 				List<PredicatePair> subRules = grammarSymbol.getSubRulesForParsing(ruleSymbol.getName());
@@ -320,6 +360,9 @@ public class McHammerParserGeneratorHelper
 		return interfaceRules;
 	}
 	
+	/**
+	 * @return list of all lexer rules in the grammar and its inherited grammars
+	 */
 	public List<ASTLexProd> getLexerRulesToGenerate() 
 	{
 		// Iterate over all LexRules
@@ -339,6 +382,7 @@ public class McHammerParserGeneratorHelper
 
 	    for (Entry<String, MCRuleSymbol> ruleSymbol :rules.entrySet()) 
 	    {
+	    	// Add corresponding rules
 	    	if (ruleSymbol.getValue().getKindSymbolRule().equals(KindSymbolRule.LEXERRULE))
 	    	{
 	    		MCLexRuleSymbol lexRule = ((MCLexRuleSymbol) ruleSymbol.getValue());
@@ -361,6 +405,9 @@ public class McHammerParserGeneratorHelper
 	    return prods;
 	}
 	
+	/**
+	 * @return list of all parser rule names
+	 */
 	public List<String> getParserRuleNames()
 	{
 		// Iterate over all Rules
@@ -374,6 +421,9 @@ public class McHammerParserGeneratorHelper
 	    return ruleNames;
 	}
 		
+	/**
+	 * @return list of all lexer rule names
+	 */
 	public List<String> getLexerRuleNames()
 	{
 		// Iterate over all LexRules
@@ -387,6 +437,9 @@ public class McHammerParserGeneratorHelper
 	    return ruleNames;
 	}
 	
+	/**
+	 * @return list of all binary rule names
+	 */
 	public List<String> getBinaryRuleNames()
 	{
 		// Iterate over all LexRules
@@ -400,34 +453,12 @@ public class McHammerParserGeneratorHelper
 	    return ruleNames;
 	}
 	
-	public static String getASTClassName(MCRuleSymbol rule) 
-	{
-		return rule.getType().getQualifiedName();
-	}
-	
-	List<String> lexStrings = Lists.newArrayList();
-	
-	public List<String> getLexStrings()
-	{	    
-	    return lexStrings;
-	}
-	
-	public int getNumLexStrings()
-	{	    
-	    return lexStrings.size();
-	}
-	
-	public void setAntlrTokens(List<String> tokens)
-	{
-		for( String token : tokens )
-		{
-			if( token.startsWith("'") )
-			{
-				lexStrings.add(token.substring(1, token.lastIndexOf("'=")));
-			}
-		}
-	}
-	
+	/**
+	 * If DoNotParseEntireFile is NOT set in the grammar the generated parser will fail if the input is not parsed entirely.
+	 * It is recommended NOT to set this flag as it is not compatible with the pretty printer and is considered a bad style.
+	 * 
+	 * @return false if DoNotParseEntireFile is set in the grammar else true
+	 */
 	public boolean parseEntireFile()
 	{
 		Optional<ASTGrammarOption> options = astGrammar.getGrammarOptions();
@@ -437,17 +468,24 @@ public class McHammerParserGeneratorHelper
 			
 			for( ASTHammerOption hammerOption : hammerOptions )
 			{
-				if( hammerOption.getName().equals("ParseEntireFile") )
+				if( hammerOption.getName().equals("DoNotParseEntireFile") )
 				{
-					Log.info("option ParseEntireFile found!", LOG_ID);
-					return true;
+					Log.info("option DoNotParseEntireFile found!", LOG_ID);
+					return false;
 				}
 			}
 		}
 		
-		return false;
+		return true;
 	}
 	
+	/**
+	 * If ParseWithOverlapingOffsets is NOT set in the grammar the generated parser will fail if the parsed offset points to a position of the input that
+	 * has already been parsed and does not allow to parse any part if the input twice through offsets.
+	 * It is recommended NOT to set this flag as it is not compatible with the pretty printer and is considered a bad style.
+	 * 
+	 * @return false if ParseWithOverlapingOffsets is set in the grammar else true
+	 */
 	public boolean parseWithoutOverlapingOffsets()
 	{
 		Optional<ASTGrammarOption> options = astGrammar.getGrammarOptions();
@@ -457,15 +495,47 @@ public class McHammerParserGeneratorHelper
 			
 			for( ASTHammerOption hammerOption : hammerOptions )
 			{
-				if( hammerOption.getName().equals("ParseWithOverlappingOffsets") )
+				if( hammerOption.getName().equals("ParseWithOverlapingOffsets") )
 				{
-					Log.info("option ParseWithoutOverlapingOffsets found!", LOG_ID);
+					Log.info("option ParseWithOverlapingOffsets found!", LOG_ID);
 					return false;
 				}
 			}
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * If ParseWithOverlapingOffsets is NOT set in the grammar the generated parser will fail if the parsed offset points to a position of the input that
+	 * has already been parsed and does not allow to parse any part if the input twice through offsets.
+	 * It is recommended NOT to set this flag as it is not compatible with the pretty printer and is considered a bad style.
+	 * 
+	 * @return false if ParseWithOverlapingOffsets is set in the grammar else true
+	 */
+	private static boolean logged = false;
+	public boolean defaultLittleEndian()
+	{
+		Optional<ASTGrammarOption> options = astGrammar.getGrammarOptions();
+		if( options.isPresent() )
+		{
+			List<ASTHammerOption> hammerOptions = options.get().getHammerOptions();
+			
+			for( ASTHammerOption hammerOption : hammerOptions )
+			{
+				if( hammerOption.getName().equals("DefaultLittleEndian") )
+				{
+					if( !logged )
+					{
+						Log.info("option DefaultLittleEndian found!", LOG_ID);
+						logged = true;
+					}
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 }
 

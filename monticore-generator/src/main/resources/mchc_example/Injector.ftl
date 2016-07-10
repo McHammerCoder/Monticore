@@ -17,10 +17,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import ${genHelper.getGNameToLower()}._parser.*;
-
-//Create testing case on HTML and start testing! (Sensible class division should be done at this point)
-
+/*
+Simple walker implementation to inject a given template
+Replaces "Text" with a given string
+*/
 
 public class ${parserName}Injector  implements ParseTreeListener  {
 
@@ -32,12 +32,15 @@ public class ${parserName}Injector  implements ParseTreeListener  {
 	}
 	
 	public void visitTerminal(TerminalNode node) {
-		CommonToken token = (CommonToken)node.getPayload();
-	 	if(token.getText().contains("Text")){
-		token.setText(token.getText().replace("Text",injection)); //Simulates an injection in the token with text testing of type 8
-		}	
+	  if( node.getPayload() instanceof CommonToken )
+	  {  
+	   CommonToken token = (CommonToken)node.getPayload();
+	    if(token.getText().contains("Text")){
+	    token.setText(token.getText().replace("Text",injection)); //Simulates an injection in the token with text testing of type 8
+	   } 
+	  }
+	 }
 
-	}
 	@Override public void enterEveryRule(ParserRuleContext ctx) { }
 
 	@Override public void exitEveryRule(ParserRuleContext ctx) { }

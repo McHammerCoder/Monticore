@@ -1,23 +1,26 @@
 package de.monticore.mchammerparser;
 
 import java.util.List;
+import java.util.LinkedList;
 
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.RuleNode;
 
-public class HARuleNode extends HAParseTree implements RuleNode
+public class HAFileNode extends HAParseTree implements RuleNode
 {	
+	private List<Long> offsets = new LinkedList<Long>();
 	
 	/**
 	 * Constructor for de.mchammer.rulecontexts.RNMessage.
 	 * @param payload
 	 */
-	public HARuleNode(Object payload)
+	public HAFileNode(RuleContext payload)
 	{
 		super(payload);
 	}
 	
-	public HARuleNode(Object payload, List<HAParseTree> childs)
+	public HAFileNode(Object payload, List<HAParseTree> childs)
 	{
 		super(payload,childs);
 	}
@@ -32,11 +35,22 @@ public class HARuleNode extends HAParseTree implements RuleNode
 		return (RuleContext) payload;
 	}
 	
+	public void addChild(ParseTree parseTree, long offset)
+	{
+		childs.add(parseTree);
+		offsets.add(offset);
+	}
+	
+	public long getOffset(ParseTree parseTree)
+	{
+		return offsets.get(childs.indexOf(parseTree));
+	}
+	
 	@Override
 	public boolean deepEquals(HAParseTree parseTree)
 	{
-		if( !(parseTree instanceof HARuleNode) ||
-			!((HARuleContext)getRuleContext()).equals(((HARuleNode)parseTree).getRuleContext()) )
+		if( !(parseTree instanceof HAFileNode) ||
+			!((HARuleContext)getRuleContext()).equals(((HAFileNode)parseTree).getRuleContext()) )
 			return false;			
 		
 		if( childs.size() == parseTree.getChildCount() )

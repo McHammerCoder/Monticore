@@ -16,4 +16,13 @@ public class HARuleContext extends ParserRuleContext
 	{
 		return ruleIndex;
 	}
+	
+	@Override
+	public boolean equals(Object object)
+	{
+		if( object instanceof HARuleContext && ((HARuleContext)object).ruleIndex == ruleIndex )
+			return true;
+		else
+			return false;
+	}
 }

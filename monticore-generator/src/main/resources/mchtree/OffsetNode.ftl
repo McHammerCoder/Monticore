@@ -30,31 +30,21 @@ public class PT${prod.getName()}
 
 	public static class Builder  
 	{
-		private List<HABinaryEntry> values = Lists.newArrayList();
+		HABinaryEntry value;
 	
 		public PT${prod.getName()} build() 
 		{
-			HABinarySequenceToken token = new HABinarySequenceToken( ${grammarName}TreeHelper.TokenType.TT_${prod.getName()}.ordinal()+1 );
-			
-			token.setValues(this.values);
-			
+			HAOffsetToken token = new HAOffsetToken(	${grammarName}TreeHelper.TokenType.TT_${prod.getName()}.ordinal()+1,
+														value  );
+			token.setLocal(${prod.isLocal()?c});
+
 			return new PT${prod.getName()}(token);
 		}
 
 		public Builder value(HABinaryEntry value) 
 		{
-			this.values.add(value);
-			return this;
-		} 
-		
-		public Builder values(List<HABinaryEntry> values) 
-		{
-			this.values.addAll(values);
+			this.value = value;
 			return this;
 		} 
 	}
-	
-<#list codeGenerator.getTypeConversion(prod) as method>
-${method}	
-</#list>
 }

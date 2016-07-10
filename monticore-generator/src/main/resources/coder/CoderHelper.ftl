@@ -4,7 +4,8 @@ ${tc.signature("coderGenerator")}
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign startRule = genHelper.getStartRuleNameLowerCase()>
 
-package ${genHelper.getParserPackage()};
+package ${genHelper.getCoderPackage()};
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +15,12 @@ import java.util.Set;
 import java.util.HashSet;
 import de.monticore.codegen.mccoder.*;
 
+/*
+Contains everything extracted from the MC4 Grammar AST
+-Keywords
+-UsableSymbols
+Has basic conversion functions to create the full list of keywords
+*/
 public class ${parserName}CoderHelper{
 
 	private ArrayList<Range> ranges = new ArrayList<Range>();
@@ -38,6 +45,7 @@ public class ${parserName}CoderHelper{
 			${parserRuleCode}
 		</#list>
 		</#list>
+		
 	}
 
 	private void initiateCustomEncodings(){
@@ -47,14 +55,33 @@ public class ${parserName}CoderHelper{
 		</#list>
 		</#list>
 	}
-
+	
+		
 	public String[] getKeywords(){
-		return kws.toArray(new String[kws.size()]);
+	
+		HashSet<String> list = new HashSet<String>();
+		for(String todo : kws){
+			for(int i = 0; i < todo.length()-1; i++){
+				
+				list.add(todo.substring(0, i+1));
+			}
+			for(int i = 0; i< todo.length(); i++){
+				list.add(todo.substring(i, todo.length()));
+			}
+		}
+		return list.toArray(new String[kws.size()]);
+
+	}
+
+	public int getKeywordsLength(){
+		return kws.size();
 
 	}
 
 	public String[] getFreeSymbols(){
+		
 		return Range.union(ranges);
+		
 	}
 	
 	public ArrayList<Encoding> getCustomEncodings(){

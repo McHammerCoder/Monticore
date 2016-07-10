@@ -47,6 +47,11 @@ import de.monticore.grammar.grammar._ast.ASTInt32;
 import de.monticore.grammar.grammar._ast.ASTInt64;
 import de.monticore.grammar.grammar._ast.ASTUBits;
 import de.monticore.grammar.grammar._ast.ASTBits;
+import de.monticore.grammar.grammar._ast.ASTBinaryLength;
+import de.monticore.grammar.grammar._ast.ASTBinaryData;
+import de.monticore.grammar.grammar._ast.ASTBinaryLengthValue;
+import de.monticore.grammar.grammar._ast.ASTBinaryNRepeat;
+import de.monticore.grammar.grammar._ast.ASTBinarySimpleIteration;
 import de.monticore.languages.grammar.MCGrammarSymbol;
 import de.se_rwth.commons.StringTransformations;
 import de.se_rwth.commons.logging.Log;
@@ -126,7 +131,21 @@ public class MCAttributeInfoCalculator {
     if (ruleComponent instanceof ASTBits) {
         return calculateAttributes((ASTBits) ruleComponent);
     }
-    
+    if (ruleComponent instanceof ASTBinaryLength) {
+        return calculateAttributes((ASTBinaryLength) ruleComponent);
+    }
+    if (ruleComponent instanceof ASTBinaryData) {
+        return calculateAttributes((ASTBinaryData) ruleComponent);
+    }
+    if (ruleComponent instanceof ASTBinaryLengthValue) {
+        return calculateAttributes((ASTBinaryLengthValue) ruleComponent);
+    }
+    if (ruleComponent instanceof ASTBinaryNRepeat) {
+        return calculateAttributes((ASTBinaryNRepeat) ruleComponent);
+    }
+    if (ruleComponent instanceof ASTBinarySimpleIteration) {
+        return calculateAttributes((ASTBinarySimpleIteration) ruleComponent);
+    }    
 
     throw new IllegalArgumentException("0xA4079 Unknown rule component type '" + ruleComponent.getClass() + "'.");
   }
@@ -303,6 +322,26 @@ public class MCAttributeInfoCalculator {
   }
   
   public static MCAttributeInfoMap calculateAttributes(ASTOffset offset) {
+	    return MCAttributeInfoMap.getEmptyMap();
+  }
+  
+  public static MCAttributeInfoMap calculateAttributes(ASTBinaryLength binaryLength) {
+	    return MCAttributeInfoMap.getEmptyMap();
+  }
+  
+  public static MCAttributeInfoMap calculateAttributes(ASTBinaryData binaryData) {
+	    return MCAttributeInfoMap.getEmptyMap();
+  }
+  
+  public static MCAttributeInfoMap calculateAttributes(ASTBinaryLengthValue binaryLengthValue) {
+	    return MCAttributeInfoMap.getEmptyMap();
+  }
+  
+  public static MCAttributeInfoMap calculateAttributes(ASTBinaryNRepeat binaryNRepeat) {
+	    return MCAttributeInfoMap.getEmptyMap();
+  }
+  
+  public static MCAttributeInfoMap calculateAttributes(ASTBinarySimpleIteration binarySimpleIteration) {
 	    return MCAttributeInfoMap.getEmptyMap();
   }
   

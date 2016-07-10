@@ -17,29 +17,33 @@ import org.antlr.v4.runtime.*;
 import java.lang.Exception;
 import java.io.IOException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Arrays;
 
 public class ${grammarName}Parser
 {
-	// Load Hammer Library via JNI
 	static 
 	{
+		loadLibrary("jhammer");
+		loadLibrary("jhammer_${grammarName}");
+	}
+	
+	private static void loadLibrary(String name)
+	{
+		// Load Hammer Library via JNI
 		try 
-		{
-			System.loadLibrary("jhammer");
-			System.loadLibrary("jhammer_${grammarName}");
+		{			
+			System.loadLibrary(name);
 		} 
 		catch (UnsatisfiedLinkError e) 
 		{
 			// Load Hammer Library from Jar or Dependencies
 			try 
 			{    
-				NativeUtils.loadLibraryFromJar("/resources/libjhammer.so");
-				NativeUtils.loadLibraryFromJar("/resources/libjhammer_${grammarName}.so");  
+				NativeUtils.loadLibraryFromJar("/resources/lib" + name + ".so");
 			} 
 			catch (IOException e1)
 			{    
@@ -177,52 +181,53 @@ public class ${grammarName}Parser
 	 * @param bytes DNS-message
 	 * @return Antlr-ParseTree
 	 */
-	public ParseTree parse( byte[] bytes ) throws Exception
+	public ParseTree parse( byte[] bytes ) throws MCHParserException
 	{
 		long offset = 0;
+		ranges.clear();
 		ParseResult parseResult = Hammer.parse(parser, bytes, bytes.length);
 		
 		if( parseResult == null )
 		{
-			throw new Exception("Parse Failed !");
+			throw new MCHParserException("Parsing failed !");
 		}
 		
-		HAParseTree parseTree = new HARuleNode(new HARuleContext(${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal()));
-		parseTree.addChild(${grammarName}TreeConverter.create(parseResult));
+		HAFileNode parseTree = new HAFileNode(new HARuleContext(${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal()));
+		parseTree.addChild(${grammarName}TreeConverter.create(parseResult),offset);
 		
 		ranges.add(new Range(offset,offset+getSize(parseTree)));
 		
-		for( HAParseTree pt : parseOffsets(bytes,parseTree,offset) )
+		Map<HAParseTree,Long> offsets = parseOffsets(bytes,parseTree,offset);
+		for( HAParseTree pt : offsets.keySet() )
 		{
-			parseTree.addChild(pt);
+			parseTree.addChild(pt,offsets.get(pt));
 		}
 		
-		printRanges();
+		//printRanges();
 		
 <#if genHelper.parseEntireFile()>
 		if( !checkFullyParsed(bytes.length*8) )
 		{
-			throw new Exception("File has not been parsed entirely !");
+			throw new MCHParserException("Parsing failed: File has not been parsed entirely !");
 		}
 </#if>
 				
 		return parseTree;
 	}
 	
-	private List<HAParseTree> parseOffsets( byte[] bytes, HAParseTree parseTree, long offsetOfParseTree ) throws Exception
+	private Map<HAParseTree,Long> parseOffsets( byte[] bytes, HAParseTree parseTree, long offsetOfParseTree ) throws MCHParserException
 	{
-		List<HABinaryToken> offsets = getOffsets(parseTree,offsetOfParseTree);
+		List<HAOffsetToken> offsets = getOffsets(parseTree,offsetOfParseTree);
 		
-		List<HAParseTree> offsetTrees = Lists.newArrayList();
+		Map<HAParseTree,Long> offsetTrees = Maps.newHashMap();
 		if( offsets.size() > 0 )
 		{
 			System.out.println("Offsets Found:");
-			for( HABinaryToken offsetToken : offsets )
+			for( HAOffsetToken offsetToken : offsets )
 			{
 <#list genHelper.getOffsetRulesToGenerate() as offsetProd>
 				if( offsetToken.getType() == ${grammarName}TreeHelper.TokenType.TT_${offsetProd.getName()}.ordinal()+1)
 				{
-					System.out.println("Local Offset: " + offsetToken.getPosition());
 					long offset = ${hammerGenerator.createOffsetLinearMethodCode(offsetProd)};
 <#if genHelper.parseWithoutOverlapingOffsets()>
 					long end = findEnd( offset, bytes.length*8 );
@@ -236,16 +241,16 @@ public class ${grammarName}Parser
 																				
 					if( parseResult == null )
 					{
-						throw new Exception("Parse Failed: Offset - ${offsetProd.getName()}");
+						throw new MCHParserException("Parsing failed: Offset - ${offsetProd.getName()}");
 					}
 					
 					HAParseTree pt = (HAParseTree) ${grammarName}TreeConverter.create(parseResult);
 					
-					offsetTrees.add(pt);
+					offsetTrees.put(pt,offset);
 					
 					ranges.add(new Range(offset,offset+getSize(pt)));
 					
-					offsetTrees.addAll( parseOffsets(bytes,pt,offset) );
+					offsetTrees.putAll( parseOffsets(bytes,pt,offset) );
 				}
 </#list>
 			}
@@ -274,7 +279,7 @@ public class ${grammarName}Parser
 		return res;
 	}
 	
-	private long findEnd( long start, long size ) throws Exception
+	private long findEnd( long start, long size ) throws MCHParserException
 	{
 		long end = size;
 		for( Range range : ranges )
@@ -284,7 +289,7 @@ public class ${grammarName}Parser
 <#if genHelper.parseWithoutOverlapingOffsets()>
 			if( start > rangeStart && start < rangeEnd )
 			{
-				throw new Exception("Trying to parse offset at illegal position!");
+				throw new MCHParserException("Parsing failed: Trying to parse offset at illegal position!");
 			}
 </#if>
 			if( rangeStart > start && rangeStart < end )
@@ -296,9 +301,9 @@ public class ${grammarName}Parser
 		return end;
 	}
 	
-	private List<HABinaryToken> getOffsets(HAParseTree parseTree, long offsetOfParseTree)
+	private List<HAOffsetToken> getOffsets(HAParseTree parseTree, long offsetOfParseTree)
 	{	
-		List<HABinaryToken> offsets = new ArrayList<HABinaryToken>();
+		List<HAOffsetToken> offsets = new ArrayList<HAOffsetToken>();
 		long position = offsetOfParseTree;
 
 		for( int i = 0; i < parseTree.getChildCount(); i++ )
@@ -310,18 +315,14 @@ public class ${grammarName}Parser
 				Token token = ((HATerminalNode)child).getSymbol();
 				position += getSize(((HATerminalNode)child));
 				
-				if( token instanceof HABinaryToken )
+				if( token instanceof HAOffsetToken )
 				{
-					if( ((HABinaryToken)token).isOffset() )
+					if( ((HAOffsetToken)token).isLocal() )
 					{
-						if( ((HABinaryToken)token).isLocal() )
-						{
-							System.out.println("Local Offset: " + position);
-							((HABinaryToken)token).setPosition(position);
-						}
-					
-						offsets.add((HABinaryToken)token);
+						((HAOffsetToken)token).setPosition(position);
 					}
+				
+					offsets.add((HAOffsetToken)token);
 				}
 			}
 			else
@@ -340,9 +341,16 @@ public class ${grammarName}Parser
 		if( parseTree instanceof HATerminalNode )
 		{
 			Token token = ((HATerminalNode)parseTree).getSymbol();
-			if( token instanceof HABinaryToken )
+			if( token instanceof HABinarySequenceToken )
 			{
-				size += ((HABinaryToken)token).getBits();
+				for( HABinaryEntry bin : ((HABinarySequenceToken)token).getValues() )
+				{
+					size += bin.getBitCount();
+				}
+			}
+			else if( token instanceof HAOffsetToken )
+			{
+				size += ((HAOffsetToken)token).getValue().getBitCount();
 			}
 			else
 			{
@@ -354,23 +362,7 @@ public class ${grammarName}Parser
 			for( int i = 0; i < parseTree.getChildCount(); i++ )
 			{
 				ParseTree child = parseTree.getChild(i);
-				
-				if( child instanceof HATerminalNode )
-				{
-					Token token = ((HATerminalNode)child).getSymbol();
-					if( token instanceof HABinaryToken )
-					{
-						size += ((HABinaryToken)token).getBits();
-					}
-					else
-					{
-						size += child.getText().getBytes().length*8;
-					}
-				}
-				else
-				{
-					size += getSize((HAParseTree)child);
-				}
+				size += getSize((HAParseTree)child);
 			}
 		}
 		
