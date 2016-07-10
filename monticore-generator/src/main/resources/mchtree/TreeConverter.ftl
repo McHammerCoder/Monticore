@@ -277,22 +277,29 @@ public class ${grammarName}TreeConverter
 	{		
 		List<HABinaryEntry> values = Lists.newArrayList();
 	
-		ParsedToken[] seq = tok.getSeqValue();
+		ParsedToken[] seqArray = tok.getSeqValue();
+		List<ParsedToken> seq = new ArrayList<>( Arrays.asList(seqArray) );
 		    
 		String text = new String();
-		for( int i = 0; i < seq.length; i++ )
+		for( int i = 0; i < seq.size(); i++ )
 		{
-			HAParseTree child = generateParseTree(seq[i]);
+			HAParseTree child = generateParseTree(seq.get(i));
 			
 			if( child instanceof HATerminalNode )
 			{
 				Token symbol = ((HATerminalNode)child).getSymbol();
 				
 				if( symbol instanceof HABinarySequenceToken )
-				{
+				{						
 					List<HABinaryEntry> binValues = ((HABinarySequenceToken)symbol).getValues();
 					values.addAll(binValues);
 				}
+			}
+			else
+			{
+			   	ParsedToken[] seqArrayChild = seq.get(i).getSeqValue();
+				List<ParsedToken> seqChild = new ArrayList<>( Arrays.asList(seqArrayChild) );
+				seq.addAll(seqChild);
 			}
 		}
 	

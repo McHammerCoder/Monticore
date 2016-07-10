@@ -216,7 +216,7 @@ public class Grammar2ParseTree implements Grammar_WithConceptsVisitor
 					
 					type = type.substring(0,type.length()-1);
 					
-					String method = indent + "public" + type + " get" + variableFirstUp + "() {";
+					String method = indent + "public " + type + " get" + variableFirstUp + "() {";
 					if(astBin.getBlock().isPresent())
 					{
 						StringBuffer buffer = new StringBuffer();
@@ -226,20 +226,54 @@ public class Grammar2ParseTree implements Grammar_WithConceptsVisitor
 							
 					    method += "\n" + indent + indent + buffer.toString();
 					}
+					else if(type.equals("String"))
+					{
+						method += "\n" + indent + indent + "return new String( new " + parserGeneratorHelper.getQualifiedGrammarName().toLowerCase() + "._coder.pp." + parserGeneratorHelper.getQualifiedGrammarName() + "PP().prettyPrint(this) );";
+					}
+					else if(type.equals("char"))
+					{
+						method += "\n" + indent + indent + "return new String( new " + parserGeneratorHelper.getQualifiedGrammarName().toLowerCase() + "._coder.pp." + parserGeneratorHelper.getQualifiedGrammarName() + "PP().prettyPrint(this) ).charAt(0);";
+					}
+					else if( type.equals("float") || type.equals("double")  || type.equals("int")
+							 || type.equals("long") || type.equals("short") || type.equals("byte") )
+					{
+						
+						method += "\n" + indent + indent + "long res = 0;";
+						method += "\n" + indent + indent + "HABinarySequenceToken token = (HABinarySequenceToken) getSymbol();";
+						method += "\n" + indent + indent + "List<HABinaryEntry> entries = token.getValues();";
+						method += "\n" + indent + indent + "for( HABinaryEntry entry : entries )";
+						method += "\n" + indent + indent + "{";
+						method += "\n" + indent + indent + "\tres = (res << entry.getBitCount()) + (entry.getValue() & (Long.MAX_VALUE >> (64-entry.getBitCount()-1)));"; 
+						method += "\n" + indent + indent + "\tSystem.out.println(\"res = \" + res);";
+						method += "\n" + indent + indent + "}";
+						
+						if(type.equals("int"))
+							method += "\n" + indent + indent + "return (int) res;";
+						else if(type.equals("long"))
+							method += "\n" + indent + indent + "return res;";
+						else if(type.equals("byte"))
+							method += "\n" + indent + indent + "return (byte)res;";
+						else if(type.equals("short"))
+							method += "\n" + indent + indent + "return (short)res;";
+						else if(type.equals("double"))
+							method += "\n" + indent + indent + "return Double.longBitsToDouble(res);";
+						else if(type.equals("float"))
+							method += "\n" + indent + indent + "return Float.intBitsToFloat((int)res);";
+					}
 					method += "\n" + indent + "}";
 					
 					res.add(method);
 				}
 				else
 				{
-					String method = indent + "public" + variable + " get" + variableFirstUp + "() {";
+					String method = indent + "public " + variable + " get" + variableFirstUp + "() {";
 					if(variable.equals("String"))
 					{
-						method += "\n" + indent + indent + "return new String( new htmlred._coder.pp.HTMLRedPP().prettyPrint(this) );";
+						method += "\n" + indent + indent + "return new String( new " + parserGeneratorHelper.getQualifiedGrammarName().toLowerCase() + "._coder.pp." + parserGeneratorHelper.getQualifiedGrammarName() + "PP().prettyPrint(this) );";
 					}
 					else if(variable.equals("char"))
 					{
-						method += "\n" + indent + indent + "return new String( new htmlred._coder.pp.HTMLRedPP().prettyPrint(this) ).charAt(0);";
+						method += "\n" + indent + indent + "return new String( new " + parserGeneratorHelper.getQualifiedGrammarName().toLowerCase() + "._coder.pp." + parserGeneratorHelper.getQualifiedGrammarName() + "PP().prettyPrint(this) ).charAt(0);";
 					}
 					else 
 					{
