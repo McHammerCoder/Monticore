@@ -32,7 +32,7 @@ SUCH DAMAGE.
 -->
 ${signature("className")}
 
-<#assign genHelper = glex.getGlobalValue("stHelper")>
+<#assign genHelper = glex.getGlobalVar("stHelper")>
 
 <#-- Copyright -->
 ${tc.defineHookPoint("JavaCopyright")}
@@ -45,6 +45,14 @@ import java.util.Optional;
 import de.monticore.symboltable.MutableScope;
 
 public class ${className} extends de.monticore.symboltable.CommonScope {
+
+  public ${className}() {
+    super();
+  }
+
+  public ${className}(boolean isShadowingScope) {
+    super(isShadowingScope);
+  }
 
   public ${className}(Optional<MutableScope> enclosingScope) {
     super(enclosingScope, true);

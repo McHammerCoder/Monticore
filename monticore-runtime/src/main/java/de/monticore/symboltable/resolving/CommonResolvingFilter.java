@@ -19,49 +19,64 @@
 
 package de.monticore.symboltable.resolving;
 
+import de.monticore.symboltable.Symbol;
+import de.monticore.symboltable.SymbolKind;
+import de.se_rwth.commons.Names;
+
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.Lists;
-import de.monticore.symboltable.SymbolKind;
-import de.monticore.symboltable.Symbol;
-
 /**
- * TODO: Write me!
+ * Default implementation for {@link ResolvingFilter}.
  *
  * @author Pedram Mir Seyed Nazari
  *
  */
+// TODO PN remove formal type argument, since not needed anymore
 public class CommonResolvingFilter<S extends Symbol> implements ResolvingFilter<S> {
 
   private final SymbolKind targetKind;
-  private final Class<S> symbolClass;
-  
+
+  /**
+   * @deprecated use {@link #create(SymbolKind)} instead
+   */
+  @Deprecated
   public static <S extends Symbol> ResolvingFilter<S> create(Class<S> symbolClass, SymbolKind symbolKind) {
-    // TODO PN check einbauen dass kein Resolver existiert, dessen S und T nicht mit den aktuellen Parametern kompatibel sind
     return new CommonResolvingFilter<>(symbolClass, symbolKind);
   }
-  
 
+  public static ResolvingFilter create(SymbolKind symbolKind) {
+    return new CommonResolvingFilter<>(symbolKind);
+  }
+
+  /**
+   * @deprecated use {@link #CommonResolvingFilter(SymbolKind)} instead
+   */
+  @Deprecated
   public CommonResolvingFilter(Class<S> symbolClass, SymbolKind targetKind) {
-    this.symbolClass = symbolClass;
+    this(targetKind);
+  }
+
+  public CommonResolvingFilter(SymbolKind targetKind) {
     this.targetKind = targetKind;
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public Optional<S> filter(ResolvingInfo resolvingInfo, String name, final List<Symbol> symbols) {
-    final Set<S> resolvedSymbols = new LinkedHashSet<>();
+  public Optional<Symbol> filter(ResolvingInfo resolvingInfo, String name, Map<String, Collection<Symbol>> symbols) {
+    final Set<Symbol> resolvedSymbols = new LinkedHashSet<>();
 
-    for (Symbol symbol : symbols) {
-      // TODO PN in eigene Methode auslagern, damit Unterklassen das überschreiben können.
-      if (symbol.isKindOf(targetKind) && symbolClass.isAssignableFrom(symbol.getClass())) {
+    final String simpleName = Names.getSimpleName(name);
 
-        if (symbol.getName().equals(name) || symbol.getFullName().equals(name)) {
-          resolvedSymbols.add((S) symbol);
+    if (symbols.containsKey(simpleName)) {
+      for (Symbol symbol : symbols.get(simpleName)) {
+        if (symbol.isKindOf(targetKind)) {
+          if (symbol.getName().equals(name) || symbol.getFullName().equals(name)) {
+            resolvedSymbols.add(symbol);
+          }
         }
       }
     }
@@ -70,17 +85,46 @@ public class CommonResolvingFilter<S extends Symbol> implements ResolvingFilter<
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public Collection<S> filter(ResolvingInfo resolvingInfo, List<Symbol> symbols) {
-      final Collection<S> foundSymbols = Lists.newArrayList();
+  public Collection<Symbol> filter(ResolvingInfo resolvingInfo, Collection<Symbol> symbols) {
+    final Collection<Symbol> foundSymbols = new LinkedHashSet<>();
 
-      for (Symbol symbol : symbols) {
-        // TODO PN in eigene Methode auslagern, damit Unterklassen das überschreiben können.
-        if (symbol.isKindOf(targetKind) && symbolClass.isAssignableFrom(symbol.getClass())) {
-          foundSymbols.add((S)symbol);
+    for (Symbol symbol : symbols) {
+      if (symbol.isKindOf(targetKind)) {
+        foundSymbols.add(symbol);
+      }
+    }
+
+    return foundSymbols;
+  }
+
+  @Override
+  @Deprecated
+  public Optional<Symbol> filter(ResolvingInfo resolvingInfo, String name, final List<Symbol> symbols) {
+    final Set<Symbol> resolvedSymbols = new LinkedHashSet<>();
+
+    for (Symbol symbol : symbols) {
+      if (symbol.isKindOf(targetKind)) {
+
+        if (symbol.getName().equals(name) || symbol.getFullName().equals(name)) {
+          resolvedSymbols.add(symbol);
         }
       }
-      
+    }
+
+    return ResolvingFilter.getResolvedOrThrowException(resolvedSymbols);
+  }
+
+  @Override
+  @Deprecated
+  public Collection<Symbol> filter(ResolvingInfo resolvingInfo, List<Symbol> symbols) {
+      final Collection<Symbol> foundSymbols = new LinkedHashSet<>();
+
+      for (Symbol symbol : symbols) {
+        if (symbol.isKindOf(targetKind)) {
+          foundSymbols.add(symbol);
+        }
+      }
+
       return foundSymbols;
   }
 

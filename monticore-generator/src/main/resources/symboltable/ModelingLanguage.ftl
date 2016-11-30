@@ -30,13 +30,13 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY O
 SUCH DAMAGE.
 ***************************************************************************************
 -->
-${signature("className", "ruleNames")}
+${signature("className", "ruleNames", "existsHW")}
 
-<#assign genHelper = glex.getGlobalValue("stHelper")>
+<#assign genHelper = glex.getGlobalVar("stHelper")>
 <#assign grammarName = ast.getName()?cap_first>
 <#assign fqn = genHelper.getQualifiedGrammarName()?lower_case>
 <#assign package = genHelper.getTargetPackage()?lower_case>
-<#assign skipSTGen = glex.getGlobalValue("skipSTGen")>
+<#assign skipSTGen = glex.getGlobalVar("skipSTGen")>
 
 <#-- Copyright -->
 ${tc.defineHookPoint("JavaCopyright")}
@@ -48,7 +48,7 @@ import java.util.Optional;
 
 import ${fqn}._parser.${grammarName}Parser;
 import de.monticore.symboltable.MutableScope;
-import de.monticore.symboltable.ResolverConfiguration;
+import de.monticore.symboltable.ResolvingConfiguration;
 
 public abstract class ${className} extends de.monticore.CommonModelingLanguage {
 
@@ -66,8 +66,8 @@ public abstract class ${className} extends de.monticore.CommonModelingLanguage {
   <#if !skipSTGen>
   @Override
   public Optional<${grammarName}SymbolTableCreator> getSymbolTableCreator(
-      ResolverConfiguration resolverConfiguration, MutableScope enclosingScope) {
-    return Optional.of(new ${grammarName}SymbolTableCreator(resolverConfiguration, enclosingScope));
+      ResolvingConfiguration resolvingConfiguration, MutableScope enclosingScope) {
+    return Optional.of(new ${grammarName}SymbolTableCreator(resolvingConfiguration, enclosingScope));
   }
   </#if>
 
@@ -76,10 +76,12 @@ public abstract class ${className} extends de.monticore.CommonModelingLanguage {
     return (${grammarName}ModelLoader) super.getModelLoader();
   }
 
-  //@Override
-  //protected ${grammarName}ModelLoader provideModelLoader() {
-  //  return new ${grammarName}ModelLoader(this);
-  //}
+  <#if existsHW>/*</#if>
+  @Override
+  protected ${grammarName}ModelLoader provideModelLoader() {
+    return new ${grammarName}ModelLoader(this);
+  }
+  <#if existsHW>*/</#if>
 
   protected void initResolvingFilters() {
     <#list ruleNames as ruleName>

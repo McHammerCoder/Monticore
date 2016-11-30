@@ -20,6 +20,7 @@
 package de.monticore.symboltable;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -43,7 +44,7 @@ public class ArtifactScopeTest {
 
   @Test
   public void testArtifactScopeWithoutImportStatements() {
-    final CommonResolvingFilter<EntitySymbol> classResolver = new CommonResolvingFilter<>(EntitySymbol.class, EntitySymbol.KIND);
+    final CommonResolvingFilter<EntitySymbol> classResolver = new CommonResolvingFilter<>(EntitySymbol.KIND);
 
     final MutableScope globalScope = new GlobalScope(new ModelPath(), new LinkedHashSet<>(), new ResolverConfiguration());
     globalScope.addResolver(classResolver);
@@ -84,7 +85,7 @@ public class ArtifactScopeTest {
 
   @Test
   public void testArtifactScopeWithImportStatements() {
-    final CommonResolvingFilter<EntitySymbol> classResolver = new CommonResolvingFilter<>(EntitySymbol.class, EntitySymbol.KIND);
+    final CommonResolvingFilter<EntitySymbol> classResolver = new CommonResolvingFilter<>(EntitySymbol.KIND);
 
     final MutableScope globalScope = new GlobalScope(new ModelPath(), new LinkedHashSet<>(), new ResolverConfiguration());
     globalScope.addResolver(classResolver);
@@ -95,13 +96,13 @@ public class ArtifactScopeTest {
     EntitySymbol classA = new EntitySymbol("A");
     artifactScope1.add(classA);
 
-    MutableScope classAScope = (MutableScope) classA.getSpannedScope();
+    MutableScope classAScope = classA.getMutableSpannedScope();
     classAScope.addResolver(classResolver);
 
     ArtifactScope artifactScope2 = new ArtifactScope(Optional.of(globalScope), "q", new ArrayList<>());
     artifactScope2.addResolver(classResolver);
     EntitySymbol classQB = new EntitySymbol("B");
-    ((MutableScope)classQB.getSpannedScope()).addResolver(classResolver);
+    classQB.getMutableSpannedScope().addResolver(classResolver);
     artifactScope2.add(classQB);
 
     // resolve by qualified name
@@ -113,7 +114,7 @@ public class ArtifactScopeTest {
     ArtifactScope artifactScope3 = new ArtifactScope(Optional.of(globalScope), "r", new ArrayList<>());
     artifactScope3.addResolver(classResolver);
     EntitySymbol classRB = new EntitySymbol("B");
-    ((MutableScope)classRB.getSpannedScope()).addResolver(classResolver);
+    classRB.getMutableSpannedScope().addResolver(classResolver);
     artifactScope3.add(classRB);
 
     // Now, besides q.B the symbol r.B is defined in the global scope
@@ -137,7 +138,7 @@ public class ArtifactScopeTest {
 
   @Test
   public void testResolveUnqualifiedSymbolInSamePackage() {
-    final CommonResolvingFilter<EntitySymbol> classResolver = new CommonResolvingFilter<>(EntitySymbol.class, EntitySymbol.KIND);
+    final CommonResolvingFilter<EntitySymbol> classResolver = new CommonResolvingFilter<>(EntitySymbol.KIND);
 
     final MutableScope globalScope = new GlobalScope(new ModelPath(), new LinkedHashSet<>(), new ResolverConfiguration());
     globalScope.addResolver(classResolver);
@@ -158,6 +159,45 @@ public class ArtifactScopeTest {
     assertSame(classB, classAScope.resolve("B", EntitySymbol.KIND).get());
 
     assertSame(classA, classAScope.resolve("A", EntitySymbol.KIND).get());
+  }
+
+  @Test
+  public void testPackageNameMustBePrefixOfQualifiedSymbolName() {
+    final CommonResolvingFilter<EntitySymbol> classResolver = new CommonResolvingFilter<>(EntitySymbol.KIND);
+
+    final MutableScope globalScope = new GlobalScope(new ModelPath(), new LinkedHashSet<>(), new ResolverConfiguration());
+    globalScope.addResolver(classResolver);
+
+    ArtifactScope artifactScope1 = new ArtifactScope(Optional.of(globalScope), "p", new ArrayList<>());
+    artifactScope1.addResolver(classResolver);
+    EntitySymbol classA = new EntitySymbol("A");
+    artifactScope1.add(classA);
+
+
+    ArtifactScope artifactScope2 = new ArtifactScope(Optional.of(globalScope), "p2", new ArrayList<>());
+    artifactScope2.addResolver(classResolver);
+    EntitySymbol classA2 = new EntitySymbol("A");
+    artifactScope2.add(classA2);
+
+    assertSame(classA, globalScope.resolve("p.A", EntitySymbol.KIND).get());
+    assertSame(classA2, globalScope.resolve("p2.A", EntitySymbol.KIND).get());
+    assertNotSame(classA, classA2);
+  }
+
+  @Test
+  public void testResolveInDefaultPackage() {
+    final CommonResolvingFilter<EntitySymbol> classResolver = new CommonResolvingFilter<>(EntitySymbol.KIND);
+
+    final MutableScope globalScope = new GlobalScope(new ModelPath(), new LinkedHashSet<>(), new ResolverConfiguration());
+    globalScope.addResolver(classResolver);
+
+    ArtifactScope artifactScope1 = new ArtifactScope(Optional.of(globalScope), "", new ArrayList<>());
+    artifactScope1.addResolver(classResolver);
+    EntitySymbol classA = new EntitySymbol("A");
+    artifactScope1.add(classA);
+
+    final Optional<EntitySymbol> entityA = globalScope.resolve("A", EntitySymbol.KIND);
+    assertTrue(entityA.isPresent());
   }
 
 }

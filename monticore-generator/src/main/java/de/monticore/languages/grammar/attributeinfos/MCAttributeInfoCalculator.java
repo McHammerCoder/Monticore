@@ -169,14 +169,14 @@ public class MCAttributeInfoCalculator {
 
     return m;
   }
-  
+
   public static MCAttributeInfoMap calculateAttributes(ASTBlock block, MCGrammarSymbol grammar) {
     MCAttributeInfoMap m = new MCAttributeInfoMap();
-    
+
     for (ASTAlt r : block.getAlts()) {
       m = m.alternate(MCAttributeInfoCalculator.calculateAttributes(r, grammar));
     }
-    
+
     if (block.getIteration() == ASTConstantsGrammar.STAR) {
       m = m.iterateStar();
     }
@@ -186,13 +186,13 @@ public class MCAttributeInfoCalculator {
     if (block.getIteration() == ASTConstantsGrammar.QUESTION) {
       m = m.iterateOptional();
     }
-    
+
     return m;
   }
-  
+
   public static MCAttributeInfoMap calculateAttributes(ASTAlt alt, MCGrammarSymbol grammar) {
     MCAttributeInfoMap m = new MCAttributeInfoMap();
-    
+
     for (ASTRuleComponent r : alt.getComponents()) {
       if (r == null) {
         // Actually, this case should never happen.
@@ -200,10 +200,10 @@ public class MCAttributeInfoCalculator {
       }
       m = m.sequence(MCAttributeInfoCalculator.calculateRuleComponentAttributes(r, grammar));
     }
-    
+
     return m;
   }
-  
+
   public static MCAttributeInfoMap calculateAttributes(ASTConstantGroup a) {
     final MCAttributeInfo att = new MCAttributeInfo();
 
@@ -211,8 +211,8 @@ public class MCAttributeInfoCalculator {
 
     String name = "";
 
-    if (a.getVariableName().isPresent() || a.getUsageName().isPresent()) {
-      name = a.getVariableName().orElse(a.getUsageName().get());
+    if (a.getUsageName().isPresent()) {
+      name = a.getUsageName().get();
 
       for (ASTConstant x : a.getConstants()) {
         String humanName = x.getHumanName().orElse(null);
@@ -235,12 +235,7 @@ public class MCAttributeInfoCalculator {
 
     MCAttributeInfoMap attrMap = new MCAttributeInfoMap();
 
-    if (!a.getVariableName().isPresent()) {
-      attrMap.putAttribute(att);
-    }
-    else {
-      attrMap.putVariable(att);
-    }
+    attrMap.putAttribute(att);
 
     return attrMap;
   }
@@ -258,7 +253,7 @@ public class MCAttributeInfoCalculator {
       att.setMax(MCAttributeInfo.STAR);
     }
   }
-  
+
   public static MCAttributeInfoMap calculateAttributes(ASTTerminal a) {
     final MCAttributeInfo att = new MCAttributeInfo();
     setAttributeMinMax(a.getIteration(), att);
@@ -274,22 +269,22 @@ public class MCAttributeInfoCalculator {
       att.setName(a.getUsageName().get());
       attrMap.putAttribute(att);
     }
-    
+
     return attrMap;
   }
-  
+
   /**
    * A action or predicate defines no attributes
-   * 
+   *
    */
   public static MCAttributeInfoMap calculateAttributes(ASTEof eof) {
     return MCAttributeInfoMap.getEmptyMap();
   }
-  
+
   public static MCAttributeInfoMap calculateAttributes(ASTNonTerminalSeparator a) {
     return MCAttributeInfoMap.getEmptyMap();
   }
-  
+
   public static MCAttributeInfoMap calculateAttributes(ASTNonTerminal a) {
     final MCAttributeInfo att = new MCAttributeInfo();
     setAttributeMinMax(a.getIteration(), att);
@@ -297,26 +292,20 @@ public class MCAttributeInfoCalculator {
 
     MCAttributeInfoMap attrMap = new MCAttributeInfoMap();
 
-    if (a.getVariableName().isPresent()) {
-      att.setName(a.getVariableName().get());
-      attrMap.putVariable(att);
-    }
-    else {
-      att.setName(a.getUsageName().orElse(StringTransformations.uncapitalize(a.getName())));
-      attrMap.putAttribute(att);
-    }
+    att.setName(a.getUsageName().orElse(StringTransformations.uncapitalize(a.getName())));
+    attrMap.putAttribute(att);
 
     return attrMap;
   }
-  
+
   public static MCAttributeInfoMap calculateAttributes(ASTSemanticpredicateOrAction sematicprecicateoraction) {
     return MCAttributeInfoMap.getEmptyMap();
   }
-  
+
   public static MCAttributeInfoMap calculateAttributes(ASTMCAnything anything) {
     return MCAttributeInfoMap.getEmptyMap();
   }
-  
+
   public static MCAttributeInfoMap calculateAttributes(ASTAnything anything) {
     return MCAttributeInfoMap.getEmptyMap();
   }

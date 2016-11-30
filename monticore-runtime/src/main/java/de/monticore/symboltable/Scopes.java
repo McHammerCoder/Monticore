@@ -19,9 +19,15 @@
 
 package de.monticore.symboltable;
 
-import java.util.Optional;
-
+import de.monticore.symboltable.modifiers.AccessModifier;
+import de.monticore.symboltable.modifiers.IncludesAccessModifierPredicate;
 import de.se_rwth.commons.logging.Log;
+
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provides helper methods for {@link de.monticore.symboltable.Scope}.
@@ -45,14 +51,22 @@ public final class Scopes {
     return currentScope;
   }
 
-  public static Optional<ArtifactScope> getArtifactScope(final Scope startScope) {
-    Log.errorIfNull(startScope);
+  public static Optional<GlobalScope> getGlobalScope(final Scope scope) {
+    Scope topScope = getTopScope(scope);
 
-    if (startScope instanceof ArtifactScope) {
-      return Optional.of((ArtifactScope) startScope);
+    return (topScope instanceof GlobalScope)
+        ? Optional.of((GlobalScope) topScope)
+        : Optional.empty();
+  }
+
+  public static Optional<ArtifactScope> getArtifactScope(final Scope scope) {
+    Log.errorIfNull(scope);
+
+    if (scope instanceof ArtifactScope) {
+      return Optional.of((ArtifactScope) scope);
     }
 
-    Scope currentScope = startScope;
+    Scope currentScope = scope;
 
     while (currentScope.getEnclosingScope().isPresent()) {
       currentScope = currentScope.getEnclosingScope().get();
@@ -101,6 +115,37 @@ public final class Scopes {
     
   }
 
-  // TODO PN print whole scope hierarchy
-  
+  public static Collection<? extends Symbol> getAllEncapsulatedSymbols(Scope scope) {
+    if(scope == null) {
+      return new LinkedHashSet<>();
+    }
+
+    final Set<Symbol> encapsulatedSymbols = new LinkedHashSet<>();
+
+    Scope nextScope = scope;
+
+    while (true) {
+      encapsulatedSymbols.addAll(nextScope.resolveLocally(SymbolKind.KIND));
+
+      if (!nextScope.getEnclosingScope().isPresent() || (nextScope.getEnclosingScope().get() instanceof GlobalScope)) {
+        break;
+      }
+
+      nextScope = nextScope.getEnclosingScope().orElse(null);
+    }
+
+    return encapsulatedSymbols;
+  }
+
+  public static Collection<Symbol> getLocalSymbolsAsCollection(final Scope scope) {
+    final Set<Symbol> allSymbols = new LinkedHashSet<>();
+    scope.getLocalSymbols().values().forEach(allSymbols::addAll);
+    return allSymbols;
+  }
+
+  public static <T extends Symbol> Set<T> filterSymbolsByAccessModifier(AccessModifier modifier, Collection<T> resolvedUnfiltered) {
+    return new LinkedHashSet<>(resolvedUnfiltered.stream().filter(new IncludesAccessModifierPredicate(modifier)).collect(Collectors.toSet()));
+  }
+
+
 }

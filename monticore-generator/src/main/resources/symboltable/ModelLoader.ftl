@@ -32,11 +32,11 @@ SUCH DAMAGE.
 -->
 ${signature("className")}
 
-<#assign genHelper = glex.getGlobalValue("stHelper")>
+<#assign genHelper = glex.getGlobalVar("stHelper")>
 <#assign grammarName = ast.getName()?cap_first>
 <#assign package = genHelper.getTargetPackage()?lower_case>
 <#assign topAstName = genHelper.getQualifiedStartRuleName()>
-<#assign skipSTGen = glex.getGlobalValue("skipSTGen")>
+<#assign skipSTGen = glex.getGlobalVar("skipSTGen")>
 
 <#-- Copyright -->
 ${tc.defineHookPoint("JavaCopyright")}
@@ -45,7 +45,7 @@ ${tc.defineHookPoint("JavaCopyright")}
 package ${package};
 
 import de.monticore.symboltable.MutableScope;
-import de.monticore.symboltable.ResolverConfiguration;
+import de.monticore.symboltable.ResolvingConfiguration;
 
 <#if !skipSTGen>
 import de.monticore.symboltable.ArtifactScope;
@@ -61,10 +61,10 @@ public class ${className} extends de.monticore.modelloader.ModelingLanguageModel
 
   @Override
   protected void createSymbolTableFromAST(final ${topAstName} ast, final String modelName,
-    final MutableScope enclosingScope, final ResolverConfiguration resolverConfiguration) {
+    final MutableScope enclosingScope, final ResolvingConfiguration resolvingConfiguration) {
     <#if !skipSTGen>
     final ${grammarName}SymbolTableCreator symbolTableCreator =
-            getModelingLanguage().getSymbolTableCreator(resolverConfiguration, enclosingScope).orElse(null);
+            getModelingLanguage().getSymbolTableCreator(resolvingConfiguration, enclosingScope).orElse(null);
 
     if (symbolTableCreator != null) {
       Log.debug("Start creation of symbol table for model \"" + modelName + "\".",

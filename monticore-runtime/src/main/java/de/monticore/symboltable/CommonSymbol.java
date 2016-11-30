@@ -19,15 +19,14 @@
 
 package de.monticore.symboltable;
 
+import de.monticore.ast.ASTNode;
+import de.monticore.symboltable.modifiers.AccessModifier;
+import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
-
-import de.monticore.ast.ASTNode;
-import de.monticore.symboltable.modifiers.AccessModifier;
-import de.monticore.symboltable.modifiers.BasicAccessModifier;
-import de.se_rwth.commons.Names;
-import de.se_rwth.commons.logging.Log;
 
 /**
  * @author Pedram Mir Seyed Nazari
@@ -45,7 +44,8 @@ public abstract class CommonSymbol implements Symbol {
 
   private SymbolKind kind;
 
-  private AccessModifier accessModifier = BasicAccessModifier.ABSENT;
+  // TODO PN getter should return an Optional value
+  private AccessModifier accessModifier = AccessModifier.ALL_INCLUSION;
 
   public CommonSymbol(String name, SymbolKind kind) {
     // TODO PN if name is qualified: this.name = simple(name) and this.packageName = qualifier (name)?
@@ -113,9 +113,8 @@ public abstract class CommonSymbol implements Symbol {
     return "";
   }
 
-  // TODO PN pull-up?
   public void setFullName(String fullName) {
-    this.fullName = Log.errorIfNull(fullName);
+    this.fullName = fullName;
   }
 
   @Override
@@ -145,7 +144,7 @@ public abstract class CommonSymbol implements Symbol {
   protected String determineFullName() {
     if (enclosingScope == null) {
       // There should not be a symbol that is not defined in any scope. This case should only
-      // occur while the symbol is build (by the symbol table creator). So, here the fullName
+      // occur while the symbol is built (by the symbol table creator). So, here the full name
       // should not be cached yet.
       return name;
     }

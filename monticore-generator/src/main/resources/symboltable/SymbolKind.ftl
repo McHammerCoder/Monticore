@@ -31,7 +31,7 @@ SUCH DAMAGE.
 ***************************************************************************************
 -->
 ${signature("ruleSymbol")}
-<#assign genHelper = glex.getGlobalValue("stHelper")>
+<#assign genHelper = glex.getGlobalVar("stHelper")>
 <#assign ruleName = ruleSymbol.getName()?cap_first>
 <#t>
 <#-- Copyright -->
@@ -40,11 +40,20 @@ ${tc.defineHookPoint("JavaCopyright")}
 <#-- set package -->
 package ${genHelper.getTargetPackage()};
 
-public class ${ruleName}Kind implements de.monticore.symboltable.SymbolKind {
+import de.monticore.symboltable.SymbolKind;
 
-  public static final ${ruleName}Kind INSTANCE = new ${ruleName}Kind();
+public class ${ruleName}Kind implements SymbolKind {
 
-  protected ${ruleName}Kind() {
+  private static final String NAME = "${genHelper.getTargetPackage()}.${ruleName}Kind";
+
+  @Override
+  public String getName() {
+    return NAME;
+  }
+
+  @Override
+  public boolean isKindOf(SymbolKind kind) {
+    return NAME.equals(kind.getName()) || SymbolKind.super.isKindOf(kind);
   }
 
 }
