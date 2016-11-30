@@ -30,6 +30,7 @@ import de.monticore.grammar.grammar_withconcepts._visitor.Grammar_WithConceptsVi
 import de.monticore.grammar.prettyprint.Grammar_WithConceptsPrettyPrinter;
 import de.monticore.languages.grammar.MCBinaryRuleSymbol;
 import de.monticore.languages.grammar.MCClassRuleSymbol;
+import de.monticore.languages.grammar.MCEncodeTableRuleSymbol;
 import de.monticore.languages.grammar.MCEnumRuleSymbol;
 import de.monticore.languages.grammar.MCExternalTypeSymbol;
 import de.monticore.languages.grammar.MCGrammarSymbol;

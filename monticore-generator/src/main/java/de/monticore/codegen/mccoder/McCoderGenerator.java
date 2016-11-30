@@ -76,7 +76,7 @@ public class McCoderGenerator
 		// Generator Setup
 		final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
 		GlobalExtensionManagement glex = new GlobalExtensionManagement();
-		glex.addGlobalValue("genHelper", generatorHelper);
+		glex.addToGlobalVar("genHelper", generatorHelper);
 		setup.setGlex(glex);
 		
 		// Grammar Info
