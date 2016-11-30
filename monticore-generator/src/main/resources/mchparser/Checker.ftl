@@ -46,6 +46,7 @@ public class ${grammarName}Checker {
 					return false;
 	
 				ParseTree pt = ${grammarName}TreeConverter.create(pr);
+				pr.free();
 				byte [] bytesNew = pp.prettyPrint(pt);
 	
 				return ( pt instanceof HATerminalNode && ((HATerminalNode)pt).getSymbol().equals(token) );
@@ -110,6 +111,7 @@ public class ${grammarName}Checker {
 
 					// results in correct node?
 					ParseTree pt = ${grammarName}TreeConverter.create(pr);
+					pr.free();
 				
 					if( pt instanceof HATerminalNode && ((HAParseTree)pt).getText().equals(tok) )
 						return true;

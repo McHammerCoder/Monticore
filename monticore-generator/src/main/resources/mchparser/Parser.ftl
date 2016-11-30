@@ -195,6 +195,8 @@ public class ${grammarName}Parser
 		HAFileNode parseTree = new HAFileNode(new HARuleContext(${grammarName}TreeHelper.RuleType.RT_Undefined.ordinal()));
 		parseTree.addChild(${grammarName}TreeConverter.create(parseResult),offset);
 		
+		parseResult.free();
+		
 		ranges.add(new Range(offset,offset+getSize(parseTree)));
 		
 		Map<HAParseTree,Long> offsets = parseOffsets(bytes,parseTree,offset);
@@ -247,6 +249,8 @@ public class ${grammarName}Parser
 					HAParseTree pt = (HAParseTree) ${grammarName}TreeConverter.create(parseResult);
 					
 					offsetTrees.put(pt,offset);
+					
+					parseResult.free();
 					
 					ranges.add(new Range(offset,offset+getSize(pt)));
 					
