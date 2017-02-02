@@ -31,7 +31,7 @@ SUCH DAMAGE.
 ***************************************************************************************
 -->
 ${tc.signature("ast", "astImports")}
-<#assign genHelper = glex.getGlobalValue("astHelper")>
+<#assign genHelper = glex.getGlobalVar("astHelper")>
   
 <#-- Copyright -->
 ${tc.defineHookPoint("JavaCopyright")}
@@ -62,7 +62,7 @@ public class ${ast.getName()} {
   protected static ${ast.getName()} factory = null;
 
 <#list ast.getCDAttributes() as attribute>
-  ${tc.include("ast.Attribute", attribute)}
+  ${tc.includeArgs("ast.Attribute", [attribute, ast])}
 </#list>
 
   protected ${ast.getName()} () {}

@@ -37,9 +37,12 @@ SUCH DAMAGE.
   @result    mc.javadsl.JavaDSL.CompilationUnit
   
 -->
-${tc.signature("visitorType")}
+${tc.signature("visitorPackage", "visitorType")}
 
-<#assign genHelper = glex.getGlobalValue("astHelper")>
+<#assign genHelper = glex.getGlobalVar("astHelper")>
+
+import ${visitorPackage}.${visitorType};
+import java.util.Optional;
 
 public interface ${ast.getName()} extends ${tc.include("ast.AstExtendedInterfaces")} ${genHelper.getASTNodeBaseType()} {
   <#-- generate all methods -->
@@ -47,7 +50,7 @@ public interface ${ast.getName()} extends ${tc.include("ast.AstExtendedInterface
     ${tc.includeArgs("ast.ClassMethod", [method, ast])}
   </#list>
 
-  public ${ast.getName()} deepClone();
+  public ${genHelper.getPlainName(ast)} deepClone();
 
   public boolean equals(Object o);
 

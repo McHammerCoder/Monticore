@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
+import de.monticore.codegen.GeneratorHelper;
 import de.monticore.codegen.cd2java.visitor.VisitorGeneratorHelper;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
@@ -45,6 +46,8 @@ import de.se_rwth.commons.Names;
  */
 public class AstGenerator {
   
+  private static final String JAVA_EXTENSION = ".java";
+  
   /**
    * Generates ast files for the given class diagram AST
    * 
@@ -56,24 +59,25 @@ public class AstGenerator {
    * @param outputDirectory - target directory
    */
   public static void generate(GlobalExtensionManagement glex, GlobalScope globalScope, ASTCDCompilationUnit astClassDiagram,
-      File outputDirectory, IterablePath templatePath) {
+      File outputDirectory, IterablePath templatePath, boolean emfCompatible) {
+    final String diagramName = astClassDiagram.getCDDefinition().getName();
     final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
+    setup.setModelName(diagramName);
     setup.setAdditionalTemplatePaths(templatePath.getPaths().stream().map(Path::toFile).collect(Collectors.toList()));
-    AstGeneratorHelper astHelper = new AstGeneratorHelper(astClassDiagram, globalScope);
+    AstGeneratorHelper astHelper = GeneratorHelper.createGeneratorHelper(astClassDiagram, globalScope, emfCompatible);
     glex.setGlobalValue("astHelper", astHelper);
     glex.setGlobalValue("javaNameHelper", new JavaNamesHelper());
     glex.setGlobalValue("nameHelper", new Names());
     setup.setGlex(glex);
     
     final GeneratorEngine generator = new GeneratorEngine(setup);
-    final String diagramName = astClassDiagram.getCDDefinition().getName();
     final String astPackage = astHelper.getAstPackage();
     final String visitorPackage = AstGeneratorHelper.getPackageName(astHelper.getPackageName(),
         VisitorGeneratorHelper.getVisitorPackageSuffix());
     
     for (ASTCDClass clazz : astClassDiagram.getCDDefinition().getCDClasses()) {
       final Path filePath = Paths.get(Names.getPathFromPackage(astPackage),
-          Names.getSimpleName(clazz.getName()) + ".java");
+          Names.getSimpleName(clazz.getName()) + JAVA_EXTENSION);
       if (astHelper.isAstClass(clazz)) {
         generator.generate("ast.AstClass", filePath, clazz, clazz, astHelper.getASTBuilder(clazz));
       }
@@ -84,14 +88,14 @@ public class AstGenerator {
     
     for (ASTCDInterface interf : astClassDiagram.getCDDefinition().getCDInterfaces()) {
       final Path filePath = Paths.get(Names.getPathFromPackage(astPackage),
-          Names.getSimpleName(interf.getName()) + ".java");
+          Names.getSimpleName(interf.getName()) + JAVA_EXTENSION);
       generator.generate("ast.AstInterface", filePath, interf, visitorPackage,
           VisitorGeneratorHelper.getVisitorType(diagramName));
     }
     
     for (ASTCDEnum enm : astClassDiagram.getCDDefinition().getCDEnums()) {
       final Path filePath = Paths.get(Names.getPathFromPackage(astPackage),
-          Names.getSimpleName(enm.getName()) + ".java");
+          Names.getSimpleName(enm.getName()) + JAVA_EXTENSION);
       generator.generate("ast.AstEnum", filePath, enm);
     }
     

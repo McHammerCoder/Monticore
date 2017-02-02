@@ -19,14 +19,16 @@
 
 package de.monticore.symboltable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.modifiers.AccessModifier;
 import de.monticore.symboltable.resolving.ResolvingFilter;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * Super type of all scopes in the symbol table. A scope defines/contains a collection of symbols
@@ -89,6 +91,7 @@ public interface Scope {
    *
    * @param name the symbol name to be resolved
    * @param kind the symbol kind to be resolved
+   * @param modifier the access modifier of the symbol
    * @param <T> the type of the resolved symbol
    *
    * @return the symbol with the given <code>name</code> and <code>kind</code> starting from
@@ -99,8 +102,43 @@ public interface Scope {
    */
   <T extends Symbol> Optional<T> resolve(String name, SymbolKind kind, AccessModifier modifier);
 
+  <T extends Symbol> Optional<T> resolve(String name, SymbolKind kind, AccessModifier modifier, Predicate<Symbol> predicate);
+
+  /**
+   * Resolves only explicitly imported symbols (i.e., symbols from imported scopes) and locally defined symbols.
+   * For example, consider the Java classes <code>A</code>, <code>B</code>, and <code>C</code>, where
+   * <code>A</code> subclasses <code>B</code> which itself subclasses <code>C</code>.
+   * Then, <code>A</code> imports all (non-private) symbols defined in <code>B</code>. Further, <code>A</code>
+   * imports all symbols <b>explicitly</b> imported by <code>B</code>, that means, all (non-private) symbols
+   * defined in <code>C</code>.
+   * <br /><br />
+   * In contrast, <code>A</code> does not import symbols that are <b>implicitly</b> imported by <code>B</code>.
+   * That means, symbols defined in the enclosing scope of <code>B</code>.
+   *
+   *
+   *
+   * @param name the symbol name to be resolved
+   * @param kind the symbol kind to be resolved
+   * @param modifier the access modifier of the symbol
+   * @param <T> the type of the resolved symbol
+   *
+   * @return the symbol with the given <code>name</code> and <code>kind</code> starting from
+   * this scope.
+   *
+   * @throws de.monticore.symboltable.resolving.ResolvedSeveralEntriesException Thrown if more than one
+   * symbol is resolved.
+   */
+  <T extends Symbol> Optional<T> resolveImported(String name, SymbolKind kind, AccessModifier modifier);
+
   // TODO PN Doc
   <T extends Symbol> Collection<T> resolveMany(String name, SymbolKind kind);
+
+  // TODO PN Doc
+  <T extends Symbol> Collection<T> resolveMany(String name, SymbolKind kind, AccessModifier modifier);
+
+  <T extends Symbol> Collection<T> resolveMany(String name, SymbolKind kind, Predicate<Symbol> predicate);
+
+  <T extends Symbol> Collection<T> resolveMany(String name, SymbolKind kind, AccessModifier modifier, Predicate<Symbol> predicate);
 
   /**
    * Resolves the symbol with the given <code>name</code> and <code>kind</code> only within scope.
@@ -134,18 +172,34 @@ public interface Scope {
    * @param predicate the predicate that has to be fulfilled by the symbol
    *
    * @return the symbol fulfilling the <code>predicate</code>, starting from this scope.
+   *
+   * @deprecated use {@link #resolveMany(String, SymbolKind, Predicate)} instead
    */
+  @Deprecated
   Optional<? extends Symbol> resolve(SymbolPredicate predicate);
 
   <T extends Symbol> Optional<T> resolveDown(String name, SymbolKind kind);
 
+  <T extends Symbol> Optional<T> resolveDown(String name, SymbolKind kind, AccessModifier modifier);
+
+  <T extends Symbol> Optional<T> resolveDown(String name, SymbolKind kind, AccessModifier modifier, Predicate<Symbol> predicate);
+
   <T extends Symbol> Collection<T> resolveDownMany(String name, SymbolKind kind);
+
+  <T extends Symbol> Collection<T> resolveDownMany(String name, SymbolKind kind, AccessModifier modifier);
+
+  <T extends Symbol> Collection<T> resolveDownMany(String name, SymbolKind kind, AccessModifier modifier, Predicate<Symbol> predicate);
 
   /**
    *
    * @return all symbols directly defined/contained in this scope (not in enclosing scope).
    */
-  List<Symbol> getSymbols();
+  Map<String, Collection<Symbol>> getLocalSymbols();
+
+  /**
+   * @deprecated use {@link #getLocalSymbols()} instead
+   */
+  Map<String, Collection<Symbol>> getSymbols();
 
   /**
    * @return number of symbols directly defined/contained in this scope (not in enclosing scope).
@@ -196,4 +250,12 @@ public interface Scope {
    * @return the corresponding ast node
    */
   Optional<? extends ASTNode> getAstNode();
+
+  /**
+   * Returns this scope as a {@link MutableScope}. Note that each scope must
+   * implement {@link MutableScope}.
+   *
+   * @return this scope as a {@link MutableScope}.
+   */
+  MutableScope getAsMutableScope();
 }

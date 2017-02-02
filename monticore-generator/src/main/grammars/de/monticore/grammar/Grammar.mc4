@@ -32,20 +32,20 @@ SUCH DAMAGE.
 */
 package de.monticore.grammar;
 
-/** The grammar describes the MontiCore grammar in its own format 
+/** The grammar describes the MontiCore grammar in its own format
 */
 component grammar Grammar extends de.monticore.literals.Literals {
 
   /** Used for embedding actions */
   external Action;
-  
+
   /** Used as Expression in syntactic predicates */
-  external ExpressionPredicate;  
-	
-  /** Used for embedding concepts */  
+  external ExpressionPredicate;
+
+  /** Used for embedding concepts */
   external MCConcept;
- 
-  /** A MontiCore grammar describes a context free grammar in an own format   
+
+  /** A MontiCore grammar describes a context free grammar in an own format
   @attribute name The name of this grammar
   @attribute supergrammar Supergrammars of this grammar
   @attribute GrammarOption Options for this grammar
@@ -57,14 +57,14 @@ component grammar Grammar extends de.monticore.literals.Literals {
   @attribute InterfaceProd List of all interface productions of this grammar
   @attribute AbstractProd List of all abstract productions of this grammar
   @attribute ASTRule List of all ast rules of this grammar
-  @attribute AssociationBlock List of all associations blocks of this grammars
   @attribute Concepts List of additional concepts
+  @attribute StartRule defines the start rule
   */
   MCGrammar =
-    ("package" package:(Name& || ".")+ ";")? 
+    ("package" package:(Name& || ".")+ ";")?
   	(importStatements:MCImportStatement)*
-    
-    (["component"])? "grammar" Name       
+
+    (["component"])? "grammar" Name
       ("extends" supergrammar:(GrammarReference || ",")+ )?
       "{"
          (
@@ -80,7 +80,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
          |
            ClassProd
          |
-           EnumProd   
+           EnumProd
          |
            ExternalProd
          |
@@ -91,31 +91,32 @@ component grammar Grammar extends de.monticore.literals.Literals {
            ASTRule
          |
            Concept
-         | StartRule
+         |
+           StartRule
          )*
       "}" ;
- 
+
   MCImportStatement = "import" importList:(Name& || ".")+ ("." star:["*"])? ";" ;
 
-  // One OptionBlock only 
+  // One OptionBlock and one StartRule only
   ast MCGrammar =
     ASTGrammarOption max=1
     ASTStartRule max=1 ;
-   
- 
+
+
   /** A GrammarReference references another grammar
   @attribute name Qualified name of the other grammar
   */
   GrammarReference =
     (Name& || ".")+  ;
-   
+
   // ------------------------------------------------------------------------------
   // Options
-   
+
   /** Options for a grammar
   @attribute followOption Expression that shall be realized by lexer rules
   @attribute genericOption Expression that shall be realized by lexer rules
-  */        
+  */
   GrammarOption=
     "options" "{"
       (
@@ -126,20 +127,20 @@ component grammar Grammar extends de.monticore.literals.Literals {
         AntlrOption
       )*
     "}" ;
-    
+
   /** A FollowOption specifies an additional follow set for a production
-  @attribute prodName name of the production  
+  @attribute prodName name of the production
   @attribute alt the follow set
-  */ 
+  */
   FollowOption =
-    "follow" prodName:Name Alt ";"; 
+    "follow" prodName:Name Alt ";";
 
 
   /** A antlr option is an option that is passed on Anltr
-  itself   
+  itself
   @attribute name name of the option
   @attribute value optional value
-  */ 
+  */
   AntlrOption =
     Name  ("=" value:Name |"=" value:String)? ; 
     
@@ -147,24 +148,28 @@ component grammar Grammar extends de.monticore.literals.Literals {
   HammerOption = 
   	"hammer" Name ";";
     
+  /** The start rule should be the rule defining the whole model.
+  If there is no start rule the first rule of the grammar is the start rule.
+  @attribute ruleReference name of the start rule
+  */
   StartRule = 
     "start" RuleReference ";";
-    
+
   // ------------------------------------------------------------------------------
   // Productions
- 
+
   /** Productions form the syntactical structure of the grammar
-  */      
+  */
   interface Prod;
- 
+
   ast Prod =
     Name ;
-  
- 
+
+
   /** ParserProduction are handled by the parser
   */
-  interface ParserProd extends Prod;      
- 
+  interface ParserProd extends Prod;
+
  // ------------------------------------------------------------------------------
  // Productions
  
@@ -232,13 +237,14 @@ component grammar Grammar extends de.monticore.literals.Literals {
         "{" initAction:Action "}"
       )?
       "=" alts:(LexAlt || "|")+
-      
+
       (":" ("{" endAction:Action  "}")? (variable:Name&
         ("->" type:( Name& || ".")+ (":" "{" block:Action "}" )? )? )? // Statements
-      )? 
+      )?
     )
     ";";
-    
+
+
   /** An Enumeration-Production
   @attribute name Name of the production
   @attribute constant List of all constants
@@ -252,19 +258,16 @@ component grammar Grammar extends de.monticore.literals.Literals {
   @attribute name Name of the hole
   @attribute genericType External type used for this hole rule
   */
-  ExternalProd implements Prod =                 
+  ExternalProd implements Prod =
     "external" Name SymbolDefinition? GenericType? ";";
- 
- 
-  /** An ASTInterfaceRule represents an explicit definition for an interface production
+
+
+  /** An ASTInterfaceProd represents an explicit definition for an interface production
   and may overwrite the standard generated rule which is mentioned in the productions
   @attribute external True if this interface is programmed manually
   @attribute name Name of the production
-  @attribute Parameter List of production parameters
   @attribute superInterfaceRule Super interfaces
   @attribute aSTSuperInterface Super interfaces abstract syntax only
-  @attribute overrideStandard True if interfaces is relevant
-  @attribute interfaces Ordered list of productions that are used for parsing
   */
   InterfaceProd implements ParserProd =
     "interface" Name SymbolDefinition?
@@ -273,19 +276,15 @@ component grammar Grammar extends de.monticore.literals.Literals {
     |
       "astextends" aSTSuperInterface:(GenericType || ",")+
     )*
-    ";";
- 
- 
-  /** An ASTInterfaceRule represents an explicit definition for an interface rule and
-  overwrites the standard generated rule which is mentioned in the rules
+   ("=" alts:(Alt || "|")+ )? ";";
+
+
+  /** An ASTAbstractprod represents an abstract production in a context free grammar
   @attribute name Name of the production
-  @attribute Parameter List of production parameters
-  @attribute superInterfaceRule Super interfaces
-  @attribute aSTSuperInterface Super interfaces abstract syntax only
   @attribute superRule Super productions
-  @attribute aSTSuperClass Super productions abstract syntax only
-  @attribute overrideStandard True if interfaces is relevant
-  @attribute interfaces Ordered list of productions that are used for parsing
+  @attribute superInterfaceRule Super interfaces
+  @attribute aSTSuperClass Super productions (abstract syntax only)
+  @attribute aSTSuperInterface Super interfaces  (abstract syntax only)
   */
   AbstractProd implements Prod =
     "abstract" Name SymbolDefinition?
@@ -297,19 +296,16 @@ component grammar Grammar extends de.monticore.literals.Literals {
       "astextends" aSTSuperClass:(GenericType || ",")+
     |
       "astimplements" aSTSuperInterface:(GenericType || ",")+
-    )*  ";";
-    
-     
+    )* 
+    ("=" alts:(Alt || "|")+ )? ";";
+
   /** A rule represents a rule (production) in a context free grammar.
   @attribute name Name of the rule
-  @attribute type Type this rule contributes to
   @attribute superrule Rule reference to a super rule
   @attribute superInterfaceRule Rule reference to a super interface rule
-  @attribute aSTSuperClass Rule reference to a super rule used for abstract syntax only
-  @attribute aSTSuperInterfacerule Rule reference to a super rule used for abstract
-                                   syntax only
-  @attribute superInterfaceRule Rule reference to a super interface rule
-  @attribute ruleParameters List of formal Parameters handed to this rule
+  @attribute aSTSuperClass Rule reference to a super rule (used for abstract syntax only)
+  @attribute aSTSuperInterfacerule Rule reference to a super rule (used for abstract
+                                   syntax only)
   @attribute action Action executed priot to the rule body
   @attribute alts List of alternatives representing the body of the rule
   */
@@ -324,14 +320,14 @@ component grammar Grammar extends de.monticore.literals.Literals {
     |
        "astimplements" aSTSuperInterface:(GenericType || ",")+
     )*
-       
+
     ("{" Action "}")?    // Statements
     ("=" alts:(Alt || "|")+ )? ";";
 
   ast ClassProd =
     method public String toString() { return name; } ;
- 
- 
+
+
   /** Cardinality
   @attribute True if unbounded cardinality (min and max are meaningless)
   @attribute min Minimal cardinality
@@ -340,36 +336,37 @@ component grammar Grammar extends de.monticore.literals.Literals {
   Card =
    (
      Unbounded:["*"]
-   |  
+   |
      "min" "=" min:Num_Int
      ("max" "=" ( max:Num_Int | max:"*"))?
-   |  
-     "max" "=" ( max:Num_Int | max:"*")    
+   |
+     "max" "=" ( max:Num_Int | max:"*")
    );
- 
- 
- 
+
+
+
   /** A RuleReference refers to another production
-  */   
+  */
   RuleReference  =
     SemanticpredicateOrAction? Name ;
-     
+
   ast RuleReference =
     method public String getTypeName() {
-      return getName(); 
+      return getName();
     }
-    method public boolean isExternal() { 
+    method public boolean isExternal() {
         return false;
     };
- 
+
   // ------------------------------------------------------------------------------
   // Production body
- 
-     
+
+
   /** An alternative represents an alternative in a rule or block and contains
   (Rule)Components
+  @attribute rightAssoc The alternative is right associative (the default is left)
   @attribute Components List of the rule components of this alternative
-  */ 
+  */
   Alt =
     ([rightAssoc:"<rightassoc>"])? components:RuleComponent* ;
 
@@ -385,12 +382,12 @@ component grammar Grammar extends de.monticore.literals.Literals {
   @attribute name The name of the nonterminal
   @attribute separator The terminal as list separator
   @attribute plusKeywords True indicates that all keywords are allowed as well
-  @attribute iteration Iteration of nonterminal 
+  @attribute iteration Iteration of nonterminal
   */
   NonTerminalSeparator implements RuleComponent =
-    (variableName:Name& "=" | usageName:Name&  ":")?
+    (usageName:Name&  ":")?
     "(" Name (plusKeywords:["&"])? "||" separator:String ")" iteration:["*"|"+"];
-   
+
 
 
   /** A block is something used in rules which is surrounded by ()
@@ -409,106 +406,104 @@ component grammar Grammar extends de.monticore.literals.Literals {
       ":"
     )?
     alts:(Alt || "|")+ ")"
-    (iteration:["?"|"*"|"+"])?; 
- 
- 
+    (iteration:["?"|"*"|"+"])?;
+
+
   /** Option values handed to Antlr
   @attribute optionValue Value handes to Antlr
-  */ 
+  */
   Option =
     "options" "{" OptionValue+ "}";
- 
- 
+
+
   /** Key/Value pairs handed to Antlr
   @attribute key Key
   @attribute value Value
-  */ 
+  */
   OptionValue =
     key:Name "=" value:Name ";" ;
- 
- 
+
+
   /** Reference to another rule
   @attribute variableName Name for a variable binding (Note: Only one attribute of
                           VariableName and UsuageName may have a value)
   @attribute usageName Name for attribute
   @attribute plusKeywords True indicates that all keywords are allowed as well
   @attribute iteration Iteration of nonterminal
-  */    
+  */
   NonTerminal implements RuleComponent =
-    (variableName:Name&? "=" | usageName:Name&?  ":")?
+    (usageName:Name&?  ":")?
     Name ("@" referencedSymbol:Name)?
     (plusKeywords:["&"] | iteration:["?"|"*"|"+"] )*;
- 
- 
+
+
   interface ITerminal;
-  
+
   ast ITerminal =
       Name;
- 
+
   /** A Terminal is usually something like "," or "start" */
   Terminal implements RuleComponent, ITerminal =
-    (variableName:Name& "=" | usageName:Name&  ":")?     
+    (variableName:Name& "=" | usageName:Name&  ":")?
     name:String
     (iteration:["?"|"*"|"+"])*;
 
-       
+
   /** Constants are constant string but lead to an attribute */
   Constant implements ITerminal =
     (humanName:Name& ":")? name:String ;
- 
+
   /** constants are sth like keywords which one needs to know that they where there,
   e.g. public. In the ast-class they are reflected as int oder boolean isMethods  */
   ConstantGroup implements RuleComponent =
-     (variableName:Name& "=" | usageName:Name&  ":")?
+     (usageName:Name&  ":")?
      "[" Constant ("|" Constant )* "]"
      (iteration:["?"|"*"|"+"])? ;
-        
-          
+
+
   /** End of file as EOF keyword */
   Eof implements RuleComponent =
     "EOF";
- 
-  /** MCAnything is a special lexer production which represents 
+
+  /** MCAnything is a special lexer production which represents
   */
   MCAnything implements RuleComponent =
-    "MCA"; 
- 
+    "MCA";
+
   Anything implements RuleComponent=
-    "."; 
- 
+    ".";
+
   /** Handed on as antlr action or predicate, realised by external JavaDSLParser */
   SemanticpredicateOrAction implements RuleComponent=
-     "{" ExpressionPredicate "}" Predicate:["?"] 
+     "{" ExpressionPredicate "}" Predicate:["?"]
      |
       "{" Action "}"
      ;
-  
-  
+
+
   // ------------------------------------------------------------------------------
   // Concept
- 
- 
+
+
   /** The grammar can be extended by using concepts
   @attribute name Name of the concept
   @attribute concept The concept itself
-  */   
+  */
   Concept=
     "concept" Name& concept:MCConcept;
- 
-     
+
+
   // --------------------------------------------------------------------------------
   // AST
- 
- 
-  /** A ASTClassgenWithinGrammar additional information for the class generation
+
+
+  /** An ASTRule contains additional information for the class generation
   process
-  @attribute
   @attribute type Type this rule refers to
   @attribute aSTSuperInterface Super interfaces abstract syntax only
   @attribute aSTSuperClass Super productions abstract syntax only
   @attribute methods Methods to be added to the class generation
   @attribute attributeInAST Attributes to be added to the class generation
-  @attribute method Sons to be added to the generation
   */
   ASTRule =
      "ast" type:Name
@@ -520,7 +515,7 @@ component grammar Grammar extends de.monticore.literals.Literals {
     (
       "=" ( Method | AttributeInAST )*
     )? ";";
- 
+
 
   /** A method to be added to a certain ASTClass
   @attribute public True if method is public
@@ -528,9 +523,9 @@ component grammar Grammar extends de.monticore.literals.Literals {
   @attribute protected True if method is protected
   @attribute final True if method is final
   @attribute static True if method is static
-  @attribute return Qualified name of the return type of the method
+  @attribute returnType Qualified name of the return type of the method
   @attribute name Name of the method
-  @attribute parameter List of the parameters
+  @attribute methodParameter List of the parameters
   @attribute exceptions Lit of the thrown exceptions
   @attribute body Body of the Method (mostly a JavaLazy-Object)
   */
@@ -539,70 +534,68 @@ component grammar Grammar extends de.monticore.literals.Literals {
       (["public"] | ["private"] | ["protected"])?
       (["final"])?
       (["static"])?
-      returnType:GenericType Name  
+      returnType:GenericType Name
       "(" (MethodParameter || ",")* ")"
       ("throws" exceptions:(GenericType || ",")+)?
       "{" body:Action "}" ; // Statements
- 
- 
+
+
   /** Formal parameter of a method
   @attribute type Qualified name of the type
   @attribute name Name of the parameter
-  */         
+  */
   MethodParameter =
     type:GenericType Name;
- 
- 
-  /** New Sons (=another ASTClass or String) or changed type (changed on difference to
-  the automatic inference rules) in ASTClass
-  @attribute name Name of the son
+
+
+  /** An attribute to be added to a certain ASTClass
+  @attribute name Name of the attribute
   @attribute genericType Name of the referring type
-  @attribute Iterate True if more than one son can be added (=list)
   @attribute unordered Defines whether a collection is ordered or unordered
   @attribute card Cardinality
   @attribute derived True indicates that the attribute is derived as specified in body
   @attribute body Specification of derived attribute
   */
-  AttributeInAST =   
+  AttributeInAST =
     (Name  ":")?
     ([unordered:"<<unordered>>"])?
     GenericType
     Card?
     (["derived"] "{" body:Action "}")? ;  // Statements
- 
- 
+
+
   /**
   A GenericType represents an generic java type
   @attribute name List containing the name of the type
   @attribute genericType List of all type parameters
   @attribute dimension Array dimension of the type
   */
-  GenericType  = 
+  GenericType  =
     (Name& || ".")+
     ("<" (GenericType || ",")+  ">")?
     {_aNode.setDimension(0);} ("[" "]"
       {_aNode.setDimension(_aNode.getDimension()+1);} )*;
- 
+
   ast GenericType =
     Dimension:int
     method public String toString() {
-      return  de.monticore.grammar.HelperGrammar.printGenericType(this); 
+      return  de.monticore.grammar.HelperGrammar.printGenericType(this);
     }
     method public String getTypeName() {
-      return de.monticore.grammar.HelperGrammar.printGenericType(this); 
+      return de.monticore.grammar.HelperGrammar.printGenericType(this);
     }
-    method public boolean isExternal() { 
+    method public boolean isExternal() {
         return true;
     };
-   
+
   // ------------------------------------------------------------------------------
   // Lexer
-   
+
   LexAlt =
     (lexComponents:LexComponent)*;
- 
+
   interface LexComponent;
-      
+
   LexBlock implements LexComponent =
     (negate:["~"])? "("
     (
@@ -614,27 +607,30 @@ component grammar Grammar extends de.monticore.literals.Literals {
       ":"
      )?
      lexAlts:(LexAlt || "|")+ ")"
-     (iteration:["?"|"*"|"+"])?; 
-  
+     (iteration:["?"|"*"|"+"])?;
+
   LexCharRange implements LexComponent =
      (negate:["~"])? lowerChar:Char ".." upperChar:Char;
-    
+
   LexChar implements LexComponent =
     (negate:["~"])? Char ;
+
+  LexAnyChar implements LexComponent =
+    ".";
 
   LexString implements LexComponent =
     string:String ;
 
-  LexActionOrPredicate implements LexComponent = 
-     "{" ExpressionPredicate "}" Predicate:["?"] 
+  LexActionOrPredicate implements LexComponent =
+     "{" ExpressionPredicate "}" Predicate:["?"]
      ;
-          
+
   LexNonTerminal implements LexComponent =
-    (variable:Name& "=")? Name ;
-   
+    Name ;
+
   LexSimpleIteration implements LexComponent =
-    (LexNonTerminal | LexString | LexChar) iteration:["?"|"*"|"+"];
-   
+    (LexNonTerminal | LexString | LexChar | LexAnyChar) iteration:["?"|"*"|"+"] (question:["?"])?;
+
   LexOption =
     "options" "{" iD:Name "=" value:Name ";" "}";
 

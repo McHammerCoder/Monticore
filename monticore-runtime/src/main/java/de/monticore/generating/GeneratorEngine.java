@@ -46,63 +46,64 @@ import de.se_rwth.commons.logging.Log;
 import freemarker.template.Configuration;
 
 /**
- * Represents the whole generator engine component. Clients usually need only
- * this class when generating.
+ * Represents the whole generator engine component. Clients usually need only this class when
+ * generating.
  *
  * @author (last commit) $Author$
  * @version $Revision$, $Date$
  */
 public class GeneratorEngine {
-  
+
   private final TemplateControllerConfiguration templateControllerConfig;
-  
+
   private final ITemplateControllerFactory templateControllerFactory;
-  
+
   public final static String GENERATED_CLASS_SUFFIX = "TOP";
-  
+
   public GeneratorEngine(
       GeneratorSetup generatorSetup,
       ITemplateControllerFactory templateControllerFactory,
       FileReaderWriter fileHandler) {
     Log.errorIfNull(generatorSetup);
-    
+
     this.templateControllerConfig = createTemplateControllerConfiguration(generatorSetup,
         templateControllerFactory, fileHandler);
     this.templateControllerFactory = templateControllerConfig.getTemplateControllerFactory();
   }
-  
+
   public GeneratorEngine(GeneratorSetup generatorSetup) {
     this(generatorSetup, null, null);
   }
-  
+
   /* package visibility */TemplateControllerConfiguration createTemplateControllerConfiguration(
       GeneratorSetup generatorSetup, ITemplateControllerFactory templateControllerFactory,
       FileReaderWriter fileHandler) {
     if (templateControllerFactory == null) {
       templateControllerFactory = TemplateControllerFactory.getInstance();
     }
-    
+
     if (fileHandler == null) {
       fileHandler = new FileReaderWriter();
     }
-    
+
     Configuration freemarkerConfig = new FreeMarkerConfigurationBuilder()
         .classLoader(generatorSetup.getClassLoader())
         .additionalTemplatePaths(generatorSetup.getAdditionalTemplatePaths())
+        .autoImports(generatorSetup.getAutoTemplateImports())
         .build();
-    
+
     GlobalExtensionManagement glex = generatorSetup.getGlex().orElse(
         new GlobalExtensionManagement());
-    
+
     FreeMarkerTemplateEngine freeMarkerTemplateEngine = new FreeMarkerTemplateEngine(
         freemarkerConfig);
-    
+
     TemplateControllerConfiguration tcConfig = new TemplateControllerConfigurationBuilder()
         .glex(glex)
         .templateControllerFactory(templateControllerFactory)
         .classLoader(generatorSetup.getClassLoader())
         .fileHandler(fileHandler)
-        .targetDir(generatorSetup.getOutputDirectory())
+        .outputDirectory(generatorSetup.getOutputDirectory())
         .freeMarkerTemplateEngine(freeMarkerTemplateEngine)
         .tracing(generatorSetup.isTracing())
         .commentStart(
@@ -111,16 +112,30 @@ public class GeneratorEngine {
         .commentEnd(
             generatorSetup.getCommentEnd().orElse(
                 TemplateControllerConfigurationBuilder.DEFAULT_COMMENT_END))
+        .modelName(generatorSetup.getModelName())
         .build();
     
     return tcConfig;
   }
-  
+
   /**
-   * Processes the template <code>templateName</code> with the <code>node</code>
-   * and the given <code>templateArguments</code> and writes the content into
-   * the <code>filePath</code>. Note: Unless not absolute, the
-   * <code>filePath</code> is relative to the configured output directory
+   * Processes the template <code>templateName</code> with the given <code>templateArguments</code>
+   * and returns the content as String.
+   *
+   * @param templateName the template to be processes
+   * @param templateArguments additional template arguments (if needed).
+   */
+  public String generate(String templateName,
+                         Object... templateArguments) {
+    TemplateController tc = this.templateControllerFactory.create(this.templateControllerConfig,
+        templateName);
+    return tc.includeArgs(templateName, Arrays.asList(templateArguments));
+  }
+
+  /**
+   * Processes the template <code>templateName</code> with the <code>node</code> and the given
+   * <code>templateArguments</code> and writes the content into the <code>filePath</code>. Note:
+   * Unless not absolute, the <code>filePath</code> is relative to the configured output directory
    * specified in the {@link de.monticore.generating.GeneratorSetup}.
    *
    * @param templateName the template to be processes
@@ -129,47 +144,46 @@ public class GeneratorEngine {
    * @param templateArguments additional template arguments (if needed).
    */
   public void generate(String templateName, Path filePath, ASTNode node,
-      Object... templateArguments) {
+                       Object... templateArguments) {
     Log.errorIfNull(node);
     checkArgument(!isNullOrEmpty(templateName));
     Log.errorIfNull(filePath);
-    
+
     TemplateController tc = templateControllerFactory.create(templateControllerConfig, "");
     tc.writeArgs(templateName, filePath, node, Arrays.asList(templateArguments));
   }
-  
+
   /**
-   * Processes the template <code>templateName</code> with the <code>node</code>
-   * and the given <code>templateArguments</code> and writes the content into
-   * the <code>filePath</code>. If there is a handwritten file on the handcoded path,
-   * the suffix "TOP" is added to the name of the generated file.
-   * Note: Unless not absolute, the
-   * <code>filePath</code> is relative to the configured output directory
-   * specified in the {@link de.monticore.generating.GeneratorSetup}.
+   * Processes the template <code>templateName</code> with the <code>node</code> and the given
+   * <code>templateArguments</code> and writes the content into the <code>filePath</code>. If there
+   * is a handwritten file on the handcoded path, the suffix "TOP" is added to the name of the
+   * generated file. Note: Unless not absolute, the <code>filePath</code> is relative to the
+   * configured output directory specified in the {@link de.monticore.generating.GeneratorSetup}.
    *
    * @param templateName the template to be processes
    * @param filePath the file path in which the content is to be written
    * @param handcodedPath the path for the handwritten code
    * @param node the ast node
-   * @param templateArguments additional template arguments (if needed).
+   * @param templateArguments additional template arguments (if needed)
    */
   public void generateAndConsiderHWC(String templateName, Path filePath, IterablePath handcodedPath,
-      ASTNode node,
-      Object... templateArguments) {
+                                     ASTNode node,
+                                     Object... templateArguments) {
     Log.errorIfNull(filePath);
     if (handcodedPath.exists(filePath)) {
       Reporting.reportUseHandwrittenCodeFile(handcodedPath.getResolvedPath(filePath).get(),
           filePath);
       filePath = getPathIfHWCExists(filePath);
-    } else {
+    }
+    else {
       Reporting.reportUseHandwrittenCodeFile(null, filePath);
     }
     generate(templateName, filePath, node, templateArguments);
   }
-  
+
   /**
    * Adds suffix "TOP" to the name of the file to generate
-   * 
+   *
    * @param filePath
    * @return converted file path
    */
@@ -184,5 +198,5 @@ public class GeneratorEngine {
     }
     return Paths.get(filePath.getParent().toString(), fileName);
   }
-  
+
 }

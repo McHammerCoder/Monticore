@@ -19,21 +19,20 @@
 
 package de.monticore;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
+import com.google.common.collect.ImmutableList;
+import de.monticore.ast.ASTNode;
+import de.monticore.modelloader.ModelingLanguageModelLoader;
+import de.monticore.symboltable.Symbol;
+import de.monticore.symboltable.resolving.ResolvingFilter;
+import de.se_rwth.commons.logging.Log;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableList;
-
-import de.monticore.modelloader.ModelingLanguageModelLoader;
-import de.monticore.symboltable.Symbol;
-import de.monticore.symboltable.resolving.ResolvingFilter;
-import de.se_rwth.commons.logging.Log;
-import de.monticore.ast.ASTNode;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
  * Base class for language families. Provides access to language-related
@@ -42,7 +41,7 @@ import de.monticore.ast.ASTNode;
  * @author  Pedram Mir Seyed Nazari
  *
  */
-// TODO PN extract interface, analogous to ModelingLanguage?
+// TODO PN extract interface, analogous to ModelingLanguage
 public class ModelingLanguageFamily {
 
   // TODO PN adding of other modeling language families should be possible, too.
@@ -75,12 +74,10 @@ public class ModelingLanguageFamily {
     Log.errorIfNull(newModelingLanguage);
 
     for (ModelingLanguage modelingLanguage : modelingLanguages) {
-      // TODO PN improve this check
       if (modelingLanguage.getFileExtension().equals(newModelingLanguage.getFileExtension())) {
-        Log.error("0xA1027 The languages \"" + modelingLanguage.getName() + "\" and \"" +
+        Log.info("0xA1027 The languages \"" + modelingLanguage.getName() + "\" and \"" +
             newModelingLanguage.getName() + "\" use both the file extension \"" + modelingLanguage
-            .getFileExtension() + "\". Because models are loaded by their file extension, it has "
-            + "to be unique within a language family.");
+            .getFileExtension() + "\".", ModelingLanguageFamily.class.getName());
       }
     }
 

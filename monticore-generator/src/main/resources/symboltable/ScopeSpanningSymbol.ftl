@@ -31,7 +31,7 @@ SUCH DAMAGE.
 ***************************************************************************************
 -->
 ${signature("className", "ruleSymbol")}
-<#assign genHelper = glex.getGlobalValue("stHelper")>
+<#assign genHelper = glex.getGlobalVar("stHelper")>
 <#assign ruleName = ruleSymbol.getName()?cap_first>
 
 <#-- Copyright -->
@@ -63,7 +63,7 @@ public class ${className} extends ${ruleName}SymbolEMPTY {
     <#assign type = fields[fname]>
 
   public Collection<${type}> get${fname?cap_first}() {
-    return sortSymbolsByPosition(spannedScope.resolveLocally(${type}.KIND));
+    return sortSymbolsByPosition(getSpannedScope().resolveLocally(${type}.KIND));
   }
   </#list>
 

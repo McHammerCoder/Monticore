@@ -19,14 +19,15 @@
 
 package de.monticore.symboltable.resolving;
 
+import de.monticore.symboltable.Symbol;
+import de.monticore.symboltable.SymbolKind;
+
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import de.monticore.symboltable.Symbol;
-import de.monticore.symboltable.SymbolKind;
 
 /**
  * TODO: Write me!
@@ -34,12 +35,26 @@ import de.monticore.symboltable.SymbolKind;
  * @author Pedram Mir Seyed Nazari
  *
  */
+// TODO PN remove formal type argument, since not needed anymore
 public interface ResolvingFilter<S extends Symbol> {
 
-  Optional<S> filter(ResolvingInfo resolvingInfo, String name, List<Symbol> symbols);
-
-  Collection<S> filter(ResolvingInfo resolvingInfo, List<Symbol> symbols);
   SymbolKind getTargetKind();
+
+  Optional<Symbol> filter(ResolvingInfo resolvingInfo, String name, Map<String, Collection<Symbol>> symbols);
+
+  Collection<Symbol> filter(ResolvingInfo resolvingInfo, Collection<Symbol> symbols);
+
+  /**
+   * @deprecated use {@link #filter(ResolvingInfo, Collection)} instead
+   */
+  @Deprecated
+  Collection<Symbol> filter(ResolvingInfo resolvingInfo, List<Symbol> symbols);
+
+  /**
+   * @deprecated use {@link #filter(ResolvingInfo, String, Map)} instead
+   */
+  @Deprecated
+  Optional<Symbol> filter(ResolvingInfo resolvingInfo, String name, List<Symbol> symbols);
 
 
   static Collection<ResolvingFilter<? extends Symbol>> getFiltersForTargetKind

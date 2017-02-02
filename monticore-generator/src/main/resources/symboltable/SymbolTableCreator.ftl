@@ -32,7 +32,7 @@ SUCH DAMAGE.
 -->
 ${signature("className", "directSuperCds")}
 
-<#assign genHelper = glex.getGlobalValue("stHelper")>
+<#assign genHelper = glex.getGlobalVar("stHelper")>
 <#assign grammarName = ast.getName()?cap_first>
 <#assign fqn = genHelper.getQualifiedGrammarName()?lower_case>
 <#assign package = genHelper.getTargetPackage()?lower_case>
@@ -50,7 +50,7 @@ import ${fqn}._visitor.${genHelper.getVisitorType()};
 import ${fqn}._visitor.${genHelper.getDelegatorVisitorType()};
 import ${fqn}._visitor.${genHelper.getCommonDelegatorVisitorType()};
 import de.monticore.symboltable.MutableScope;
-import de.monticore.symboltable.ResolverConfiguration;
+import de.monticore.symboltable.ResolvingConfiguration;
 import de.monticore.symboltable.Scope;
 import java.util.Deque;
 
@@ -61,13 +61,13 @@ public class ${className} extends de.monticore.symboltable.CommonSymbolTableCrea
   private final ${genHelper.getDelegatorVisitorType()} visitor = new ${genHelper.getCommonDelegatorVisitorType()}();
 
   public ${className}(
-    final ResolverConfiguration resolverConfig, final MutableScope enclosingScope) {
-    super(resolverConfig, enclosingScope);
+    final ResolvingConfiguration resolvingConfig, final MutableScope enclosingScope) {
+    super(resolvingConfig, enclosingScope);
     initSuperSTC();
   }
 
-  public ${className}(final ResolverConfiguration resolverConfig, final Deque<MutableScope> scopeStack) {
-    super(resolverConfig, scopeStack);
+  public ${className}(final ResolvingConfiguration resolvingConfig, final Deque<MutableScope> scopeStack) {
+    super(resolvingConfig, scopeStack);
     initSuperSTC();
   }
 
@@ -76,7 +76,7 @@ public class ${className} extends de.monticore.symboltable.CommonSymbolTableCrea
     <#list directSuperCds as cd>
       <#assign delegate = genHelper.getQualifiedVisitorNameAsJavaName(cd)>
       <#assign delegateType = genHelper.getQualifiedVisitorType(cd)>
-      // visitor.set_${delegate}(${genHelper.getQualifiedSymTabCreator(cd.getFullName())}(resolverConfig, scopeStack));
+      // visitor.set_${delegate}(${genHelper.getQualifiedSymTabCreator(cd.getFullName())}(resolvingConfig, scopeStack));
     </#list>
   }
 
@@ -89,7 +89,7 @@ public class ${className} extends de.monticore.symboltable.CommonSymbolTableCrea
   */
   public Scope createFromAST(${topAstName} rootNode) {
     Log.errorIfNull(rootNode, "0xA7004${genHelper.getGeneratedErrorCode(ast)} Error by creating of the ${className} symbol table: top ast node is null");
-    rootNode.accept(this);
+    rootNode.accept(realThis);
     return getFirstCreatedScope();
   }
 

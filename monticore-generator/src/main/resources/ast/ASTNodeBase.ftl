@@ -30,9 +30,10 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY O
 SUCH DAMAGE.
 ***************************************************************************************
 -->
-<#assign genHelper = glex.getGlobalValue("astHelper")>
+<#assign genHelper = glex.getGlobalVar("astHelper")>
 
 import ${genHelper.getQualifiedASTNodeType()};
+import ${astHelper.getVisitorPackage()}.${genHelper.getCdName()}Visitor;
 
 /**
  * Interface for all AST nodes of the ${genHelper.getCdName()} language.

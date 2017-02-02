@@ -19,16 +19,6 @@
 
 package de.monticore.symboltable;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Optional;
-
 import de.monticore.ModelingLanguage;
 import de.monticore.io.paths.ModelPath;
 import de.monticore.symboltable.mocks.languages.entity.ActionSymbol;
@@ -42,25 +32,33 @@ import de.monticore.symboltable.types.JTypeSymbol;
 import de.monticore.symboltable.types.references.CommonJTypeReference;
 import org.junit.Test;
 
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 /**
  * @author Pedram Mir Seyed Nazari
  *
  */
 public class ResolvingTest {
 
-  // TODO PN test some complex resolving scenarios.
-
   @Test
   public void testSameSymbolOccursOnlyOnce() {
     final EntitySymbol entity = new EntitySymbol("Entity");
 
     final MutableScope localScope = new CommonScope(false);
-    localScope.addResolver(CommonResolvingFilter.create(EntitySymbol.class, EntitySymbol.KIND));
+    localScope.addResolver(CommonResolvingFilter.create(EntitySymbol.KIND));
 
     localScope.add(entity);
     localScope.add(entity);
 
-    assertEquals(2, localScope.getSymbols().size());
+    assertEquals(2, localScope.getLocalSymbols().get(entity.getName()).size());
 
     try {
       // Although the same symbol is stored twice in the scope, it is
@@ -85,8 +83,7 @@ public class ResolvingTest {
     final MutableScope localScope = new CommonScope(false);
     ((MutableScope)action.getSpannedScope()).addSubScope(localScope);
 
-    final ResolvingFilter<PropertySymbol> propertyResolvingFilter = CommonResolvingFilter.create(
-        PropertySymbol.class, PropertySymbol.KIND);
+    final ResolvingFilter<PropertySymbol> propertyResolvingFilter = CommonResolvingFilter.create(PropertySymbol.KIND);
 
     // Only localScope is initialized with a resolver for properties
     localScope.addResolver(propertyResolvingFilter);
@@ -102,7 +99,7 @@ public class ResolvingTest {
     assertFalse(entity.getSpannedScope().resolve("prop", PropertySymbol.KIND).isPresent());
 
 
-    entity.getSpannedScope().addResolver(propertyResolvingFilter);
+    entity.getMutableSpannedScope().addResolver(propertyResolvingFilter);
     assertFalse(action.getSpannedScope().resolve("prop", PropertySymbol.KIND).isPresent());
     assertTrue(entity.getSpannedScope().resolve("prop", PropertySymbol.KIND).isPresent());
   }
@@ -175,7 +172,7 @@ public class ResolvingTest {
     artifactScope.setResolvingFilters(resolverConfiguration.getTopScopeResolvingFilters());
 
     final EntitySymbol entity = new EntitySymbol("Entity");
-    entity.getSpannedScope().setResolvingFilters(resolverConfiguration.getTopScopeResolvingFilters());
+    entity.getMutableSpannedScope().setResolvingFilters(resolverConfiguration.getTopScopeResolvingFilters());
     artifactScope.add(entity);
 
     final ActionSymbol action = new ActionSymbol("action");

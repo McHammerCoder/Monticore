@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.antlr.v4.runtime.RecognitionException;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -109,9 +108,6 @@ public class CdDecoratorTest {
       astHelper = new AstGeneratorHelper(topNode.get(), globalScope);
     }
     catch (FileNotFoundException e) {
-      fail("Should not reach this, but: " + e);
-    }
-    catch (RecognitionException e) {
       fail("Should not reach this, but: " + e);
     }
     catch (IOException e) {
@@ -208,22 +204,6 @@ public class CdDecoratorTest {
     assertTrue(nodeFactoryClass.isPresent());
     assertEquals(8, nodeFactoryClass.get().getCDMethods().size());
     assertEquals(2, nodeFactoryClass.get().getCDAttributes().size());
-  }
-  
-  /** {@link CdDecorator#addAdditionalAttributes(ASTCDClass, AstGeneratorHelper)  */
-  @Test
-  public void additionalAttributes() {
-    for (ASTCDClass clazz : cdDefinition.getCDClasses()) {
-      cdDecorator.addAdditionalAttributes(clazz, astHelper);
-    }
-    
-    for (ASTCDClass clazz : cdDefinition.getCDClasses()) {
-      assertEquals(3, clazz.getCDAttributes().size());
-      assertEquals(AstAdditionalAttributes.symbol.toString(), clazz.getCDAttributes().get(1)
-          .getName());
-      assertEquals(AstAdditionalAttributes.enclosingScope.toString(), clazz.getCDAttributes()
-          .get(2).getName());
-    }
   }
   
   /** {@link CdDecorator#additionalMethods(ASTCDClass, AstGeneratorHelper)  */
