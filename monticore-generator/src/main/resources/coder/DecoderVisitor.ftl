@@ -1,5 +1,4 @@
-${tc.signature("genHelper")}
-<#assign genHelper = glex.getGlobalValue("genHelper")>
+${tc.signature("coderGenerator","genHelper")}
 <#assign parserName = genHelper.getQualifiedGrammarName()?cap_first>
 
 package ${genHelper.getCoderPackage()};

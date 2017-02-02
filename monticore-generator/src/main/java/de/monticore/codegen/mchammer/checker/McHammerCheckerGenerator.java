@@ -71,7 +71,7 @@ public class McHammerCheckerGenerator
 		// Generator Setup
 		final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
 		GlobalExtensionManagement glex = new GlobalExtensionManagement();
-		glex.addToGlobalVar("genHelper", generatorHelper);
+		//glex.addToGlobalVar("genHelper", generatorHelper);
 		setup.setGlex(glex);
 		
 		// Grammar Info
@@ -82,7 +82,7 @@ public class McHammerCheckerGenerator
 
 		// Generate ${grammarName}Checker.java
 		final Path checkerPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Checker.java");
-		generator.generate("mchparser.Checker", checkerPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		generator.generate("mchparser.Checker", checkerPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo),generatorHelper);
 
 	}
 }

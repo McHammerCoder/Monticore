@@ -1,5 +1,4 @@
-${tc.signature("hammerGenerator")}
-<#assign genHelper = glex.getGlobalValue("genHelper")>
+${tc.signature("hammerGenerator","genHelper")}
 <#assign grammarSymbol = genHelper.getGrammarSymbol()>
 <#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
 <#assign iter=1>

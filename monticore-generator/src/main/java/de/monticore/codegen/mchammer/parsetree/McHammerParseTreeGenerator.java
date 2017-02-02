@@ -52,7 +52,7 @@ public class McHammerParseTreeGenerator {
 		
 		// Glex
 		GlobalExtensionManagement glex = new GlobalExtensionManagement();
-		glex.addToGlobalVar("genHelper", generatorHelper);
+		//glex.setGlobalValue("genHelper", generatorHelper);
 		setup.setGlex(glex);
 		
 		// Grammar Info
@@ -66,7 +66,7 @@ public class McHammerParseTreeGenerator {
 		for(ASTProd rule : rules)
 		{
 			final Path parseTreePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "PT" + rule.getName() + ".java");
-			generator.generate("mchtree.RuleNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), rule);
+			generator.generate("mchtree.RuleNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), rule, generatorHelper);
 		}
 		
 		// Generate Interface/AbstractRuleNodes
@@ -78,12 +78,12 @@ public class McHammerParseTreeGenerator {
 			if( prod instanceof ASTInterfaceProd )
 			{
 				final Path parseTreePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "PT" + prod.getName() + ".java");
-				generator.generate("mchtree.InterfaceRuleNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), prod);
+				generator.generate("mchtree.InterfaceRuleNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), prod, generatorHelper);
 			}
 			else if( prod instanceof ASTAbstractProd )
 			{
 				final Path parseTreePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "PT" + prod.getName() + ".java");
-				generator.generate("mchtree.AbstractRuleNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), prod);
+				generator.generate("mchtree.AbstractRuleNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), prod, generatorHelper);
 			}
 		}
 		
@@ -93,7 +93,7 @@ public class McHammerParseTreeGenerator {
 		for(ASTProd rule : rules)
 		{
 			final Path parseTreePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "PT" + rule.getName() + ".java");
-			generator.generate("mchtree.TerminalNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), rule);
+			generator.generate("mchtree.TerminalNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), rule, generatorHelper);
 		}
 		
 		// Generate BinaryTerminalNodes
@@ -102,7 +102,7 @@ public class McHammerParseTreeGenerator {
 		for(ASTProd rule : rules)
 		{
 			final Path parseTreePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "PT" + rule.getName() + ".java");
-			generator.generate("mchtree.BinaryNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), rule);
+			generator.generate("mchtree.BinaryNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), rule, generatorHelper);
 		}
 		
 		// Generate OffsetTerminalNodes
@@ -111,7 +111,7 @@ public class McHammerParseTreeGenerator {
 		for(ASTProd rule : rules)
 		{
 			final Path parseTreePath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), "PT" + rule.getName() + ".java");
-			generator.generate("mchtree.OffsetNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), rule);
+			generator.generate("mchtree.OffsetNode", parseTreePath, astGrammar, new Grammar2ParseTree(generatorHelper,grammarInfo), rule, generatorHelper);
 		}
 				
 		

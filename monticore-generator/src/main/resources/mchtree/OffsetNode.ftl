@@ -1,5 +1,4 @@
-${tc.signature("codeGenerator","prod")}
-<#assign genHelper = glex.getGlobalValue("genHelper")>
+${tc.signature("codeGenerator","prod","genHelper")}
 <#assign grammarSymbol = genHelper.getGrammarSymbol()>
 <#assign grammarName = genHelper.getQualifiedGrammarName()?cap_first>
 

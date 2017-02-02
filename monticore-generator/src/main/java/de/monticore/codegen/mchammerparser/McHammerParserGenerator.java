@@ -75,7 +75,7 @@ public class McHammerParserGenerator
 		// Generator Setup
 		final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
 		GlobalExtensionManagement glex = new GlobalExtensionManagement();
-		glex.addToGlobalVar("genHelper", generatorHelper);
+		//glex.setGlobalValue("genHelper", generatorHelper);
 		setup.setGlex(glex);
 		
 		// Grammar Info
@@ -105,32 +105,32 @@ public class McHammerParserGenerator
 		
 		// Generate ${grammarName}Parser.java
 		final Path parserPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Parser.java");
-		generator.generate("mchparser.Parser", parserPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		generator.generate("mchparser.Parser", parserPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo),generatorHelper);
 		
 		// Generate ${grammarName}Actions.java
 		final Path actionsPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+"Actions.java");
-		generator.generate("mchparser.Actions", actionsPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		generator.generate("mchparser.Actions", actionsPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo),generatorHelper);
 
 		// Generate ${grammarName}.tokens
 		final Path tokensPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParserPackage()), astGrammar.getName()+".tokens");
-		generator.generate("mchparser.Tokens", tokensPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		generator.generate("mchparser.Tokens", tokensPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo),generatorHelper);
 				
 /** TODO: Move to ParseTreeGenerator */
 		// Generate ${grammarName}TreeConverter.java
 		final Path treeConverterPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), astGrammar.getName()+"TreeConverter.java");
-		generator.generate("mchtree.TreeConverter", treeConverterPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		generator.generate("mchtree.TreeConverter", treeConverterPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo),generatorHelper);
 		
 		// Generate ${grammarName}TreeHelper.java
 		final Path treeHelperPath = Paths.get(Names.getPathFromPackage(generatorHelper.getParseTreePackage()), astGrammar.getName()+"TreeHelper.java");
-		generator.generate("mchtree.TreeHelper", treeHelperPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		generator.generate("mchtree.TreeHelper", treeHelperPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo),generatorHelper);
 		
 		// Generate libjhammer_${grammarName}.c
 		final Path hammerActionPath = Paths.get(RESOURCES_FOLDER, "libjhammer_"+astGrammar.getName()+".c");
-		generator.generate("mchparser.com_upstandinghackers_hammer_Hammer", hammerActionPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		generator.generate("mchparser.com_upstandinghackers_hammer_Hammer", hammerActionPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo),generatorHelper);
 	
 		// Generate ${grammarName}Hammer.java in out/resources directory (needed to seperate the actions of different parsers)
 		final Path hammerExtensionPath = Paths.get(RESOURCES_FOLDER,Names.getPathFromPackage("com.upstandinghackers.hammer"), astGrammar.getName()+"Hammer.java");
-		generator.generate("mchparser.HammerExtension", hammerExtensionPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo));
+		generator.generate("mchparser.HammerExtension", hammerExtensionPath, astGrammar, new Grammar2Hammer(generatorHelper,grammarInfo),generatorHelper);
 	
 		// Extract Hammer resources if executed from MontiCore CLI
 		Log.debug("extracting McHammerParser resources!", LOG_ID);
