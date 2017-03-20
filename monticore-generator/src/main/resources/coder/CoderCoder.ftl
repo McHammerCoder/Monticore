@@ -28,14 +28,14 @@ public class ${parserName}CoderCoder {
 	private String[] kws;
 	private int types;
 	private String[] freeS;
-	public Boolean[] hasEncodingArray; //Should be sum of types+1
+	public Boolean[] hasEncodingArray; //Should be sum of types+2
 	private ArrayList<String> codeSection = new ArrayList<String>();
 	
 	public ${parserName}CoderCoder(int type, String[] kw, String[] fs){
 		this.types = type;
 		this.kws = kw;
 		this.freeS = fs;
-		hasEncodingArray = new Boolean[(types+1)];
+		hasEncodingArray = new Boolean[(types+2)];
 		Arrays.fill(hasEncodingArray, false);
 		fillAllEncodings();		
 	}
@@ -151,7 +151,7 @@ public class ${parserName}CoderCoder {
 
 					encoding += convertToString(j, realUsable[i], realUsable[z], (int) Math.ceil((Math.log10(kw.length+1)/Math.log10(2)))); //[log_2(kw.length+1)]
 					if(j % 1000 == 0 && j != 0){
-					 System.out.println(j + " Encoding: " + encoding );
+					 System.out.println("[INFO] "+ j + "th encoding: " + encoding );
 					}
 					if(j != kw.length && !isKeyword(encoding) && ${parserName}Checker.check(type,encoding)){
 					encodingMap.put(kw[j], encoding);//Save encoding and kw[j] to map
@@ -209,7 +209,7 @@ public class ${parserName}CoderCoder {
 			return ;
 		}
 		if(!customEncodings.isEmpty()){
-			for(int j = (helper.getKeywordsLength()+1) ; j<=types; j++){
+			for(int j = (helper.getKeywordsLength()+1) ; j<=types+1; j++){
 				for(Encoding e : customEncodings){
 					if(e.getType() == j){
 						System.out.println("[INFO] Found custom encoding for type: " + j);
@@ -240,7 +240,7 @@ public class ${parserName}CoderCoder {
 			}
 
 		else{
-			for(int j = (helper.getKeywordsLength()+1) ; j<=types; j++){
+			for(int j = (helper.getKeywordsLength()+1) ; j<=types+1; j++){
 				hasEncodingArray[j] = createEncoding(kw, usableSymb, (j));
 				if(!hasEncodingArray[j]){
 					System.out.println("[INFO] No encoding found for type: " + j);
